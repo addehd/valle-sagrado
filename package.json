@@ -29,6 +29,8 @@
 	},
 	"dependencies": {
 		"@maptiler/sdk": "^3.2.0",
+		"@milkdown/kit": "^7.10.5",
+		"@milkdown/theme-nord": "^7.10.5",
 		"@supabase/ssr": "0.4.0",
 		"@supabase/supabase-js": "2.41.1"
 	}

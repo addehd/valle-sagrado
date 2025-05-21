@@ -1,5 +1,6 @@
 <script lang="ts">
   import AddToMap from '$components/AddToMap.svelte';
+  import MarkdownEditor from '$components/MarkdownEditor.svelte';
   
   interface LocationEvent {
     detail: {
@@ -10,6 +11,11 @@
   
   let showModal = false;
   let selectedLocation: { lng: number; lat: number } | null = null;
+  let teacherInfo = '';
+
+  function handleTeacherInfoChange(content: string) {
+    teacherInfo = content;
+  }
 </script>
 
 <main class="w-full antialiased">
@@ -86,13 +92,11 @@
         <!-- teacher info -->
         <div>
           <label for="teacher_info" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Acerca de Ti</label>
-          <textarea 
-            id="teacher_info" 
-            name="teacher_info"
-            rows="4"
-            class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500" 
-            placeholder="Cuéntale a los estudiantes sobre tu experiencia y estilo de enseñanza..."
-          ></textarea>
+          <MarkdownEditor 
+            value={teacherInfo} 
+            onChange={handleTeacherInfoChange} 
+          />
+          <input type="hidden" name="teacher_info" value={teacherInfo} />
         </div>
 
         <!-- teaches in -->
