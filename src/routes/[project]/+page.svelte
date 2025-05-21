@@ -5,56 +5,25 @@
   let { data } = $props();
   const { project } = data;
 
-  // const userInfoProps = {
-  //   name: teacher.name,
-  //   teacher_info: teacher.teacher_info, 
-  //   countryFlag: teacher.country_flag,
-  //   subjectText: teacher.teaches_in ? `Teaches in ${teacher.teaches_in}` : 'Teaches',
-  //   profile_image_url: teacher.profile_image_url,
-  //   location: teacher.location,
-  //   gallery_image_urls: teacher.gallery_image_urls,
-  //   tags: teacher.tags
-  // };
-
-  // const callToActionProps = {
-  //   name: teacher.name,
-  //   youtube_url: teacher.youtube_url || '',
-  //   product_url: data.products?.[0]?.url || '',
-  //   products: data.products
-  // };
-
-  // function parseLocation(location) {
-  //   if (location) {
-  //     const parts = location.split(',');
-  //     if (parts.length === 2) {
-  //       const lng = parseFloat(parts[0]);
-  //       const lat = parseFloat(parts[1]);
-  //       if (!isNaN(lng) && !isNaN(lat)) {
-  //         return [lng, lat];
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
-
 </script>
 
 <div class="container mx-auto px-4 py-8">
   <!-- hero section -->
   <div class="relative mb-8">
-    <img 
-      src={project.hero_img || project.profile_image_url || "/images/valle.jpg"} 
-      alt={project.name} 
-      class="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
-    />
-    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 p-6">
-      <h1 class="text-3xl md:text-4xl font-bold text-white">{project.name}</h1>
-      {#if project.country_flag}
-        <div class="flex items-center mt-2">
-          <img src={project.country_flag} alt="Country flag" class="w-6 h-4 mr-2" />
-          <span class="text-white">{project.location || ''}</span>
+    <div class="left-0 right-0 bg-gradient-to-t from-black/70">
+      <img src={project.hero_img || project.profile_image_url || "/images/valle.jpg"}
+        alt={project.name}
+        class="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg" />
+
+    </div>
+    <div class="absolute bottom-0 left-0 right-0 p-6 text-center">
+      <div class="flex flex-wrap items-center justify-center mt-2">
+        <img src={project.profile_image_url} alt={project.name} class="w-32 h-32 mr-2 rounded-full" />
+        <div class="flex flex-col justify-start text-shadow-lg">
+          <h1 class="text-3xl md:text-4xl font-bold text-white">{project.name}</h1>
+          <span class="text-white text-left">{project.location || ''}</span>
         </div>
-      {/if}
+      </div>
     </div>
   </div>
 
