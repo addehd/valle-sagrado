@@ -7,25 +7,25 @@
 
 </script>
 
-<div class="container mx-auto px-4 py-8">
   <!-- hero section -->
   <div class="relative mb-8">
     <div class="left-0 right-0 bg-gradient-to-t from-black/70">
       <img src={project.hero_img || project.profile_image_url || "/images/valle.jpg"}
-        alt={project.name}
-        class="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg" />
-
+        alt={project.name} class="w-full h-64 md:h-96 object-cover shadow-lg" />
     </div>
-    <div class="absolute bottom-0 left-0 right-0 p-6 text-center">
-      <div class="flex flex-wrap items-center justify-center mt-2">
-        <img src={project.profile_image_url} alt={project.name} class="w-32 h-32 mr-2 rounded-full" />
-        <div class="flex flex-col justify-start text-shadow-lg">
-          <h1 class="text-3xl md:text-4xl font-bold text-white">{project.name}</h1>
+
+    <div class="fixed top-0 left-0 right-0 p-0 text-center backdrop-blur-sm border-b-1 border-white/20">
+      <div class="flex flex-wrap p-5 items-center justify-center mt-2 ">
+          <img src={project.profile_image_url} alt={project.name} class="w-20 h-20 mr-2 rounded-full" />
+        <div class="flex flex-col justify-start ml-2 text-shadow-lg">
+          <h1 class="text-2xl md:text-3xl font-bold text-white">{project.name}</h1>
           <span class="text-white text-left">{project.location || ''}</span>
         </div>
       </div>
     </div>
   </div>
+
+<div class="container mx-auto px-4 bg-beige">
 
   <!-- main content -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -43,7 +43,7 @@
           <h3 class="text-xl font-semibold mb-3">Tags</h3>
           <div class="flex flex-wrap gap-2">
             {#each project.tags as tag}
-              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{tag}</span>
+              <span class="px-3 py-1 bg-blue-100 text-gray-800 rounded-full text-sm">{tag}</span>
             {/each}
           </div>
         </div>

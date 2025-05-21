@@ -8,5 +8,4 @@
     
 </script>
 
-<Header />
-{@render children()}
+<div class="bg-[#F6F6F6]">{@render children()}</div>

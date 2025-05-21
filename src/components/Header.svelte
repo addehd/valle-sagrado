@@ -2,10 +2,14 @@
   import { page } from '$app/stores';
   const logo_url = $page.data.brand.logo_url;
   const name = $page.data.brand.name;
+  const primary_color = $page.data.brand.colors.primary;
+  const secondary_color = $page.data.brand.colors.secondary;
+  const tertiary_color = $page.data.brand.colors.tertiary;
+
 </script>
 
 <header>
-  <nav id="mainNavbar" data-sticky="false" class=" dark:bg-purple-900 bg-transparent border-gray-200 py-2.5 fixed  w-full z-30 top-0 start-0 data-[sticky=true]:bg-white data-[sticky=true]:border-b dark:data-[sticky=true]:bg-gray-800 dark:data-[sticky=true]:border-gray-700">
+  <nav id="mainNavbar" data-sticky="false" style="background-color: {primary_color};" class=" dark:bg-purple-900 bg-transparent border-gray-200 py-2.5 fixed  w-full z-30 top-0 start-0 data-[sticky=true]:bg-white data-[sticky=true]:border-b dark:data-[sticky=true]:bg-gray-800 dark:data-[sticky=true]:border-gray-700">
       <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl px-4">
           <a href="http://localhost:1313/" class="flex items-center">
               <img src={logo_url} class="h-8 mr-3 w-12" alt="Flowbite Logo">
