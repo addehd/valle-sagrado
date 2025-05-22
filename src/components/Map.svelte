@@ -12,7 +12,7 @@
   
   // props
   export let teachers: Teacher[] = [];
-  export let initialCenter = { lng: -77.0428, lat: -12.0464 };
+  export let initialCenter = { lng: -71.9675, lat: -13.5319 };
   export let initialZoom = 12;
   export let apiKey = 'Y1BdlcQrDBZP8dSBx1Wn';
   
@@ -26,7 +26,7 @@
   const createCustomMarker = (teacher) => {
     const el = document.createElement('div');
     el.innerHTML = `
-      <div class="bg-slate-500 border border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
+      <div class="bg-brown-500 border border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
         <a href="/profile?teacher_id=${teacher.id}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
         <img src="/icons/math.svg" class="ml-2 w-5 h-5 filter brightness-0 invert" />
       </div>

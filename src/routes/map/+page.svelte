@@ -12,10 +12,16 @@
   let Marker;
   let config;
 
+  // define border colors
+  const borderColors = ['border-orange-500', 'border-purple-500', 'border-green-500', 'border-red-500', 'border-blue-500', 'border-yellow-500', 'border-pink-500', 'border-gray-500', 'border-teal-500', 'border-lime-500', 'border-fuchsia-500', 'border-indigo-500', 'border-cyan-500', 'border-emerald-500', 'border-violet-500', 'border-amber-500', 'border-fuchsia-500', 'border-indigo-500', 'border-cyan-500', 'border-emerald-500', 'border-violet-500', 'border-amber-500'];
+
   const createCustomMarker = (teacher) => {
     const el = document.createElement('div');
+    // randomly select a border color
+    const randomBorderColor = borderColors[Math.floor(Math.random() * borderColors.length)];
+    // update innerhtml to use the random border color
     el.innerHTML = `
-      <div class="bg-slate-500 border border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
+      <div style="background-color: #695B46;" class="bg-[#695B46] border ${randomBorderColor} border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
         <a href="/profile?teacher_id=${teacher.id}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
         <img src="/icons/math.svg" class=" ml-2 w-5 h-5 filter brightness-0 invert" />
       </div>
@@ -53,13 +59,14 @@
       
       config.apiKey = 'Y1BdlcQrDBZP8dSBx1Wn';
       
-      const initialState = { lng: -77.0428, lat: -12.0464, zoom: 12 };
+      const initialState = { lng: -71.9675, lat: -13.5319, zoom: 11 };
 
       map = new Map({
         container: mapContainer,
-        style: MapStyle.STREETS,
+        style: MapStyle.SATELLITE,
         center: [initialState.lng, initialState.lat],
-        zoom: initialState.zoom
+        zoom: initialState.zoom,
+        pitch: 60
       });
 
       // add markers for each teacher
