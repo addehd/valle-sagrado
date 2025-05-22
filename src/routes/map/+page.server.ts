@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   const { data: teachers, error } = await supabase
-    .from('teachers')
+    .from('projects_info')
     .select('*');
 
 

@@ -22,7 +22,7 @@
     // update innerhtml to use the random border color
     el.innerHTML = `
       <div style="background-color: #695B46;" class="bg-[#695B46] border ${randomBorderColor} border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
-        <a href="/profile?teacher_id=${teacher.id}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
+        <a href="/${teacher.url}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
         <img src="/icons/math.svg" class=" ml-2 w-5 h-5 filter brightness-0 invert" />
       </div>
     `;

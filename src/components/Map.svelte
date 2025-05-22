@@ -27,7 +27,7 @@
     const el = document.createElement('div');
     el.innerHTML = `
       <div class="bg-brown-500 border border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
-        <a href="/profile?teacher_id=${teacher.id}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
+        <a href="/profile?teacher_id=${teacher.url}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
         <img src="/icons/math.svg" class="ml-2 w-5 h-5 filter brightness-0 invert" />
       </div>
     `;
