@@ -20,6 +20,11 @@ export const actions = {
     const formData = await request.formData()
     
     try {
+      // check authentication status
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      console.log('Current user:', user?.id, user?.email)
+      console.log('Auth error:', authError)
+      
       // get form data
       const projectId = formData.get('project_id')?.toString()
       const name = formData.get('name')?.toString()
