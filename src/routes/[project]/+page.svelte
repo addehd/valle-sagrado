@@ -59,11 +59,23 @@
             {/each}
           </div>
         </div>
-      {/if}
-    </div>
-    
+        {/if}
+      </div>
+      
     <!-- right column - map & categories -->
     <div class="space-y-6">
+      <!-- call to action btn for whatsapp -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-semibold mb-3">Contact us</h3>
+        <p class="text-gray-700 mb-3">We're here to help you with any questions or concerns you may have.</p>
+        <div class="flex items-center">
+          <a href={`https://wa.me/${project.whatsapp_number}`} class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg">
+            <img src="/icons/whatsapp.svg" alt="WhatsApp" class="w-5 h-5 mr-2 filter brightness-0 invert" />
+            Contact us
+          </a>
+        </div>
+      </div>
+      
       <!-- categories -->
       {#if project.categories && project.categories.length > 0}
         <div class="bg-white rounded-lg shadow p-6">
@@ -86,5 +98,6 @@
         </div>
       {/if}
     </div>
-  </div>
+    <div class="absolute mt-[11rem] h-11 py-3 bottom-[-17.2rem] left-0 right-0  backdrop-blur-md p-4 bg-[url('/images/astro-pattern.svg')] bg-center bg-repeat"></div>
+    </div>
 </div>

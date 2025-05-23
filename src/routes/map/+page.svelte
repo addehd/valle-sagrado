@@ -11,19 +11,18 @@
   let MapStyle;
   let Marker;
   let config;
-
-  // define border colors
-  const borderColors = ['border-orange-500', 'border-purple-500', 'border-green-500', 'border-red-500', 'border-blue-500', 'border-yellow-500', 'border-pink-500', 'border-gray-500', 'border-teal-500', 'border-lime-500', 'border-fuchsia-500', 'border-indigo-500', 'border-cyan-500', 'border-emerald-500', 'border-violet-500', 'border-amber-500', 'border-fuchsia-500', 'border-indigo-500', 'border-cyan-500', 'border-emerald-500', 'border-violet-500', 'border-amber-500'];
+  // define background colors
+  const bgColors = ['bg-orange-500', 'bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-pink-500', 'bg-gray-500', 'bg-teal-500', 'bg-lime-500', 'bg-fuchsia-500', 'bg-indigo-500', 'bg-cyan-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500', 'bg-fuchsia-500', 'bg-indigo-500', 'bg-cyan-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500'];
 
   const createCustomMarker = (teacher) => {
     const el = document.createElement('div');
-    // randomly select a border color
-    const randomBorderColor = borderColors[Math.floor(Math.random() * borderColors.length)];
-    // update innerhtml to use the random border color
+    // randomly select a background color
+    const randomBgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+    // update innerhtml to use the random background color
     el.innerHTML = `
-      <div style="background-color: #695B46;" class="bg-[#695B46] border ${randomBorderColor} border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
+      <div class="${randomBgColor} border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
         <a href="/${teacher.url}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
-        <img src="/icons/math.svg" class=" ml-2 w-5 h-5 filter brightness-0 invert" />
+        <img src="/images/astro-icon.svg" class="ml-2 w-6I just want to add.  h-6 filter brightness-0 invert" />
       </div>
     `;
     return el;
