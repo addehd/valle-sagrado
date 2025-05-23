@@ -2,19 +2,6 @@ import { fail, error as svelteKitError } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-  const { project: teacherId } = params
-
-  // log full url path for debugging
-  console.log('full path:', params.project)
-
-  // if (!teacherId) {
-  //   // if there's no id, it's a new teacher profile
-  //   return {
-  //     teacher: null
-  //   }
-  // }
-
-  // fetch existing teacher data
   const { data: project_info, error } = await supabase
     .from('projects_info')
     .select('*')
@@ -22,14 +9,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .single()
 
   if (error) {
-    console.error('Error fetching teacher data:', error)
-    // you might want to throw a more specific error or return a custom error page
-    throw svelteKitError(404, 'Teacher not found') 
+    throw svelteKitError(404, 'Project not found') 
   }
 
-  return {
-    project_info
-  }
+  return { project_info }
 }
 
 export const actions = {
@@ -38,122 +21,114 @@ export const actions = {
     
     try {
       // get form data
+      const projectId = formData.get('project_id')?.toString()
       const name = formData.get('name')?.toString()
-      const countryFlag = formData.get('country_flag')?.toString() || null
-      const tags = formData.get('tags')?.toString().split(',').map(tag => tag.trim()) || null
-      const teacherInfo = formData.get('teacher_info')?.toString() || null
-      const teachesIn = formData.get('teaches_in')?.toString() || null
+      const countryFlag = formData.get('country_flag')?.toString()
+      const tags = formData.get('tags')?.toString().split(',').map(tag => tag.trim()).filter(tag => tag)
+      const categories = formData.get('categories')?.toString().split(',').map(cat => cat.trim()).filter(cat => cat)
+      const projectInfo = formData.get('project_info')?.toString()
+      const whatsappNumber = formData.get('whatsapp_number')?.toString()
+      const locationLng = formData.get('location_lng')?.toString()
+      const locationLat = formData.get('location_lat')?.toString()
       
-      // get location data
-      const locationLng = formData.get('location_lng')?.toString() || null
-      const locationLat = formData.get('location_lat')?.toString() || null
-      
-      // get profile image
-      const profileImage = formData.get('profile_image') as File | null
-      let profileImageUrl = null
-
-      // get gallery images
+      // get images
+      const profileImage = formData.get('profile_image') as File
+      const heroImage = formData.get('hero_image') as File
       const galleryImages = formData.getAll('gallery_images') as File[]
+      
+      let profileImageUrl = null
+      let heroImageUrl = null
       const galleryImageUrls: string[] = []
 
-      // validate required fields
-      if (!name) {
-        return fail(400, { 
-          error: true, 
-          message: 'El nombre es obligatorio',
-          values: { name, countryFlag, tags, teacherInfo, teachesIn }
-        })
-      }
-
       // upload profile image if provided
-      if (profileImage instanceof File) {
+      if (profileImage?.size > 0) {
         const fileExt = profileImage.name.split('.').pop()
-        const filePath = `profile-images/${Date.now()}.${fileExt}`
+        const filePath = `profile-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
         
         const { error: storageError } = await supabase.storage
-          .from('teacher')
-          .upload(filePath, profileImage, {
-            cacheControl: '3600',
-            upsert: false
-          })
+          .from('projects')
+          .upload(filePath, profileImage)
         
-        if (storageError) {
-          console.error('Error uploading profile image:', storageError)
-          return fail(500, {
-            error: true,
-            message: 'Error al subir la imagen de perfil'
-          })
+        if (!storageError) {
+          const { data: publicUrlData } = supabase.storage
+            .from('projects')
+            .getPublicUrl(filePath)
+          profileImageUrl = publicUrlData.publicUrl
         }
+      }
+
+      // upload hero image if provided
+      if (heroImage?.size > 0) {
+        const fileExt = heroImage.name.split('.').pop()
+        const filePath = `hero-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
         
-        const { data: publicUrlData } = supabase.storage
-          .from('teacher')
-          .getPublicUrl(filePath)
+        const { error: storageError } = await supabase.storage
+          .from('projects')
+          .upload(filePath, heroImage)
         
-        profileImageUrl = publicUrlData.publicUrl
+        if (!storageError) {
+          const { data: publicUrlData } = supabase.storage
+            .from('projects')
+            .getPublicUrl(filePath)
+          heroImageUrl = publicUrlData.publicUrl
+        }
       }
 
       // upload gallery images
       for (const image of galleryImages) {
-        if (image instanceof File) {
+        if (image.size > 0) {
           const fileExt = image.name.split('.').pop()
-          // create unique filename using timestamp and random string
           const filePath = `gallery-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
           
           const { error: storageError } = await supabase.storage
-            .from('teacher')
-            .upload(filePath, image, {
-              cacheControl: '3600',
-              upsert: false
-            })
+            .from('projects')
+            .upload(filePath, image)
           
-          if (storageError) {
-            console.error('Error uploading gallery image:', storageError)
-            continue // skip failed uploads but continue with others
+          if (!storageError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('projects')
+              .getPublicUrl(filePath)
+            galleryImageUrls.push(publicUrlData.publicUrl)
           }
-          
-          const { data: publicUrlData } = supabase.storage
-            .from('teacher')
-            .getPublicUrl(filePath)
-          
-          galleryImageUrls.push(publicUrlData.publicUrl)
         }
       }
 
-      // update database using supabase
-      const teacherData = {
+      // prepare update data
+      const updateData: any = {
         name, 
         country_flag: countryFlag, 
         tags, 
-        teacher_info: teacherInfo, 
-        teaches_in: teachesIn,
-        profile_image_url: profileImageUrl,
-        gallery_image_urls: galleryImageUrls
+        categories,
+        project_info: projectInfo,
+        whatsapp_number: whatsappNumber
       }
 
-      // Format location as a string with the coordinates
-      if (locationLng && locationLat) {
-        // Store as a string in the format "lng,lat"
-        teacherData.location = `${locationLng},${locationLat}`;
-      }
+      // add images if uploaded
+      if (profileImageUrl) updateData.profile_image_url = profileImageUrl
+      if (heroImageUrl) updateData.hero_img = heroImageUrl
+      if (galleryImageUrls.length > 0) updateData.gallery_image_urls = galleryImageUrls
+      if (locationLng && locationLat) updateData.location = `${locationLng},${locationLat}`
 
+      // update the project
       const { data, error } = await supabase
-        .from('teachers')
-        .insert(teacherData)
-        .select('id')
+        .from('projects_info')
+        .update(updateData)
+        .eq('id', projectId)
+        .select('url')
         .single()
 
       if (error) throw error
 
       return {
         success: true,
-        teacherId: data.id
+        message: 'Proyecto actualizado exitosamente'
       }
 
     } catch (error) {
-      console.error('Error al actualizar perfil:', error)
+      console.error('Error updating project:', error)
       return fail(500, {
         error: true,
-        message: 'Error al actualizar el perfil. Por favor intenta de nuevo.'
+        message: 'Error al actualizar el proyecto'
       })
     }
   }
