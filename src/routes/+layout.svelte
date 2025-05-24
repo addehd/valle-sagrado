@@ -3,8 +3,8 @@
 	import { onMount } from 'svelte'
 	import Header from '$components/Header.svelte'
 	
-	let { children, data } = $props();
-  let { logo_url, colors, name, website_url, description } = data.brand;
+	let { children } = $props();
+  // let { logo_url, colors, name, website_url, description } = data.brand;
     
 </script>
 

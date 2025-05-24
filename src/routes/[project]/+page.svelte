@@ -2,7 +2,7 @@
   import UserInfo from '$components/UserInfo.svelte'
   import Map from '$components/Map.svelte'
 
-  let { data } = $props();
+  export let data;
   const { project } = data;
 
 </script>
