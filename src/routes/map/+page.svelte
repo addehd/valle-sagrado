@@ -97,6 +97,6 @@
   });
 </script>
 
-<div class="relative w-full h-[100vh]">
+<div class="relative w-full h-[100vh] bg-amber-300">
   <div class="absolute w-full h-full" bind:this={mapContainer}></div>
 </div>
