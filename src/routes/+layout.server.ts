@@ -12,6 +12,7 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, session } }) 
     throw error(500, 'Could not load brand data');
   }
 
+  console.log(brand);
   return {
     session,
     brand: brand[0]
