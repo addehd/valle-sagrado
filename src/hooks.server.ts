@@ -79,10 +79,10 @@ const authGuard: Handle = async ({ event, resolve }) => {
   //   redirect(303, '/arkiv')
   // }
 
-  // /hangaren/32
-  if (!isLoggedIn && event.url.pathname === '/') {
-    redirect(303, '/hangaren/32')
-  }
+  // // /hangaren/32
+  // if (!isLoggedIn && event.url.pathname === '/') {
+  //   redirect(303, '/hangaren/32')
+  // }
 
   return resolve(event)
 }
