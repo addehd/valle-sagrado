@@ -69,24 +69,29 @@
     }
   }
   
-  let showModal = false;
+  // initialize with existing data
+  let teacherInfo = $state(project_info || '');
+  let nameValue = $state(name);
+  let tagsValue = $state(tags.join(', '));
+  let categoriesValue = $state(categories.join(', '));
+  let showModal = $state(false);
   
   // initialize with existing location
-  let selectedLocation: { lng: number; lat: number } | null = null;
+  let selectedLocation = $state<{ lng: number; lat: number } | null>(null);
   if (location) {
     const [lng, lat] = location.split(',').map(Number);
     selectedLocation = { lng, lat };
   }
-  
-  // initialize with existing data
-  let teacherInfo = project_info;
-  let nameValue = name;
-  let tagsValue = tags.join(', ');
-  let categoriesValue = categories.join(', ');
 
   function handleTeacherInfoChange(content: string) {
     teacherInfo = content;
     console.log('Teacher info updated:', content);
+  }
+
+  function handleTextareaInput(event: Event) {
+    const target = event.target as HTMLTextAreaElement;
+    teacherInfo = target.value;
+    console.log('Textarea input:', target.value);
   }
 
   function handleFormSubmit(event: Event) {
@@ -100,7 +105,6 @@
 </script>
 
 <main class="w-full antialiased">
-    
   <section class="bg-white dark:bg-gray-900">
     <div class="bg-[url('/images/valle.jpg')] bg-no-repeat bg-cover bg-center bg-gray-700 bg-blend-multiply">
       <div class="max-w-screen-sm px-4 mx-auto text-center pb-24 lg:pb-32 pt-20 sm:pt-24 lg:pt-32">
@@ -258,7 +262,7 @@
             value={teacherInfo} 
             onChange={handleTeacherInfoChange} 
           />
-          <input type="hidden" name="project_info" value={teacherInfo} />
+          <input type="hidden" name="project_info" bind:value={teacherInfo} />
         </div>
 
         <!-- country -->

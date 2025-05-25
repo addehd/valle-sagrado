@@ -1,19 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  // props
-  export let value = '';
-  export let onChange: (value: string) => void = () => {};
+  // props using runes
+  let { value = '', onChange = () => {} }: { value?: string; onChange?: (value: string) => void } = $props();
 
-  let textareaElement: HTMLTextAreaElement;
+  let textareaElement = $state<HTMLTextAreaElement>();
+  let localValue = $state(value);
 
   function handleInput(event: Event) {
     const target = event.target as HTMLTextAreaElement;
+    localValue = target.value;
     onChange(target.value);
   }
 
+  // sync local value with prop changes
+  $effect(() => {
+    localValue = value;
+  });
+
   onMount(() => {
-    if (textareaElement) {
+    if (textareaElement && value) {
       textareaElement.value = value;
     }
   });
@@ -34,7 +40,7 @@
   </div>
   <textarea 
     bind:this={textareaElement}
-    {value}
+    bind:value={localValue}
     on:input={handleInput}
     class="editor-content"
     placeholder="Escribe la información del proyecto en formato markdown..."
