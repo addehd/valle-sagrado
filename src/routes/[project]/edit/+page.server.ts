@@ -30,15 +30,13 @@ export const actions = {
       const whatsappNumber = formData.get('whatsapp_number')?.toString()
       const locationLng = formData.get('location_lng')?.toString()
       const locationLat = formData.get('location_lat')?.toString()
+
+      console.log('formData:', formData.get('project_info'))
       
       // get images
       const profileImage = formData.get('profile_image') as File
       const heroImage = formData.get('hero_image') as File
       const galleryImages = formData.getAll('gallery_images') as File[]
-      
-      console.log('Profile image:', profileImage?.name, profileImage?.size)
-      console.log('Hero image:', heroImage?.name, heroImage?.size)
-      console.log('Gallery images:', galleryImages.map(img => ({ name: img.name, size: img.size })))
       
       let profileImageUrl = null
       let heroImageUrl = null
@@ -128,6 +126,8 @@ export const actions = {
         }
       }
 
+      console.log('projectInfo:', projectInfo)
+
       // prepare update data
       const updateData: any = {
         name, 
@@ -137,6 +137,9 @@ export const actions = {
         project_info: projectInfo,
         whatsapp_number: whatsappNumber
       }
+
+      console.log('project_info in updateData:', updateData.project_info)
+      console.log('typeof project_info:', typeof updateData.project_info)
 
       // add images if uploaded
       if (profileImageUrl) updateData.profile_image_url = profileImageUrl
@@ -151,8 +154,11 @@ export const actions = {
         .from('projects_info')
         .update(updateData)
         .eq('id', projectId)
-        .select('url')
+        .select('*')
         .single()
+
+      console.log('Database response data:', data)
+      console.log('Database response error:', error)
 
       if (error) {
         console.error('Database update error:', error)

@@ -1,57 +1,44 @@
 <script lang="ts">
-  import { Editor, rootCtx, defaultValueCtx } from "@milkdown/kit/core";
-  import { commonmark } from "@milkdown/kit/preset/commonmark";
-  import { nord } from "@milkdown/theme-nord";
   import { onMount } from 'svelte';
 
   // props
-
   export let value = '';
   export let onChange: (value: string) => void = () => {};
 
-  let editorElement: HTMLElement;
-  let editor: Editor;
+  let textareaElement: HTMLTextAreaElement;
+
+  function handleInput(event: Event) {
+    const target = event.target as HTMLTextAreaElement;
+    onChange(target.value);
+  }
 
   onMount(() => {
-    editor = Editor.make()
-      .config((ctx) => {
-        ctx.set(rootCtx, editorElement);
-        ctx.set(defaultValueCtx, value);
-      })
-      .config(nord)
-      .use(commonmark)
-      .create();
-
-    editor.then((ed) => {
-      ed.action((ctx) => {
-        const listener = ctx.get(listenerCtx);
-        listener.listen((ctx) => {
-          const content = ctx.get(editorStateCtx).doc.toString();
-          onChange(content);
-        });
-      });
-    });
-
-    return () => {
-      editor.then((ed) => ed.destroy());
-    };
+    if (textareaElement) {
+      textareaElement.value = value;
+    }
   });
 </script>
 
 <div class="markdown-editor">
   <div class="toolbar">
     <div class="toolbar-group">
-      <button class="toolbar-btn" title="h1">H1</button>
-      <button class="toolbar-btn" title="h2">H2</button>
-      <button class="toolbar-btn" title="h3">H3</button>
+      <button type="button" class="toolbar-btn" title="h1">H1</button>
+      <button type="button" class="toolbar-btn" title="h2">H2</button>
+      <button type="button" class="toolbar-btn" title="h3">H3</button>
     </div>
     <div class="toolbar-group">
-      <button class="toolbar-btn" title="bold">B</button>
-      <button class="toolbar-btn" title="italic">I</button>
-      <button class="toolbar-btn" title="link">🔗</button>
+      <button type="button" class="toolbar-btn" title="bold">B</button>
+      <button type="button" class="toolbar-btn" title="italic">I</button>
+      <button type="button" class="toolbar-btn" title="link">🔗</button>
     </div>
   </div>
-  <div bind:this={editorElement} class="editor-content" />
+  <textarea 
+    bind:this={textareaElement}
+    {value}
+    on:input={handleInput}
+    class="editor-content"
+    placeholder="Escribe la información del proyecto en formato markdown..."
+  />
 </div>
 
 <style>
@@ -99,10 +86,11 @@
     width: 100%;
     min-height: 200px;
     padding: 1rem;
-  }
-
-  /* milkdown specific styles */
-  :global(.milkdown) {
-    max-width: none;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
 </style> 

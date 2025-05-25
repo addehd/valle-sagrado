@@ -62,8 +62,6 @@
     { code: 'nz', name: 'Nueva Zelanda' }
   ];
   
-  console.log(data.project_info)
-  
   interface LocationEvent {
     detail: {
       lng: number;
@@ -88,6 +86,16 @@
 
   function handleTeacherInfoChange(content: string) {
     teacherInfo = content;
+    console.log('Teacher info updated:', content);
+  }
+
+  function handleFormSubmit(event: Event) {
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    console.log('Form submitting with teacherInfo:', teacherInfo);
+    console.log('Form submitting with project_info field value:', formData.get('project_info'));
+    console.log('Hidden input element value:', (form.querySelector('input[name="project_info"]') as HTMLInputElement)?.value);
   }
 </script>
 
@@ -119,7 +127,7 @@
       {/if}
       
       <form action="?/updateProfile" method="POST" class="grid max-w-2xl grid-cols-1 gap-6 p-6 mx-auto mb-16 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700" enctype="multipart/form-data" 
-            on:submit={() => console.log('Form submitted')}>
+            on:submit={handleFormSubmit}>
         
         <!-- project id hidden input -->
         <input type="hidden" name="project_id" value={id} />
