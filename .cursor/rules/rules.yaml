@@ -1,0 +1,42 @@
+# .cursor/rules.yaml
+
+# Tailwind & markup
+- name: InlineTailwind
+  description: |
+    Only use inline Tailwind classes in markup. If the
+    class list grows beyond ~6, extract to a small UI component.
+  applies_to: "*.svelte"
+
+# Svelte 5 runes
+- name: UseSvelteRunes
+  description: |
+    Prefer runes like $:, on:click, use:enhance,
+    and <script context="server"> for server code.
+  applies_to: "*.svelte"
+
+# Supabase in +page.server.ts
+- name: SupabaseLocalsOnly
+  description: |
+    Destructure `supabase` from `locals` in your server
+    actions; never import a new client.
+  applies_to: "+page.server.ts"
+
+- name: SupabaseErrorHandling
+  description: |
+    Always check for `error` on Supabase calls and handle
+    with `fail()` or throw redirect, never swallow errors.
+  applies_to: "+page.server.ts"
+
+# Zod schemas
+- name: ZodValidation
+  description: |
+    Use Zod schemas in your server actions and export types
+    for use in your components.
+  applies_to: "+page.server.ts"
+
+# File organization
+- name: DirectoryNaming
+  description: |
+    Use kebab-case for folders and pair [slug] dirs
+    with their own +page.server.ts and +page.svelte.
+  applies_to: "routes/**"
