@@ -1,13 +1,8 @@
-This project lets users create profile pages.
+Title: Understand project
 
-Each profile page should show a list of services.
+Goal
+  Understand project and give ideas on how to make better 
+  
+  
+  
 
-Each service has:
-- title
-- description
-- image
-
-I want to:
-1. Create a Supabase `services` table
-2. Display services on the profile page
-3. Edit services in an `[edit-service].svelte` page

@@ -1,5 +1,8 @@
-# .cursor/rules.yaml
-
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Tailwind & markup
 - name: InlineTailwind
   description: |
@@ -21,22 +24,11 @@
     actions; never import a new client.
   applies_to: "+page.server.ts"
 
-- name: SupabaseErrorHandling
   description: |
     Always check for `error` on Supabase calls and handle
     with `fail()` or throw redirect, never swallow errors.
   applies_to: "+page.server.ts"
 
-# Zod schemas
-- name: ZodValidation
-  description: |
-    Use Zod schemas in your server actions and export types
-    for use in your components.
-  applies_to: "+page.server.ts"
-
-# File organization
-- name: DirectoryNaming
-  description: |
-    Use kebab-case for folders and pair [slug] dirs
-    with their own +page.server.ts and +page.svelte.
-  applies_to: "routes/**"
+# Supabase project
+- Supabase project name
+  description: name of supabase project is placea with id zcqegfromikuxdieueto
