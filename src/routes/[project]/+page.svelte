@@ -1,9 +1,12 @@
 <script>
   import UserInfo from '$components/UserInfo.svelte'
   import Map from '$components/Map.svelte'
+  import { page } from '$app/stores'
 
   export let data;
   const { project } = data;
+
+  $: projectSlug = $page.params.project;
 
 </script>
 
@@ -26,6 +29,56 @@
   </div>
 
 <div class="container mx-auto px-4 bg-beige min-h-screen">
+
+  <!-- Navigation Links Section -->
+  <div class="mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Browse Our Offerings</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Categories Link -->
+        <a 
+          href="/{projectSlug}/categories" 
+          class="group flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:from-blue-100 hover:to-blue-200 transition-all duration-200"
+        >
+          <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Browse Categories</h3>
+            <p class="text-sm text-gray-600">Explore our organized product categories</p>
+          </div>
+          <div class="flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+
+        <!-- Products Link -->
+        <a 
+          href="/{projectSlug}/product" 
+          class="group flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200 hover:from-green-100 hover:to-green-200 transition-all duration-200"
+        >
+          <div class="flex-shrink-0 w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center group-hover:bg-green-700 transition-colors">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-4.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-green-700">View All Products</h3>
+            <p class="text-sm text-gray-600">Browse our complete product catalog</p>
+          </div>
+          <div class="flex-shrink-0">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- main content -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -96,7 +149,7 @@
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-xl font-semibold mb-3">Location</h3>
           <div class="h-64 bg-gray-100 rounded-lg">
-            <Map projects={[project]} />
+            <Map teachers={[{ id: project.id || project.slug, name: project.name, location: project.location }]} />
           </div>
         </div>
       {/if}

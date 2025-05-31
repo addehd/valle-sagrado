@@ -7,6 +7,7 @@
 	import SearchAndFilter from '$components/SearchAndFilter.svelte';
 
 	let categorySlug = '';
+	let projectSlug = '';
 	let category: Category | null = null;
 	let allCategories: Category[] = [];
 	let products: Product[] = [];
@@ -36,6 +37,7 @@
 
 	onMount(async () => {
 		categorySlug = $page.params.slug;
+		projectSlug = $page.params.project;
 		currentFilters.category = categorySlug;
 		
 		await Promise.all([
@@ -198,23 +200,24 @@
 </script>
 
 <svelte:head>
-	<title>{category?.name || 'Category'} - Valle Sagrado</title>
-	<meta name="description" content="Browse {category?.name || 'category'} products from local artisans and vendors." />
+	<title>{category ? `${category.name} - Valle Sagrado` : 'Category - Valle Sagrado'}</title>
+	<meta name="description" content={category ? `Browse ${category.name} products from local artisans.` : 'Browse category products from local artisans.'} />
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
 	{#if categoryLoading}
-		<!-- Loading State -->
+		<!-- Loading category info -->
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<div class="animate-pulse">
-				<div class="h-8 bg-gray-200 rounded mb-4 w-1/2"></div>
-				<div class="h-6 bg-gray-200 rounded mb-8 w-3/4"></div>
+				<div class="h-4 bg-gray-200 rounded w-64 mb-4"></div>
+				<div class="h-8 bg-gray-200 rounded w-96 mb-2"></div>
+				<div class="h-4 bg-gray-200 rounded w-full mb-8"></div>
 			</div>
 		</div>
 	{:else if error}
 		<!-- Error State -->
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div class="text-center py-12">
+		<div class="min-h-screen bg-gray-50 flex items-center justify-center">
+			<div class="text-center">
 				<div class="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
 					<div class="flex justify-center mb-4">
 						<svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,13 +228,13 @@
 					<p class="text-red-600 mb-4">{error}</p>
 					<div class="space-y-2">
 						<a 
-							href="/categories" 
+							href="/{projectSlug}/categories" 
 							class="block bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
 						>
 							Browse All Categories
 						</a>
 						<a 
-							href="/products" 
+							href="/{projectSlug}/product" 
 							class="block bg-gray-200 text-gray-900 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
 						>
 							View All Products
@@ -245,19 +248,19 @@
 			<!-- Breadcrumbs -->
 			<nav class="mb-8" aria-label="Breadcrumb">
 				<ol class="flex items-center space-x-2 text-sm text-gray-600">
-					<li><a href="/" class="hover:text-gray-900">Home</a></li>
+					<li><a href="/{projectSlug}" class="hover:text-gray-900">Home</a></li>
 					<li class="flex items-center">
 						<svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
 							<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
 						</svg>
-						<a href="/categories" class="hover:text-gray-900">Categories</a>
+						<a href="/{projectSlug}/categories" class="hover:text-gray-900">Categories</a>
 					</li>
 					{#if parentCategory}
 						<li class="flex items-center">
 							<svg class="w-4 h-4 mx-2" fill="currentColor" viewBox="0 0 20 20">
 								<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
 							</svg>
-							<a href="/categories/{parentCategory.slug}" class="hover:text-gray-900">{parentCategory.name}</a>
+							<a href="/{projectSlug}/categories/{parentCategory.slug}" class="hover:text-gray-900">{parentCategory.name}</a>
 						</li>
 					{/if}
 					<li class="flex items-center">
@@ -340,7 +343,7 @@
 							</button>
 						{/if}
 						<a 
-							href="/categories" 
+							href="/{projectSlug}/categories" 
 							class="bg-gray-200 text-gray-900 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
 						>
 							Browse Other Categories

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import type { Category } from '$lib/types';
 
 	let categories: Category[] = [];
 	let loading = true;
 	let error = '';
+
+	$: projectSlug = $page.params.project;
 
 	onMount(async () => {
 		try {
@@ -82,7 +85,7 @@
 				<h2 class="text-2xl font-bold text-gray-900 mb-2">No Categories Available</h2>
 				<p class="text-gray-600 mb-4">There are currently no categories to display.</p>
 				<a 
-					href="/products" 
+					href="/{projectSlug}/products" 
 					class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
 				>
 					Browse All Products
@@ -93,7 +96,7 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{#each categories as category}
 					<a 
-						href="/categories/{category.slug}" 
+						href="/{projectSlug}/categories/{category.slug}" 
 						class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
 					>
 						<!-- Category Image -->
@@ -170,13 +173,13 @@
 					</p>
 					<div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
 						<a 
-							href="/products" 
+							href="/{projectSlug}/products" 
 							class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
 						>
 							Browse All Products
 						</a>
 						<a 
-							href="/products?search=" 
+							href="/{projectSlug}/products?search=" 
 							class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-colors font-medium"
 						>
 							Advanced Search
