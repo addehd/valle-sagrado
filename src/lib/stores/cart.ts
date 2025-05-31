@@ -1,84 +1,230 @@
 import { writable } from 'svelte/store';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { CartItem, CartResponse, CartSummary } from '$lib/types';
 
-export interface CartItem {
-  id: string;
-  user_id: string;
-  product_sku: string;
-  quantity: number;
-  created_at: string;
-  updated_at: string;
-  // Optional product details (can be joined)
-  product?: {
-    name: string;
-    price: number;
-    currency: string;
-    images?: string[];
-  };
+interface CartState {
+	items: CartItem[];
+	summary: CartSummary;
+	loading: boolean;
+	error: string | null;
 }
 
-// Simplified store - just for reactive UI updates
-export interface CartStore {
-  totalItems: number;
-  totalPrice: number;
-  loading: boolean;
-}
-
-const initialState: CartStore = {
-  totalItems: 0,
-  totalPrice: 0,
-  loading: false
+const initialState: CartState = {
+	items: [],
+	summary: {
+		itemCount: 0,
+		subtotal: 0,
+		currency: 'USD'
+	},
+	loading: false,
+	error: null
 };
 
 function createCartStore() {
-  const { subscribe, set, update } = writable<CartStore>(initialState);
+	const { subscribe, set, update } = writable<CartState>(initialState);
 
-  return {
-    subscribe,
-    
-    // Refresh cart totals from database
-    async refreshTotals(supabase: SupabaseClient, userId: string) {
-      update(state => ({ ...state, loading: true }));
-      
-      try {
-        const { data, error } = await supabase
-          .from('cart')
-          .select(`
-            quantity,
-            products!inner(price)
-          `)
-          .eq('user_id', userId);
+	return {
+		subscribe,
+		
+		async load() {
+			update(state => ({ ...state, loading: true, error: null }));
+			
+			try {
+				const response = await fetch('/api/cart');
+				
+				if (!response.ok) {
+					throw new Error('Failed to load cart');
+				}
+				
+				const data: CartResponse = await response.json();
+				
+				update(state => ({
+					...state,
+					items: data.items,
+					summary: data.summary,
+					loading: false
+				}));
+				
+				return data;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				update(state => ({
+					...state,
+					loading: false,
+					error: errorMessage
+				}));
+				throw error;
+			}
+		},
 
-        if (error) throw error;
+		async addItem(productSku: string, quantity: number = 1) {
+			update(state => ({ ...state, loading: true, error: null }));
+			
+			try {
+				const response = await fetch('/api/cart', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ product_sku: productSku, quantity })
+				});
+				
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to add item to cart');
+				}
+				
+				const data: CartResponse = await response.json();
+				
+				update(state => ({
+					...state,
+					items: data.items,
+					summary: data.summary,
+					loading: false
+				}));
+				
+				return data;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				update(state => ({
+					...state,
+					loading: false,
+					error: errorMessage
+				}));
+				throw error;
+			}
+		},
 
-        const totalItems = data?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-        const totalPrice = data?.reduce((sum, item) => {
-          const price = (item.products as any)?.price || 0;
-          return sum + (price * item.quantity);
-        }, 0) || 0;
+		async updateQuantity(productSku: string, quantity: number) {
+			if (quantity <= 0) {
+				return this.removeItem(productSku);
+			}
+			
+			update(state => ({ ...state, loading: true, error: null }));
+			
+			try {
+				const response = await fetch('/api/cart', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ product_sku: productSku, quantity })
+				});
+				
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to update cart');
+				}
+				
+				const data: CartResponse = await response.json();
+				
+				update(state => ({
+					...state,
+					items: data.items,
+					summary: data.summary,
+					loading: false
+				}));
+				
+				return data;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				update(state => ({
+					...state,
+					loading: false,
+					error: errorMessage
+				}));
+				throw error;
+			}
+		},
 
-        update(state => ({
-          ...state,
-          totalItems,
-          totalPrice,
-          loading: false
-        }));
-      } catch (error) {
-        console.error('Error refreshing cart totals:', error);
-        update(state => ({ ...state, loading: false }));
-      }
-    },
+		async removeItem(productSku: string) {
+			update(state => ({ ...state, loading: true, error: null }));
+			
+			try {
+				const response = await fetch('/api/cart', {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ product_sku: productSku })
+				});
+				
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to remove item from cart');
+				}
+				
+				const data: CartResponse = await response.json();
+				
+				update(state => ({
+					...state,
+					items: data.items,
+					summary: data.summary,
+					loading: false
+				}));
+				
+				return data;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				update(state => ({
+					...state,
+					loading: false,
+					error: errorMessage
+				}));
+				throw error;
+			}
+		},
 
-    // Optimistically update totals (for immediate UI feedback)
-    updateTotals(totalItems: number, totalPrice: number) {
-      update(state => ({ ...state, totalItems, totalPrice }));
-    },
+		async clear() {
+			update(state => ({ ...state, loading: true, error: null }));
+			
+			try {
+				const response = await fetch('/api/cart', {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ clear_all: true })
+				});
+				
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to clear cart');
+				}
+				
+				const data: CartResponse = await response.json();
+				
+				update(state => ({
+					...state,
+					items: data.items,
+					summary: data.summary,
+					loading: false
+				}));
+				
+				return data;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				update(state => ({
+					...state,
+					loading: false,
+					error: errorMessage
+				}));
+				throw error;
+			}
+		},
 
-    // Reset store
-    reset() {
-      set(initialState);
-    }
-  };
+		clearError() {
+			update(state => ({ ...state, error: null }));
+		}
+	};
 }
 
-export const cartStore = createCartStore(); 
+export const cartStore = createCartStore();
+export const cart = cartStore; // Backward compatibility alias
+
+// Helper to get current cart state
+function get<T>(store: { subscribe: (fn: (value: T) => void) => (() => void) }): T {
+	let value: T;
+	const unsubscribe = store.subscribe((v) => (value = v));
+	unsubscribe();
+	return value!;
+} 

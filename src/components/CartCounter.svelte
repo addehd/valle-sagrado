@@ -3,6 +3,12 @@
   import { cartStore } from '$lib/stores/cart';
   import { page } from '$app/stores';
   
+  interface Props {
+    projectSlug?: string;
+  }
+  
+  let { projectSlug }: Props = $props();
+  
   let totalItems = $state(0);
   let loading = $state(false);
   
@@ -22,10 +28,13 @@
       await cartStore.refreshTotals(supabase, session.user.id);
     }
   });
+  
+  // Determine cart URL based on whether we have a project context
+  const cartUrl = $derived(projectSlug ? `/${projectSlug}/cart` : '/cart');
 </script>
 
 <a 
-  href="/cart" 
+  href={cartUrl} 
   class="relative inline-flex items-center p-2 text-gray-600 hover:text-gray-900 transition-colors"
   aria-label="Shopping cart"
 >

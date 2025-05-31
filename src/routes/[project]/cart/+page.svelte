@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-  <title>Shopping Cart</title>
+  <title>Shopping Cart - {data.projectSlug}</title>
 </svelte:head>
 
 <main class="container mx-auto px-6 py-12">
@@ -19,7 +19,7 @@
     <div class="text-center py-12">
       <h2 class="text-xl text-gray-600 mb-4">Your cart is empty</h2>
       <a 
-        href="/" 
+        href="/{data.projectSlug}" 
         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
       >
         Continue Shopping
@@ -33,17 +33,24 @@
           <div class="p-6 flex items-center space-x-4">
             <!-- Product Image -->
             <div class="flex-shrink-0">
-              <img 
-                src={item.product?.images?.[0] || '/images/placeholder.jpg'} 
-                alt={item.product?.name || 'Product'} 
-                class="h-16 w-16 rounded-lg object-cover"
-              />
+              <a href="/{data.projectSlug}/product/{item.product?.slug || item.product_sku}">
+                <img 
+                  src={item.product?.images?.[0] || '/images/placeholder.jpg'} 
+                  alt={item.product?.name || 'Product'} 
+                  class="h-16 w-16 rounded-lg object-cover hover:opacity-80 transition-opacity"
+                />
+              </a>
             </div>
             
             <!-- Product Details -->
             <div class="flex-1 min-w-0">
               <h3 class="text-lg font-medium text-gray-900 truncate">
-                {item.product?.name || 'Unknown Product'}
+                <a 
+                  href="/{data.projectSlug}/product/{item.product?.slug || item.product_sku}"
+                  class="hover:text-blue-600 transition-colors"
+                >
+                  {item.product?.name || 'Unknown Product'}
+                </a>
               </h3>
               <p class="text-sm text-gray-500">SKU: {item.product_sku}</p>
               <p class="text-lg font-medium text-gray-900">
@@ -122,11 +129,12 @@
             </button>
           </form>
           
-          <button 
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors"
+          <a
+            href="/{data.projectSlug}/checkout"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors text-center"
           >
             Proceed to Checkout
-          </button>
+          </a>
         </div>
       </div>
     </div>
