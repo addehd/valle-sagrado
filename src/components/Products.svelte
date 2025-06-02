@@ -216,8 +216,9 @@
 				<!-- Category Filter -->
 				{#if uniqueCategories.length > 0}
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+						<label for="category-filter" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
 						<select
+							id="category-filter"
 							bind:value={selectedCategory}
 							onchange={resetPagination}
 							class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -233,8 +234,9 @@
 				<!-- Brand Filter -->
 				{#if uniqueBrands.length > 0}
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
+						<label for="brand-filter" class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
 						<select
+							id="brand-filter"
 							bind:value={selectedBrand}
 							onchange={resetPagination}
 							class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -249,11 +251,12 @@
 
 				<!-- Price Range -->
 				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+					<span class="block text-sm font-medium text-gray-700 mb-2">Price Range</span>
 					<div class="flex space-x-2">
 						<input
 							type="number"
 							placeholder="Min"
+							aria-label="Minimum price"
 							bind:value={minPrice}
 							oninput={resetPagination}
 							class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -261,6 +264,7 @@
 						<input
 							type="number"
 							placeholder="Max"
+							aria-label="Maximum price"
 							bind:value={maxPrice}
 							oninput={resetPagination}
 							class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -270,8 +274,9 @@
 
 				<!-- Sort Options -->
 				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+					<label for="sort-filter" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
 					<select
+						id="sort-filter"
 						value={sortBy}
 						onchange={(e) => {
 							const target = e.target as HTMLSelectElement;
@@ -291,7 +296,7 @@
 			<!-- Tags Filter -->
 			{#if enableQuickFilters && uniqueTags.length > 0}
 				<div class="mt-4">
-					<label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+					<span class="block text-sm font-medium text-gray-700 mb-2">Tags</span>
 					<div class="flex flex-wrap gap-2">
 						{#each uniqueTags.slice(0, 10) as tag}
 							<button

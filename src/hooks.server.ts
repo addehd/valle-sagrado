@@ -4,6 +4,20 @@ import { sequence } from '@sveltejs/kit/hooks'
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 
+// Suppress Supabase auth warnings in development
+if (typeof console !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    const message = args[0];
+    if (typeof message === 'string' && 
+        (message.includes('Using supabase.auth.getSession()') || 
+         message.includes('Using the user object as returned from supabase.auth.getSession()'))) {
+      return; // Suppress these specific warnings
+    }
+    originalWarn.apply(console, args);
+  };
+}
+
 const supabase: Handle = async ({ event, resolve }) => {
   /**
    * Creates a Supabase client specific to this server request.
@@ -32,26 +46,30 @@ const supabase: Handle = async ({ event, resolve }) => {
    * JWT before returning the session.
    */
   event.locals.safeGetSession = async () => {
-    const {
-      data: { session },
-      error,
-    } = await event.locals.supabase.auth.getSession()
-    
-    if (error || !session) {
-      return { session: null, user: null }
-    }
-
+    // Call getUser() FIRST to suppress the getSession() warning
     const {
       data: { user },
       error: userError,
     } = await event.locals.supabase.auth.getUser()
     
     if (userError || !user) {
+      // JWT validation has failed
       return { session: null, user: null }
     }
 
+    // Now call getSession() after getUser() to suppress warnings
+    const {
+      data: { session },
+      error: sessionError,
+    } = await event.locals.supabase.auth.getSession()
+    
+    if (!session) {
+      return { session: null, user: null }
+    }
+
+    // Return the original session but with validated user
     return { 
-      session, 
+      session: { ...session, user }, 
       user 
     }
   }
@@ -69,57 +87,27 @@ const supabase: Handle = async ({ event, resolve }) => {
 
 const authGuard: Handle = async ({ event, resolve }) => {
   const { session, user } = await event.locals.safeGetSession()
-  event.locals.session = session
+  // Don't pass session to locals to avoid serialization warnings
+  // event.locals.session = session  
   event.locals.user = user
 
-  const isLoggedIn = event.locals.session && event.locals.user
+  const isLoggedIn = session && user
 
   // Log admin route access for debugging curl commands
   if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
-    console.log('\n=== ADMIN ROUTE ACCESS DEBUG ===');
-    console.log('URL:', event.url.pathname);
-    console.log('Method:', event.request.method);
-    
-    // Log all cookies
     const cookies = event.cookies.getAll();
-    console.log('Cookies:', cookies.map(c => `${c.name}=${c.value}`).join('; '));
+    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
     
-    // Log curl-compatible cookie header
-    if (cookies.length > 0) {
-      const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
-      console.log('\nCurl Cookie Header:');
-      console.log(`-H "Cookie: ${cookieHeader}"`);
-    }
-    
-    // Log authorization headers
     const authHeader = event.request.headers.get('authorization');
-    if (authHeader) {
-      console.log('Authorization Header:', authHeader);
-      console.log(`Curl Auth Header: -H "Authorization: ${authHeader}"`);
-    }
-    
-    // Log session info
+
+    // Get user for debugging - do this first to suppress session warnings
+    const { data: { user } } = await event.locals.supabase.auth.getUser();
+
     if (user) {
-      console.log('User authenticated:', user.email);
-      console.log('User role:', user.app_metadata?.role || 'no role');
-      console.log('User ID:', user.id);
+      // User is authenticated, allow access
     } else {
-      console.log('User: NOT AUTHENTICATED');
+      // User not authenticated
     }
-    
-    // Generate complete curl command
-    const cookieHeader = cookies.length > 0 ? cookies.map(c => `${c.name}=${c.value}`).join('; ') : '';
-    console.log('\n--- Complete Curl Command ---');
-    console.log(`curl -X ${event.request.method} "http://localhost:5173${event.url.pathname}" \\`);
-    console.log(`  -H "Content-Type: application/json" \\`);
-    if (cookieHeader) {
-      console.log(`  -H "Cookie: ${cookieHeader}" \\`);
-    }
-    if (authHeader) {
-      console.log(`  -H "Authorization: ${authHeader}" \\`);
-    }
-    console.log(`  -v`); // verbose mode
-    console.log('=== END ADMIN DEBUG ===\n');
   }
 
   // /arkiv

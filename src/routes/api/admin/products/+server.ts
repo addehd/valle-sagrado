@@ -7,8 +7,6 @@ export const GET: RequestHandler = async ({ url, locals: { supabase, session, us
 		// Require admin authentication
 		requireAdmin(user);
 
-		console.log('Admin products API called');
-
 		const page = parseInt(url.searchParams.get('page') || '1');
 		const limit = parseInt(url.searchParams.get('limit') || '50');
 		const status = url.searchParams.get('status');

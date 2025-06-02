@@ -42,7 +42,7 @@
     <div class="flex items-center gap-2 flex-wrap">
       <div class="relative w-20 h-20 md:w-32 md:h-32 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
         <img class="w-full h-full object-cover" src={profile_image_url} alt={name} />
-        <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full ring-2 ring-white" />
+        <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full ring-2 ring-white"></div>
       </div>
       <div class="flex flex-col gap-2">
         <div class="flex flex-row gap-2 items-center">

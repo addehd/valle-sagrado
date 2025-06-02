@@ -1,64 +1,77 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail, error, redirect } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	const { supabase } = locals;
-	const projectSlug = params.project;
+export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
+	try {
+		// Get user session safely
+		const { session } = await safeGetSession();
 
-	// Get project info using projects_info table
-	const { data: project, error: projectError } = await supabase
-		.from('projects_info')
-		.select('id, name, url')
-		.eq('url', projectSlug)
-		.single();
+		if (!session?.user) {
+			return {
+				cartItems: [],
+				project: null,
+				total: 0
+			};
+		}
 
-	if (projectError || !project) {
-		throw error(404, 'Project not found');
-	}
+		const projectSlug = params.project;
 
-	// Get current user's cart items for this specific project
-	const { data: session } = await supabase.auth.getSession();
-	
-	if (!session.session?.user) {
-		throw redirect(302, `/auth/login?redirect=/cart`);
-	}
+		// Get project info using projects_info table
+		const { data: project, error: projectError } = await supabase
+			.from('projects_info')
+			.select('id, name, url')
+			.eq('url', projectSlug)
+			.single();
 
-	const { data: cartItems, error: cartError } = await supabase
-		.from('cart_items')
-		.select(`
-			id,
-			quantity,
-			products!cart_items_product_id_fkey (
+		if (projectError || !project) {
+			throw error(404, 'Project not found');
+		}
+
+		// Get current user's cart items for this specific project
+		const { data: cartItems, error: cartError } = await supabase
+			.from('cart_items')
+			.select(`
 				id,
-				name,
-				price,
-				image_url,
-				url_slug
-			)
-		`)
-		.eq('user_id', session.session.user.id)
-		.eq('products.project_id', project.id); // Filter by project ID
+				quantity,
+				products!cart_items_product_id_fkey (
+					id,
+					name,
+					price,
+					image_url,
+					url_slug
+				)
+			`)
+			.eq('user_id', session.user.id)
+			.eq('products.project_id', project.id); // Filter by project ID
 
-	if (cartError) {
-		console.error('Cart error:', cartError);
+		if (cartError) {
+			console.error('Cart error:', cartError);
+			return {
+				project,
+				cartItems: [],
+				totalAmount: 0
+			};
+		}
+
+		// Calculate total amount
+		const totalAmount = cartItems?.reduce((total, item) => {
+			const product = item.products as any;
+			return total + (product.price * item.quantity);
+		}, 0) ?? 0;
+
 		return {
 			project,
+			cartItems: cartItems || [],
+			totalAmount
+		};
+	} catch (error) {
+		console.error('Error loading cart:', error);
+		return {
 			cartItems: [],
-			totalAmount: 0
+			project: null,
+			total: 0
 		};
 	}
-
-	// Calculate total amount
-	const totalAmount = cartItems?.reduce((total, item) => {
-		const product = item.products as any;
-		return total + (product.price * item.quantity);
-	}, 0) ?? 0;
-
-	return {
-		project,
-		cartItems: cartItems || [],
-		totalAmount
-	};
 };
 
 export const actions: Actions = {

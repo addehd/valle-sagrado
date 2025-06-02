@@ -39,14 +39,27 @@
     
     // if location is JSON
     if (typeof location === 'object') {
-      // log to see the structure
-      console.log('Location object:', location);
       // assuming the structure might be {lat, lng} or similar
       return location.coordinates || [location.longitude, location.latitude] || null;
     }
     
     return null;
   };
+
+  // Parse locations for all teachers
+  let teachersWithCoordinates: TeacherWithCoordinates[] = [];
+  
+  $: {
+    if (data.teachers?.length > 0) {
+      teachersWithCoordinates = data.teachers.map((teacher) => {
+        const coordinates = parseLocation(teacher.location);
+        return {
+          ...teacher,
+          coordinates
+        };
+      });
+    }
+  }
 
   onMount(async () => {
     if (browser) {
@@ -72,23 +85,18 @@
 
       console.log(data.teachers);
       
-      data.teachers.forEach(teacher => {
-        console.log('Processing teacher:', teacher.name, 'Location:', teacher.location);
-        
-        if (teacher.location) {
+      if (data.teachers && data.teachers.length > 0) {
+        data.teachers.forEach((teacher, index) => {
+          
+          // Parse the teacher's location
           const coordinates = parseLocation(teacher.location);
           
           if (coordinates) {
-            console.log('Parsed coordinates:', coordinates);
-            new Marker({ 
-              element: createCustomMarker(teacher),
-              anchor: 'bottom'
-            })
-              .setLngLat(coordinates)
-              .addTo(map);
+            // Create marker for teacher
+            createMarker(coordinates, teacher, map);
           }
-        }
-      });
+        });
+      }
     }
   });
 

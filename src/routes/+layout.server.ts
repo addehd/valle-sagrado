@@ -2,7 +2,9 @@
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals: { supabase, session } }) => {
+export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
+  const { session, user } = await safeGetSession();
+
   const { data: brand, error: err } = await supabase
     .from('brand')
     .select('logo_url, colors, name, website_url, description');
@@ -12,9 +14,11 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, session } }) 
     throw error(500, 'Could not load brand data');
   }
 
-  console.log(brand);
+  const brandData = brand || [];
+
   return {
     session,
-    brand: brand[0]
+    brand: brandData[0],
+    user
   };
 };

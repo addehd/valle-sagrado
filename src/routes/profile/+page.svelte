@@ -9,8 +9,6 @@
   const teacher = data.teachers?.[0] || {};
   const ratings = data.ratings || [];
 
-  console.log(data)
-
   const userInfoProps = {
     name: teacher.name,
     teacher_info: teacher.teacher_info, 
@@ -21,13 +19,6 @@
     gallery_image_urls: teacher.gallery_image_urls,
     tags: teacher.tags
   };
-
-  // const callToActionProps = {
-  //   name: teacher.name,
-  //   youtube_url: teacher.youtube_url || '',
-  //   product_url: data.products?.[0]?.url || '',
-  //   products: data.products
-  // };
 
   function parseLocation(location) {
     if (location) {

@@ -96,31 +96,31 @@
 <div class="markdown-editor">
   <div class="toolbar">
     <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Encabezado 1" on:click={() => insertHeader(1)}>H1</button>
-      <button type="button" class="toolbar-btn" title="Encabezado 2" on:click={() => insertHeader(2)}>H2</button>
-      <button type="button" class="toolbar-btn" title="Encabezado 3" on:click={() => insertHeader(3)}>H3</button>
+      <button type="button" class="toolbar-btn" title="Encabezado 1" onclick={() => insertHeader(1)}>H1</button>
+      <button type="button" class="toolbar-btn" title="Encabezado 2" onclick={() => insertHeader(2)}>H2</button>
+      <button type="button" class="toolbar-btn" title="Encabezado 3" onclick={() => insertHeader(3)}>H3</button>
     </div>
     <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Negrita" on:click={insertBold}><strong>B</strong></button>
-      <button type="button" class="toolbar-btn" title="Cursiva" on:click={insertItalic}><em>I</em></button>
-      <button type="button" class="toolbar-btn" title="Código" on:click={insertCode}>{"<>"}</button>
+      <button type="button" class="toolbar-btn" title="Negrita" onclick={insertBold}><strong>B</strong></button>
+      <button type="button" class="toolbar-btn" title="Cursiva" onclick={insertItalic}><em>I</em></button>
+      <button type="button" class="toolbar-btn" title="Código" onclick={insertCode}>{"<>"}</button>
     </div>
     <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Lista" on:click={insertList}>• Lista</button>
-      <button type="button" class="toolbar-btn" title="Lista numerada" on:click={insertNumberedList}>1. Lista</button>
-      <button type="button" class="toolbar-btn" title="Cita" on:click={insertQuote}>❝ Cita</button>
+      <button type="button" class="toolbar-btn" title="Lista" onclick={insertList}>• Lista</button>
+      <button type="button" class="toolbar-btn" title="Lista numerada" onclick={insertNumberedList}>1. Lista</button>
+      <button type="button" class="toolbar-btn" title="Cita" onclick={insertQuote}>❝ Cita</button>
     </div>
     <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Enlace" on:click={insertLink}>🔗 Enlace</button>
+      <button type="button" class="toolbar-btn" title="Enlace" onclick={insertLink}>🔗 Enlace</button>
     </div>
   </div>
   <textarea 
     bind:this={textareaElement}
     bind:value={localValue}
-    on:input={handleInput}
+    oninput={handleInput}
     class="editor-content"
     placeholder="Escribe la información del proyecto en formato markdown..."
-  />
+  ></textarea>
 </div>
 
 <style>
