@@ -3,6 +3,10 @@
 	import { goto } from '$app/navigation';
 	import type { Product } from '$lib/types';
 	
+	export let data;
+	
+	$: project = data.project;
+	
 	let products: Product[] = [];
 	let loading = true;
 	let error = '';
@@ -78,8 +82,8 @@
 					bValue = b.price;
 					break;
 				case 'stock':
-					aValue = a.stock_quantity || 0;
-					bValue = b.stock_quantity || 0;
+					aValue = a.stock || 0;
+					bValue = b.stock || 0;
 					break;
 				case 'created':
 					aValue = new Date(a.created_at || '');
@@ -144,33 +148,39 @@
 	}
 	
 	function getStockStatusColor(product: Product): string {
-		if (!product.track_inventory) return 'text-gray-500';
-		
-		const stock = product.stock_quantity || 0;
+		const stock = product.stock || 0;
 		if (stock <= 0) return 'text-red-600';
 		if (stock <= 10) return 'text-yellow-600';
 		return 'text-green-600';
 	}
 	
 	function getStockStatusText(product: Product): string {
-		if (!product.track_inventory) return 'Not tracked';
-		
-		const stock = product.stock_quantity || 0;
+		const stock = product.stock || 0;
 		if (stock <= 0) return 'Out of stock';
 		if (stock <= 10) return `Low stock (${stock})`;
 		return `In stock (${stock})`;
 	}
+	
+	function getProductViewUrl(product: Product): string {
+		if (!project) return `/products/${product.slug || product.sku}`;
+		return `/${project.url}/product/${product.slug || product.sku}`;
+	}
 </script>
 
 <svelte:head>
-	<title>Manage Products | Admin | Valle Sagrado</title>
+	<title>Manage Products | Admin | {project?.name || 'Valle Sagrado'}</title>
 </svelte:head>
 
 <main class="container mx-auto px-6 py-12 max-w-7xl">
 	<div class="flex items-center justify-between mb-8">
 		<div>
 			<h1 class="text-3xl font-bold text-gray-900">Product Management</h1>
-			<p class="text-gray-600 mt-2">Manage your product catalog</p>
+			<p class="text-gray-600 mt-2">
+				Manage your product catalog
+				{#if project}
+					for <span class="font-medium">{project.name}</span>
+				{/if}
+			</p>
 		</div>
 		<a href="/create-product" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
 			+ Add New Product
@@ -317,12 +327,14 @@
 										>
 											Edit
 										</button>
-										<button 
-											on:click={() => goto(`/products/${product.slug || product.sku}`)}
+										<a 
+											href={getProductViewUrl(product)}
+											target="_blank"
+											rel="noopener noreferrer"
 											class="text-green-600 hover:text-green-900"
 										>
-											View
-										</button>
+											View in Store
+										</a>
 										<button 
 											on:click={() => deleteProduct(product.sku, product.name)}
 											class="text-red-600 hover:text-red-900"

@@ -26,10 +26,9 @@ export const GET: RequestHandler = async ({ locals: { supabase, session, user } 
 		// Get stock alerts
 		const { data: stockData, error: stockError } = await supabase
 			.from('products')
-			.select('stock_quantity, track_inventory')
-			.eq('is_active', true)
-			.eq('track_inventory', true)
-			.lte('stock_quantity', 10); // Low stock threshold
+			.select('stock')
+			.eq('status', 'active')
+			.lte('stock', 10); // Low stock threshold
 
 		if (stockError) {
 			console.error('Stock stats error:', stockError);

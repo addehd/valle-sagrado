@@ -5,6 +5,7 @@
 	export let data;
 	
 	$: user = data.user;
+	$: project = data.project;
 	$: adminUser = getAdminUser(user);
 	$: userRole = user?.app_metadata?.role || 'user';
 </script>
@@ -21,7 +22,12 @@
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 							</svg>
 						</div>
-						<span class="text-xl font-semibold text-gray-900">Admin Panel</span>
+						<div class="flex flex-col">
+							<span class="text-xl font-semibold text-gray-900">Admin Panel</span>
+							{#if project}
+								<span class="text-sm text-gray-600">{project.name}</span>
+							{/if}
+						</div>
 					</a>
 					
 					<!-- Role Badge -->
@@ -52,12 +58,22 @@
 								Users
 							</a>
 						{/if}
+						
+						<!-- View Store Link -->
+						{#if project}
+							<a href="/{project.url}" target="_blank" class="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1">
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+								</svg>
+								<span>View Store</span>
+							</a>
+						{/if}
 					</nav>
 					
 					<!-- Exit Admin -->
 					<a href="/" class="text-gray-400 hover:text-gray-600">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1" />
 						</svg>
 					</a>
 				</div>

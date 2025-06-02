@@ -33,20 +33,25 @@ const supabase: Handle = async ({ event, resolve }) => {
    */
   event.locals.safeGetSession = async () => {
     const {
-      data: { user },
+      data: { session },
       error,
+    } = await event.locals.supabase.auth.getSession()
+    
+    if (error || !session) {
+      return { session: null, user: null }
+    }
+
+    const {
+      data: { user },
+      error: userError,
     } = await event.locals.supabase.auth.getUser()
     
-    if (error || !user) {
+    if (userError || !user) {
       return { session: null, user: null }
     }
 
     return { 
-      session: {
-        user,
-        access_token: user.access_token,
-        refresh_token: user.refresh_token,
-      }, 
+      session, 
       user 
     }
   }
@@ -68,6 +73,54 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.user = user
 
   const isLoggedIn = event.locals.session && event.locals.user
+
+  // Log admin route access for debugging curl commands
+  if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
+    console.log('\n=== ADMIN ROUTE ACCESS DEBUG ===');
+    console.log('URL:', event.url.pathname);
+    console.log('Method:', event.request.method);
+    
+    // Log all cookies
+    const cookies = event.cookies.getAll();
+    console.log('Cookies:', cookies.map(c => `${c.name}=${c.value}`).join('; '));
+    
+    // Log curl-compatible cookie header
+    if (cookies.length > 0) {
+      const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+      console.log('\nCurl Cookie Header:');
+      console.log(`-H "Cookie: ${cookieHeader}"`);
+    }
+    
+    // Log authorization headers
+    const authHeader = event.request.headers.get('authorization');
+    if (authHeader) {
+      console.log('Authorization Header:', authHeader);
+      console.log(`Curl Auth Header: -H "Authorization: ${authHeader}"`);
+    }
+    
+    // Log session info
+    if (user) {
+      console.log('User authenticated:', user.email);
+      console.log('User role:', user.app_metadata?.role || 'no role');
+      console.log('User ID:', user.id);
+    } else {
+      console.log('User: NOT AUTHENTICATED');
+    }
+    
+    // Generate complete curl command
+    const cookieHeader = cookies.length > 0 ? cookies.map(c => `${c.name}=${c.value}`).join('; ') : '';
+    console.log('\n--- Complete Curl Command ---');
+    console.log(`curl -X ${event.request.method} "http://localhost:5173${event.url.pathname}" \\`);
+    console.log(`  -H "Content-Type: application/json" \\`);
+    if (cookieHeader) {
+      console.log(`  -H "Cookie: ${cookieHeader}" \\`);
+    }
+    if (authHeader) {
+      console.log(`  -H "Authorization: ${authHeader}" \\`);
+    }
+    console.log(`  -v`); // verbose mode
+    console.log('=== END ADMIN DEBUG ===\n');
+  }
 
   // /arkiv
   if (!isLoggedIn && event.url.pathname.startsWith('/arkiv')) {

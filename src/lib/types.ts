@@ -220,4 +220,17 @@ export interface User {
 	avatar_url?: string;
 	created_at: string;
 	updated_at: string;
+}
+
+// Map Configuration types
+export interface MapConfig {
+	id: number;
+	name: string;
+	map_start_latitude: number;
+	map_start_longitude: number;
+	map_zoom_level: number;
+	description?: string | null;
+	is_active: boolean;
+	created_at: string;
+	updated_at: string;
 } 
