@@ -319,7 +319,7 @@
 					</div>
 					<div>
 						<label for="dimensions_cm" class="block text-sm font-medium text-gray-700 mb-1">Dimensions (JSON)</label>
-						<input id="dimensions_cm" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='{"length":10,"width":5,"height":2}' bind:value={dimensions_cm} />
+						<input id="dimensions_cm" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Example: length:10, width:5, height:2" bind:value={dimensions_cm} />
 					</div>
 					<div>
 						<label for="categories" class="block text-sm font-medium text-gray-700 mb-1">Categories (JSON array)</label>

@@ -87,8 +87,8 @@
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-xl font-semibold mb-3">Gallery</h3>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {#each data.project.gallery_image_urls as img}
-              <img src={img} alt="Gallery image" class="w-full h-32 object-cover rounded-lg" />
+            {#each data.project.gallery_image_urls as img, index}
+              <img src={img} alt="Gallery photo {index + 1}" class="w-full h-32 object-cover rounded-lg" />
             {/each}
           </div>
         </div>
@@ -98,12 +98,12 @@
     <!-- right column - map & categories -->
     <div class="space-y-6">
       <!-- call to action btn for whatsapp -->
-      <div class="bg-green-100 shadow rounded-xl overflow-hidden">
+      <div class="bg-purple-100 shadow rounded-xl overflow-hidden">
         <div class="p-6">
           <h3 class="text-xl font-semibold mb-3 text-gray-800">Contact us</h3>
           <p class="text-gray-700 mb-3">We're here to help you with any questions or concerns you may have.</p>
           <div class="flex items-center">
-            <a href={`https://wa.me/${data.project?.whatsapp_number}`} class="flex items-center px-4 py-2 bg-white text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium">
+            <a href={`https://wa.me/${data.project?.whatsapp_number}`} class="flex items-center px-4 py-2 bg-white text-purple-900 hover:bg-green-50 rounded-lg transition-colors font-medium">
               <img src="/icons/whatsapp.svg" alt="WhatsApp" class="w-5 h-5 mr-2" />
               Contact us
             </a>
@@ -113,7 +113,7 @@
       </div>
       
       <!-- categories -->
-      {#if data.project?.categories && data.project.categories.length > 0}
+      <!-- {#if data.project?.categories && data.project.categories.length > 0}
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-xl font-semibold mb-3">Categories</h3>
           <div class="space-y-2">
@@ -122,7 +122,7 @@
             {/each}
           </div>
         </div>
-      {/if}
+      {/if} -->
       
       <!-- map -->
       {#if data.project?.location}
@@ -136,13 +136,12 @@
     <!-- <div class="absolute mt-[11rem] h-11 py-3 bottom-[-27.2rem] left-0 right-0  backdrop-blur-md p-4 bg-[url('/images/astro-pattern-color.svg')] bg-center bg-repeat"></div> -->
     </div>
       <!-- Browse Our Offerings -->
-  <div class="mt-16">
-    <h2 class="text-2xl font-bold text-gray-900 mb-8">Browse Our Offerings</h2>
+  <div class="mt-5 sm:mt-16">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Categories Card -->
       <a
         href="/{projectSlug}/categories"
-        class="group relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+        class="group relative overflow-hidden rounded-lg bg-blue-100 p-6 text-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
       >
         <div class="relative">
           <div class="flex items-center">
@@ -153,7 +152,7 @@
             </div>
             <div class="ml-4">
               <h3 class="text-lg font-semibold">Browse Categories</h3>
-              <p class="text-blue-100">Explore our organized product collections</p>
+              <p class="text-gray-600">Explore our organized product collections</p>
             </div>
           </div>
           <svg class="absolute top-2 right-2 h-5 w-5 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

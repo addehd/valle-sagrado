@@ -13,54 +13,8 @@
     tags, 
     categories, 
     project_info, 
-    country_flag, 
     location 
   } = data.project_info;
-  
-  // country list with codes and names
-  const countries = [
-    { code: 'pe', name: 'Perú' },
-    { code: 'ar', name: 'Argentina' },
-    { code: 'bo', name: 'Bolivia' },
-    { code: 'br', name: 'Brasil' },
-    { code: 'cl', name: 'Chile' },
-    { code: 'co', name: 'Colombia' },
-    { code: 'ec', name: 'Ecuador' },
-    { code: 'gy', name: 'Guyana' },
-    { code: 'py', name: 'Paraguay' },
-    { code: 'sr', name: 'Suriname' },
-    { code: 'uy', name: 'Uruguay' },
-    { code: 've', name: 'Venezuela' },
-    { code: 'mx', name: 'México' },
-    { code: 'gt', name: 'Guatemala' },
-    { code: 'bz', name: 'Belice' },
-    { code: 'sv', name: 'El Salvador' },
-    { code: 'hn', name: 'Honduras' },
-    { code: 'ni', name: 'Nicaragua' },
-    { code: 'cr', name: 'Costa Rica' },
-    { code: 'pa', name: 'Panamá' },
-    { code: 'es', name: 'España' },
-    { code: 'us', name: 'Estados Unidos' },
-    { code: 'ca', name: 'Canadá' },
-    { code: 'fr', name: 'Francia' },
-    { code: 'de', name: 'Alemania' },
-    { code: 'it', name: 'Italia' },
-    { code: 'pt', name: 'Portugal' },
-    { code: 'uk', name: 'Reino Unido' },
-    { code: 'se', name: 'Suecia' },
-    { code: 'no', name: 'Noruega' },
-    { code: 'dk', name: 'Dinamarca' },
-    { code: 'fi', name: 'Finlandia' },
-    { code: 'nl', name: 'Países Bajos' },
-    { code: 'be', name: 'Bélgica' },
-    { code: 'ch', name: 'Suiza' },
-    { code: 'at', name: 'Austria' },
-    { code: 'jp', name: 'Japón' },
-    { code: 'cn', name: 'China' },
-    { code: 'kr', name: 'Corea del Sur' },
-    { code: 'au', name: 'Australia' },
-    { code: 'nz', name: 'Nueva Zelanda' }
-  ];
   
   interface LocationEvent {
     detail: {
@@ -130,8 +84,8 @@
         </div>
       {/if}
       
-      <form action="?/updateProfile" method="POST" class="grid max-w-2xl grid-cols-1 gap-6 p-6 mx-auto mb-16 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700" enctype="multipart/form-data" 
-            on:submit={handleFormSubmit}>
+      <form action="?/updateProfile" method="POST" class="grid max-w-2xl grid-cols-1 gap-6 p-6 mx-auto mb-16 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700" enctype="multipart/form-data"
+				onsubmit={handleFormSubmit}>
         
         <!-- project id hidden input -->
         <input type="hidden" name="project_id" value={id} />
@@ -265,22 +219,6 @@
           <input type="hidden" name="project_info" bind:value={teacherInfo} />
         </div>
 
-        <!-- country -->
-        <div>
-          <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">País</label>
-          <select 
-            id="country"
-            name="country"
-            value={country_flag}
-            class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500"
-          >
-            <option value="">Selecciona un país</option>
-            {#each countries as country}
-              <option value={country.code}>{country.name}</option>
-            {/each}
-          </select>
-        </div>
-
         <!-- location status indicator -->
         <div class="flex items-center">
           <div class={`w-4 h-4 rounded-full mr-2 ${selectedLocation ? 'bg-green-500' : 'bg-gray-300'}`}></div>
@@ -296,7 +234,7 @@
         <!-- add location button -->
         <button 
           type="button" 
-          on:click={() => showModal = true}
+          onclick={() => showModal = true}
           class="px-5 mx-auto py-3 text-sm font-medium text-center text-white rounded-lg bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300"
         >
           {selectedLocation ? 'Cambiar Ubicación' : 'Agregar Ubicación'}
