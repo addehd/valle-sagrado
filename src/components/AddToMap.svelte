@@ -75,8 +75,8 @@
         .setLngLat(lngLat)
         .addTo(map);
       
-      // send event but keep modal open
-      dispatch('locationSelected', selectedCoordinates);
+      // Don't dispatch immediately - wait for user to confirm
+      console.log('Coordinates saved locally:', selectedCoordinates);
     });
   }
   
@@ -91,28 +91,43 @@
   
   function confirmLocation() {
     if (selectedCoordinates) {
+      console.log('Confirming location and dispatching event:', selectedCoordinates);
       dispatch('locationSelected', selectedCoordinates);
       closeModal();
+    } else {
+      console.log('No coordinates selected - cannot confirm');
     }
   }
 </script>
 
 {#if showModal}
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg w-[400px]">
+  <div class="fixed inset-0 bg-black/40 bg-opacity-90 backdrop-blur flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg w-[90vw] max-w-4xl h-[80vh] max-h-[600px] flex flex-col">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Seleccionar Ubicación</h3>
-        <button type="button" on:click={closeModal} class="text-gray-500 hover:text-gray-700">✕</button>
+        <button type="button" on:click={closeModal} class="text-gray-500 hover:text-gray-700 text-xl font-bold">✕</button>
       </div>
-      <div class="w-full h-[400px] rounded-lg">
+      <div class="flex-1 w-full rounded-lg overflow-hidden border">
         <div bind:this={mapContainer} class="w-full h-full"></div>
       </div>
-      <p class="mt-2 text-sm text-gray-600">Haz clic en el mapa para seleccionar tu ubicación</p>
-      <div class="mt-4 flex justify-end">
+      <p class="mt-3 text-sm text-gray-600">Haz clic en el mapa para seleccionar tu ubicación</p>
+      {#if selectedCoordinates}
+        <p class="text-xs text-green-600">
+          Coordenadas: {selectedCoordinates.lat.toFixed(6)}, {selectedCoordinates.lng.toFixed(6)}
+        </p>
+      {/if}
+      <div class="mt-4 flex justify-end gap-2">
+        <button 
+          type="button" 
+          on:click={closeModal}
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+        >
+          Cancelar
+        </button>
         <button 
           type="button" 
           on:click={confirmLocation}
-          class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+          class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           disabled={!selectedCoordinates}
         >
           Confirmar Ubicación

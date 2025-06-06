@@ -4,51 +4,6 @@
 
   const { form } = $props();
   
-  // country list with codes and names
-  const countries = [
-    { code: 'pe', name: 'Perú' },
-    { code: 'ar', name: 'Argentina' },
-    { code: 'bo', name: 'Bolivia' },
-    { code: 'br', name: 'Brasil' },
-    { code: 'cl', name: 'Chile' },
-    { code: 'co', name: 'Colombia' },
-    { code: 'ec', name: 'Ecuador' },
-    { code: 'gy', name: 'Guyana' },
-    { code: 'py', name: 'Paraguay' },
-    { code: 'sr', name: 'Suriname' },
-    { code: 'uy', name: 'Uruguay' },
-    { code: 've', name: 'Venezuela' },
-    { code: 'mx', name: 'México' },
-    { code: 'gt', name: 'Guatemala' },
-    { code: 'bz', name: 'Belice' },
-    { code: 'sv', name: 'El Salvador' },
-    { code: 'hn', name: 'Honduras' },
-    { code: 'ni', name: 'Nicaragua' },
-    { code: 'cr', name: 'Costa Rica' },
-    { code: 'pa', name: 'Panamá' },
-    { code: 'es', name: 'España' },
-    { code: 'us', name: 'Estados Unidos' },
-    { code: 'ca', name: 'Canadá' },
-    { code: 'fr', name: 'Francia' },
-    { code: 'de', name: 'Alemania' },
-    { code: 'it', name: 'Italia' },
-    { code: 'pt', name: 'Portugal' },
-    { code: 'uk', name: 'Reino Unido' },
-    { code: 'se', name: 'Suecia' },
-    { code: 'no', name: 'Noruega' },
-    { code: 'dk', name: 'Dinamarca' },
-    { code: 'fi', name: 'Finlandia' },
-    { code: 'nl', name: 'Países Bajos' },
-    { code: 'be', name: 'Bélgica' },
-    { code: 'ch', name: 'Suiza' },
-    { code: 'at', name: 'Austria' },
-    { code: 'jp', name: 'Japón' },
-    { code: 'cn', name: 'China' },
-    { code: 'kr', name: 'Corea del Sur' },
-    { code: 'au', name: 'Australia' },
-    { code: 'nz', name: 'Nueva Zelanda' }
-  ];
-  
   interface LocationEvent {
     detail: {
       lng: number;
@@ -56,12 +11,57 @@
     }
   }
   
-  let showModal = false;
-  let selectedLocation: { lng: number; lat: number } | null = null;
-  let projectInfo = '';
+  let showModal = $state(false);
+  let selectedLocation = $state<{ lng: number; lat: number } | null>(null);
+  let projectInfo = $state('');
+  let isSubmitting = $state(false);
 
   function handleProjectInfoChange(content: string) {
     projectInfo = content;
+  }
+  
+  // Reset submission state when form response comes back
+  $effect(() => {
+    if (form) {
+      isSubmitting = false;
+    }
+  });
+  
+  // Debug effect to track selectedLocation changes
+  $effect(() => {
+    console.log('selectedLocation reactive effect triggered:', selectedLocation);
+  });
+  
+  function handleFormSubmit(event: Event) {
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const name = formData.get('name')?.toString()?.trim();
+    if (!name || name.length < 3) {
+      alert('El nombre del proyecto debe tener al menos 3 caracteres');
+      event.preventDefault();
+      return false;
+    }
+    
+    // Prevent double submission
+    if (isSubmitting) {
+      event.preventDefault();
+      return false;
+    }
+    
+    isSubmitting = true;
+    
+    // Debug logging for location data
+    console.log('Form submitting with data:', {
+      name,
+      location: selectedLocation,
+      projectInfo: projectInfo.length,
+      locationLng: formData.get('location_lng'),
+      locationLat: formData.get('location_lat')
+    });
+    
+    // The form will submit normally after this
   }
 </script>
 
@@ -91,7 +91,7 @@
         </div>
       {/if}
       
-      <form action="?/createProfile" method="POST" class="grid max-w-2xl grid-cols-1 gap-6 p-6 mx-auto mb-16 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700" enctype="multipart/form-data">
+      <form action="?/createProfile" method="POST" class="grid max-w-2xl grid-cols-1 gap-6 p-6 mx-auto mb-16 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700" enctype="multipart/form-data" onsubmit={handleFormSubmit}>
         
         <!-- profile image -->
         <div>
@@ -135,26 +135,32 @@
 
         <!-- name -->
         <div>
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">nombre del proyecto</label>
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">nombre del proyecto *</label>
           <input 
             type="text" 
             id="name" 
             name="name"
             class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500" 
             required
+            minlength="3"
+            maxlength="100"
+            placeholder="Ej: Mi proyecto de ecoturismo"
           />
+          <p class="mt-1 text-xs text-gray-500">Mínimo 3 caracteres, máximo 100</p>
         </div>
 
         <!-- whatsapp number -->
         <div>
           <label for="whatsapp_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">número de whatsapp</label>
           <input 
-            type="text" 
+            type="tel" 
             id="whatsapp_number" 
             name="whatsapp_number"
             placeholder="+51987654321"
+            pattern="[+]?[0-9\s\-\(\)]+"
             class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500" 
           />
+          <p class="mt-1 text-xs text-gray-500">Incluye el código de país (ej: +51)</p>
         </div>
 
         <!-- location hidden inputs -->
@@ -175,18 +181,6 @@
           />
         </div>
 
-        <!-- categories -->
-        <div>
-          <label for="categories" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">categorías (separadas por comas)</label>
-          <input 
-            type="text" 
-            id="categories" 
-            name="categories"
-            class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500" 
-            placeholder="turismo, cultura, gastronomía"
-          />
-        </div>
-
         <!-- project info -->
         <div>
           <label for="project_info" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">información del proyecto</label>
@@ -197,47 +191,39 @@
           <input type="hidden" name="project_info" value={projectInfo} />
         </div>
 
-        <!-- country -->
-        <div>
-          <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">país</label>
-          <select 
-            id="country"
-            name="country"
-            class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500"
-          >
-            <option value="">selecciona un país</option>
-            {#each countries as country}
-              <option value={country.code}>{country.name}</option>
-            {/each}
-          </select>
-        </div>
-
         <!-- location status indicator -->
         <div class="flex items-center">
           <div class={`w-4 h-4 rounded-full mr-2 ${selectedLocation ? 'bg-green-500' : 'bg-gray-300'}`}></div>
           <span class="text-sm text-gray-600">
-            {selectedLocation ? 'ubicación seleccionada' : 'ubicación no seleccionada'}
+            {#if selectedLocation}
+              ubicación seleccionada: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+            {:else}
+              ubicación no seleccionada
+            {/if}
           </span>
         </div>
-
-        <button type="submit" class="px-5 mx-auto py-3 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300">
-          crear proyecto
-        </button>
 
         <!-- add location button -->
         <button 
           type="button" 
-          on:click={() => showModal = true}
-          class="px-5 mx-auto py-3 text-sm font-medium text-center text-white rounded-lg bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300"
-        >
+          onclick={() => showModal = true}
+          class="px-5 mx-auto py-3 text-sm font-medium text-center text-white rounded-lg bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
+
           {selectedLocation ? 'cambiar ubicación' : 'agregar ubicación'}
         </button>
+
+        <button type="submit" class="px-5 mx-auto py-3 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled={isSubmitting}>
+          {isSubmitting ? 'Creando proyecto...' : 'crear proyecto'}
+        </button>
+
       </form>
 
       <AddToMap 
         showModal={showModal} 
         on:locationSelected={(e: LocationEvent) => {
+          console.log('Location selected event received:', e.detail);
           selectedLocation = e.detail;
+          console.log('selectedLocation updated to:', selectedLocation);
         }}
         on:closeModal={() => showModal = false}
       />

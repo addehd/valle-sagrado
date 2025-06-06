@@ -1,17 +1,8 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-
-  const { data: project, error: projectError } = await supabase
-    .from('projects_info')
-    .select('*')
-    .eq('url', params.project)
-    .single()
-
-  if (projectError) {
-    throw error(404, 'Project not found');
-  }
+export const load: PageServerLoad = async ({ parent, locals: { supabase } }) => {
+  // Get project data from layout
+  const { project } = await parent();
 
   // Get products for this project
   const { data: products, error: productsError } = await supabase
@@ -26,7 +17,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   }
 
   return {
-    project,
+    project, // Pass project data to the page
     products: products || []
   };
 };
