@@ -8,4 +8,4 @@
     
 </script>
 
-<div class="bg-[#F6F6F6]">{@render children()}</div>
+<div class="bg-[#FBF5EC]">{@render children()}</div>

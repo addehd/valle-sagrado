@@ -3,6 +3,7 @@
 	import ProductCard from './ProductCard.svelte';
 
 	export let products: Product[] = [];
+	export let projectSlug: string | undefined = undefined;
 	export let loading: boolean = false;
 	export let columns: number = 4;
 
@@ -47,7 +48,7 @@
 		<!-- Products grid -->
 		<div class="grid {gridCols[columns] || gridCols[4]} gap-6">
 			{#each products as product (product.id)}
-				<ProductCard {product} />
+				<ProductCard {product} {projectSlug} />
 			{/each}
 		</div>
 	{/if}

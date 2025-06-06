@@ -27,24 +27,15 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			throw error(404, 'Project not found');
 		}
 
-		// Get current user's cart items for this specific project
+		// Get current user's cart items
 		const { data: cartItems, error: cartError } = await supabase
-			.from('cart_items')
-			.select(`
-				id,
-				quantity,
-				products!cart_items_product_id_fkey (
-					id,
-					name,
-					price,
-					image_url,
-					url_slug
-				)
-			`)
-			.eq('user_id', session.user.id)
-			.eq('products.project_id', project.id); // Filter by project ID
+			.from('cart')
+			.select('id, quantity, product_sku')
+			.eq('user_id', session.user.id);
 
-		if (cartError) {
+		console.log('Cart items raw:', { cartItems, cartError });
+
+		if (cartError || !cartItems) {
 			console.error('Cart error:', cartError);
 			return {
 				project,
@@ -53,15 +44,48 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			};
 		}
 
+		// Get all product details for the cart items
+		const skus = cartItems.map(item => item.product_sku);
+		const { data: products, error: productsError } = await supabase
+			.from('products')
+			.select('id, name, price, images, slug, project_id, sku')
+			.in('sku', skus);
+
+		console.log('Products for cart:', { products, productsError });
+
+		if (productsError) {
+			console.error('Products error:', productsError);
+			return {
+				project,
+				cartItems: [],
+				totalAmount: 0
+			};
+		}
+
+		// Combine cart items with product data and filter by project
+		const projectCartItems = cartItems
+			.map(cartItem => {
+				const product = products?.find(p => p.sku === cartItem.product_sku);
+				if (product && product.project_id === project.id) {
+					return {
+						...cartItem,
+						products: product
+					};
+				}
+				return null;
+			})
+			.filter(item => item !== null);
+
+		console.log('Final project cart items:', projectCartItems);
+
 		// Calculate total amount
-		const totalAmount = cartItems?.reduce((total, item) => {
-			const product = item.products as any;
-			return total + (product.price * item.quantity);
-		}, 0) ?? 0;
+		const totalAmount = projectCartItems.reduce((total, item) => {
+			return total + (parseFloat(item.products.price) * item.quantity);
+		}, 0);
 
 		return {
 			project,
-			cartItems: cartItems || [],
+			cartItems: projectCartItems,
 			totalAmount
 		};
 	} catch (error) {

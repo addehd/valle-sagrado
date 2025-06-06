@@ -4,6 +4,7 @@
 	
 	interface Props {
 		products: Product[];
+		projectSlug?: string;
 		maxProducts?: number;
 		showFilters?: boolean;
 		filterByCategory?: string;
@@ -21,6 +22,7 @@
 
 	const {
 		products,
+		projectSlug,
 		maxProducts = 12,
 		showFilters = false,
 		filterByCategory,
@@ -344,7 +346,7 @@
 	{#if displayedProducts().length > 0}
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
 			{#each displayedProducts() as product (product.id)}
-				<ProductCard {product} {size} />
+				<ProductCard {product} {size} {projectSlug} />
 			{/each}
 		</div>
 	{:else}

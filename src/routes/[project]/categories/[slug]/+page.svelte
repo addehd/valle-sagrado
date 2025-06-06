@@ -317,7 +317,7 @@
 			{/if}
 
 			<!-- Product Grid -->
-			<ProductGrid {products} {loading} columns={4} />
+			<ProductGrid {products} {loading} projectSlug={projectSlug} columns={4} />
 
 			<!-- Empty State -->
 			{#if !loading && products.length === 0}

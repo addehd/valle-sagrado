@@ -7,6 +7,7 @@
 
 	export let product: Product;
 	export let size: 'small' | 'medium' | 'large' = 'medium';
+	export let projectSlug: string | undefined = undefined;
 
 	let addingToCart = false;
 
@@ -24,7 +25,14 @@
 	const handleClick = () => {
 		// Use the product's slug if available, otherwise generate one from the name
 		const slug = product.slug || createSlug(product.name);
-		goto(`/product/${slug}`);
+		
+		// If we have a project slug, include it in the URL structure
+		if (projectSlug) {
+			goto(`/${projectSlug}/product/${slug}`);
+		} else {
+			// Fallback to the old URL structure if no project context
+			goto(`/product/${slug}`);
+		}
 	};
 
 	// Helper function to create slug from product name

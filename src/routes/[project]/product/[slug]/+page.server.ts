@@ -44,68 +44,79 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const productId = data.get('product_id') as string;
+		const productSku = data.get('product_sku') as string;
 		const quantity = parseInt(data.get('quantity') as string) || 1;
 
-		if (!productId) {
-			return fail(400, { error: 'Product ID is required' });
+		console.log('Form data:', { productSku, quantity });
+
+		if (!productSku) {
+			return fail(400, { error: 'Product SKU is required' });
 		}
 
 		// Verify the product exists and belongs to the current project
 		const { project } = params;
-		const { data: projectData } = await supabase
+		const { data: projectData, error: projectError } = await supabase
 			.from('projects_info')
 			.select('id')
 			.eq('url', project)
 			.single();
 
-		if (!projectData) {
+		if (projectError || !projectData) {
+			console.error('Project error:', projectError);
 			return fail(404, { error: 'Project not found' });
 		}
 
-		const { data: productCheck } = await supabase
+		const { data: productCheck, error: productError } = await supabase
 			.from('products')
-			.select('id')
-			.eq('id', productId)
+			.select('id, sku')
+			.eq('sku', productSku)
 			.eq('project_id', projectData.id)
 			.single();
 
-		if (!productCheck) {
+		if (productError || !productCheck) {
+			console.error('Product check error:', productError);
 			return fail(400, { error: 'Product not found in this project' });
 		}
 
 		// Check if item already exists in cart
-		const { data: existingItem } = await supabase
-			.from('cart_items')
+		const { data: existingItem, error: existingError } = await supabase
+			.from('cart')
 			.select('*')
 			.eq('user_id', session.user.id)
-			.eq('product_id', productId)
+			.eq('product_sku', productSku)
 			.single();
+
+		if (existingError && existingError.code !== 'PGRST116') {
+			console.error('Error checking existing item:', existingError);
+			return fail(500, { error: 'Failed to check cart' });
+		}
 
 		if (existingItem) {
 			// Update quantity
-			const { error } = await supabase
-				.from('cart_items')
+			const { error: updateError } = await supabase
+				.from('cart')
 				.update({ 
 					quantity: existingItem.quantity + quantity,
 					updated_at: new Date().toISOString()
 				})
 				.eq('id', existingItem.id);
 
-			if (error) {
+			if (updateError) {
+				console.error('Error updating cart item:', updateError);
 				return fail(500, { error: 'Failed to update cart' });
 			}
 		} else {
 			// Add new item
-			const { error } = await supabase
-				.from('cart_items')
+			const { error: insertError } = await supabase
+				.from('cart')
 				.insert({
 					user_id: session.user.id,
-					product_id: productId,
+					product_sku: productSku,
 					quantity
 				});
 
-			if (error) {
+			if (insertError) {
+				console.error('Error inserting cart item:', insertError);
 				return fail(500, { error: 'Failed to add to cart' });
 			}
 		}

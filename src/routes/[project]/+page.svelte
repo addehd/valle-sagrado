@@ -34,8 +34,6 @@
 
 <div class="container mx-auto px-4 bg-beige min-h-screen">
 
-
-
   <!-- Featured Products Preview -->
   {#if data.project?.featured_products && data.project.featured_products.length > 0}
     <div class="mt-16">

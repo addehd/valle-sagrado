@@ -11,9 +11,6 @@
                 "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
                 "OPENAI_API_KEY": "${OPENAI_API_KEY}"
             }
-        },
-        "valle-sagrado": {
-            "url": "https://valle-sagrado-eknx5s3id-addehds-projects.vercel.app/api/mcp"
         }
     }
 }

@@ -2,13 +2,17 @@
   import { enhance } from '$app/forms';
   
   let { data } = $props();
+  
+  // Calculate total items from cart
+  let totalItems = $derived(data.cartItems.reduce((total, item) => total + item.quantity, 0));
+  let projectSlug = $derived(data.project?.url || '');
 </script>
 
 <svelte:head>
-  <title>Shopping Cart - {data.projectSlug}</title>
+  <title>Shopping Cart - {data.project?.name || 'Cart'}</title>
 </svelte:head>
 
-<main class="container mx-auto px-6 py-12">
+<main class="container mx-auto px-6 py-12 min-h-screen max-w-6xl">
   <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
 
   {#if !data.session?.user}
@@ -19,7 +23,7 @@
     <div class="text-center py-12">
       <h2 class="text-xl text-gray-600 mb-4">Your cart is empty</h2>
       <a 
-        href="/{data.projectSlug}" 
+        href="/{projectSlug}" 
         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
       >
         Continue Shopping
@@ -33,11 +37,11 @@
           <div class="p-6 flex items-center space-x-4">
             <!-- Product Image -->
             <div class="flex-shrink-0">
-              <a href="/{data.projectSlug}/product/{item.product?.slug || item.product_sku}">
+              <a href="/{projectSlug}/product/{item.products?.slug || item.product_sku}">
                 <img 
-                  src={item.product?.images?.[0] || '/images/placeholder.jpg'} 
-                  alt={item.product?.name || 'Product'} 
-                  class="h-16 w-16 rounded-lg object-cover hover:opacity-80 transition-opacity"
+                  src={item.products?.images?.[0] || '/images/placeholder.jpg'} 
+                  alt={item.products?.name || 'Product'} 
+                  class="h-20 w-20 rounded-lg object-cover hover:opacity-80 transition-opacity"
                 />
               </a>
             </div>
@@ -46,26 +50,27 @@
             <div class="flex-1 min-w-0">
               <h3 class="text-lg font-medium text-gray-900 truncate">
                 <a 
-                  href="/{data.projectSlug}/product/{item.product?.slug || item.product_sku}"
+                  href="/{projectSlug}/product/{item.products?.slug || item.product_sku}"
                   class="hover:text-blue-600 transition-colors"
                 >
-                  {item.product?.name || 'Unknown Product'}
+                  {item.products?.name || 'Unknown Product'}
                 </a>
               </h3>
               <p class="text-sm text-gray-500">SKU: {item.product_sku}</p>
               <p class="text-lg font-medium text-gray-900">
-                {item.product?.price || 0} {item.product?.currency || 'USD'}
+                ${(item.products?.price || 0)}
               </p>
             </div>
             
             <!-- Quantity Controls -->
             <div class="flex items-center space-x-2">
               <form method="POST" action="?/updateQuantity" use:enhance>
-                <input type="hidden" name="product_sku" value={item.product_sku} />
+                <input type="hidden" name="cart_item_id" value={item.id} />
                 <input type="hidden" name="quantity" value={item.quantity - 1} />
                 <button 
                   type="submit"
                   class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                  disabled={item.quantity <= 1}
                 >
                   -
                 </button>
@@ -74,7 +79,7 @@
               <span class="w-12 text-center font-medium">{item.quantity}</span>
               
               <form method="POST" action="?/updateQuantity" use:enhance>
-                <input type="hidden" name="product_sku" value={item.product_sku} />
+                <input type="hidden" name="cart_item_id" value={item.id} />
                 <input type="hidden" name="quantity" value={item.quantity + 1} />
                 <button 
                   type="submit"
@@ -88,13 +93,13 @@
             <!-- Item Total -->
             <div class="text-right">
               <p class="text-lg font-medium text-gray-900">
-                {((item.product?.price || 0) * item.quantity).toFixed(2)} {item.product?.currency || 'USD'}
+                ${((item.products?.price || 0) * item.quantity).toFixed(2)}
               </p>
             </div>
             
             <!-- Remove Button -->
-            <form method="POST" action="?/removeItem" use:enhance>
-              <input type="hidden" name="product_sku" value={item.product_sku} />
+            <form method="POST" action="?/removeFromCart" use:enhance>
+              <input type="hidden" name="cart_item_id" value={item.id} />
               <button 
                 type="submit"
                 class="text-red-600 hover:text-red-800 p-2"
@@ -113,11 +118,11 @@
       <div class="bg-gray-50 px-6 py-4">
         <div class="flex justify-between items-center mb-4">
           <span class="text-lg font-medium">Total Items:</span>
-          <span class="text-lg font-medium">{data.totalItems}</span>
+          <span class="text-lg font-medium">{totalItems}</span>
         </div>
         <div class="flex justify-between items-center mb-6">
           <span class="text-xl font-bold">Total Price:</span>
-          <span class="text-xl font-bold">${data.totalPrice.toFixed(2)}</span>
+          <span class="text-xl font-bold">${(data.totalAmount || 0).toFixed(2)}</span>
         </div>
         
         <div class="flex space-x-4">
@@ -131,7 +136,7 @@
           </form>
           
           <a
-            href="/{data.projectSlug}/checkout"
+            href="/{projectSlug}/checkout"
             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors text-center"
           >
             Proceed to Checkout

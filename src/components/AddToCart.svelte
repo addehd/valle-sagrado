@@ -54,15 +54,6 @@
         message = `${productName || 'Product'} added to cart!`;
         messageType = 'success';
         
-        // Update cart store for immediate UI feedback
-        if (typeof window !== 'undefined') {
-          const { cartStore } = await import('$lib/stores/cart');
-          // Optimistically update the cart totals
-          if (result.data?.totalItems !== undefined && result.data?.totalPrice !== undefined) {
-            cartStore.updateTotals(result.data.totalItems, result.data.totalPrice);
-          }
-        }
-        
         // Clear message after 3 seconds
         setTimeout(() => {
           message = '';

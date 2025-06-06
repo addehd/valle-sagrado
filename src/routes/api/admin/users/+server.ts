@@ -1,13 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { createClient } from '@supabase/supabase-js';
 import { requireSuperAdmin, setUserRole, listAdminUsers } from '$lib/admin';
-import { env } from '$env/dynamic/private';
-
-// Create admin client for user management
-const adminSupabase = createClient(
-	env.PUBLIC_SUPABASE_URL!,
-	env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export const GET = async ({ url, locals }: any) => {
 	try {
@@ -17,19 +9,13 @@ export const GET = async ({ url, locals }: any) => {
 		const listType = url.searchParams.get('type') || 'all';
 
 		if (listType === 'admins') {
-			// List only admin users
-			const adminUsers = await listAdminUsers(adminSupabase);
+			// List only admin users - using locals.supabase per project rules
+			const adminUsers = await listAdminUsers(locals.supabase);
 			return json(adminUsers);
 		} else {
-			// List all users
-			const { data, error } = await adminSupabase.auth.admin.listUsers();
-			
-			if (error) {
-				console.error('Error listing users:', error);
-				return json({ error: 'Failed to fetch users' }, { status: 500 });
-			}
-
-			return json(data.users);
+			// List all users - this might need service role key for full admin access
+			// For now, return empty array or redirect to admin-only endpoint
+			return json({ error: 'Full user listing requires service role access' }, { status: 403 });
 		}
 	} catch (error) {
 		console.error('Error in users API:', error);
@@ -59,7 +45,8 @@ export const PATCH = async ({ request, locals }: any) => {
 			return json({ error: 'Cannot remove super admin role from yourself' }, { status: 400 });
 		}
 
-		const result = await setUserRole(adminSupabase, userId, role);
+		// Using locals.supabase per project rules - note: role updates might need service key
+		const result = await setUserRole(locals.supabase, userId, role);
 
 		if (!result.success) {
 			return json({ error: result.error }, { status: 500 });

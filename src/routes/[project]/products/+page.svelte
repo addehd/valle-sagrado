@@ -104,6 +104,7 @@
 			<!-- Products Component with Full Features -->
 			<Products
 				products={data.products}
+				projectSlug={projectSlug}
 				showFilters={true}
 				showSearchBar={true}
 				enableQuickFilters={true}
