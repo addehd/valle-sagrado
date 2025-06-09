@@ -10,6 +10,7 @@ A comprehensive platform for project showcases, e-commerce, and community buildi
 - 🔐 **Authentication**: Secure admin panel with role-based access
 - 📱 **Responsive**: Mobile-first design with Tailwind CSS
 - 🤖 **MCP Integration**: AI assistant access to platform data
+- 🧾 **Receipt Processing**: AI-powered OCR and data extraction from receipt images
 
 ## Development Setup
 
@@ -34,6 +35,9 @@ Create a `.env.local` file with:
 PUBLIC_SUPABASE_URL=your_supabase_url
 PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Required for Receipt Processing Feature
+OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## MCP (Model Context Protocol) Integration
@@ -76,6 +80,29 @@ The MCP server is pre-configured in `.cursor/mcp.json` for use with Cursor IDE:
 }
 ```
 
+## Receipt Processing
+
+The `/fin` route provides AI-powered receipt processing capabilities:
+
+### Features
+- **Multi-format Support**: JPEG, PNG, PDF files and ZIP archives
+- **OCR Processing**: OpenAI Vision API for text extraction
+- **Data Interpretation**: Structured data extraction (merchant, date, total, items)
+- **Batch Processing**: ZIP file upload with progress tracking
+- **User Management**: Receipt gallery with delete functionality
+
+### Setup
+1. Apply the database migration: `receipts_table_migration.sql`
+2. Add your OpenAI API key to environment variables
+3. Navigate to `/fin` to start uploading receipts
+
+### Database Schema
+The feature adds a `receipts` table with:
+- User-scoped data with RLS policies
+- JSONB storage for flexible processed data
+- Status tracking for processing pipeline
+- Full-text search capabilities
+
 ## Build Configuration
 
 ### Vercel Deployment
@@ -102,6 +129,7 @@ Uses `@sveltejs/adapter-vercel` for optimal Vercel deployment with Node.js 20.x 
 - `products` - E-commerce products linked to projects
 - `orders` - Purchase orders with Stripe integration
 - `map_config` - Global map configuration settings
+- `receipts` - AI-processed receipt data with OCR results
 
 ### Authentication
 - Supabase Auth with role-based access control

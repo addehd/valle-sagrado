@@ -233,4 +233,91 @@ export interface MapConfig {
 	is_active: boolean;
 	created_at: string;
 	updated_at: string;
+}
+
+// Receipt Processing types
+export interface Receipt {
+	id: string;
+	user_id: string;
+	merchant?: string;
+	date?: string; // Date string
+	total?: number;
+	currency?: string;
+	raw_text?: string;
+	processed_data?: ReceiptProcessedData;
+	file_name?: string;
+	file_type?: 'jpg' | 'jpeg' | 'png' | 'pdf';
+	processing_status: 'pending' | 'processing' | 'completed' | 'failed';
+	error_message?: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface ReceiptProcessedData {
+	// Basic fields
+	merchant?: string;
+	date?: string;
+	total?: number;
+	subtotal?: number;
+	tax?: number;
+	currency?: string;
+	items?: ReceiptItem[];
+	confidence_score?: number;
+	address?: string;
+	
+	// Swedish invoice/receipt specific fields
+	invoice_number?: string; // Unikt fakturanummer
+	invoice_date?: string; // Fakturadatum (can differ from date)
+	seller_vat_number?: string; // Säljarens momsregistreringsnummer
+	buyer_name?: string; // Köparens namn
+	buyer_address?: string; // Köparens adress
+	seller_address?: string; // Säljarens adress
+	delivery_date?: string; // Datum för leverans eller tjänstens utförande
+	vat_rate?: number; // Momssats (percentage)
+	vat_amount?: number; // Momsbelopp
+	payment_due_date?: string; // Betalningsdatum
+	unit_price_excl_vat?: number; // Pris per enhet exklusive moms
+	
+	[key: string]: any; // Allow additional fields
+}
+
+export interface ReceiptItem {
+	name: string;
+	quantity?: number;
+	price?: number;
+	total?: number;
+	description?: string;
+}
+
+export interface ReceiptStats {
+	total_receipts: number;
+	total_amount: number;
+	avg_amount: number;
+	receipts_this_month: number;
+	amount_this_month: number;
+}
+
+export interface ReceiptUploadResponse {
+	success: boolean;
+	receipt_id?: string;
+	error?: string;
+	details?: string;
+}
+
+export interface ZipProcessingStatus {
+	total_files: number;
+	processed_files: number;
+	successful_files: number;
+	failed_files: number;
+	current_file?: string;
+	progress_percentage: number;
+}
+
+export interface ProcessedReceiptFile {
+	file_name: string;
+	file_type: string;
+	success: boolean;
+	receipt_id?: string;
+	error?: string;
+	processed_data?: ReceiptProcessedData;
 } 
