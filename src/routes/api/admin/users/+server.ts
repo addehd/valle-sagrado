@@ -1,20 +1,51 @@
 import { json } from '@sveltejs/kit';
-import { requireSuperAdmin, setUserRole, listAdminUsers } from '$lib/admin';
+import { requireSuperAdmin } from '$lib/admin';
+import type { RequestHandler } from './$types';
 
-export const GET = async ({ url, locals }: any) => {
+export const GET: RequestHandler = async ({ url, locals: { supabase, user } }) => {
 	try {
 		// Require super admin authentication
-		requireSuperAdmin(locals.user);
+		requireSuperAdmin(user);
 
 		const listType = url.searchParams.get('type') || 'all';
 
 		if (listType === 'admins') {
-			// List only admin users - using locals.supabase per project rules
-			const adminUsers = await listAdminUsers(locals.supabase);
+			// Get project admin users from the project_admins table
+			// This doesn't require service role access
+			const { data: projectAdmins, error } = await supabase
+				.from('project_admins')
+				.select(`
+					user_id,
+					role,
+					created_at,
+					users!inner (
+						id,
+						email,
+						created_at,
+						last_sign_in_at
+					)
+				`)
+				.order('created_at', { ascending: false });
+
+			if (error) {
+				console.error('Error fetching project admins:', error);
+				return json({ error: 'Failed to fetch admin users' }, { status: 500 });
+			}
+
+			// Transform the data to match the expected user format
+			const adminUsers = projectAdmins?.map(admin => ({
+				id: (admin.users as any).id,
+				email: (admin.users as any).email,
+				created_at: (admin.users as any).created_at,
+				last_sign_in_at: (admin.users as any).last_sign_in_at,
+				app_metadata: {
+					role: admin.role
+				}
+			})) || [];
+
 			return json(adminUsers);
 		} else {
-			// List all users - this might need service role key for full admin access
-			// For now, return empty array or redirect to admin-only endpoint
+			// List all users - this would need service role key for full admin access
 			return json({ error: 'Full user listing requires service role access' }, { status: 403 });
 		}
 	} catch (error) {
@@ -23,10 +54,10 @@ export const GET = async ({ url, locals }: any) => {
 	}
 };
 
-export const PATCH = async ({ request, locals }: any) => {
+export const PATCH: RequestHandler = async ({ request, locals: { supabase, user } }) => {
 	try {
 		// Require super admin authentication
-		requireSuperAdmin(locals.user);
+		requireSuperAdmin(user);
 
 		const { userId, role } = await request.json();
 
@@ -41,15 +72,20 @@ export const PATCH = async ({ request, locals }: any) => {
 		}
 
 		// Prevent removing super admin role from yourself
-		if (locals.user?.id === userId && role !== 'super_admin') {
+		if (user?.id === userId && role !== 'super_admin') {
 			return json({ error: 'Cannot remove super admin role from yourself' }, { status: 400 });
 		}
 
-		// Using locals.supabase per project rules - note: role updates might need service key
-		const result = await setUserRole(locals.supabase, userId, role);
+		// Update role in project_admins table instead of auth metadata
+		// This doesn't require service role access
+		const { error: updateError } = await supabase
+			.from('project_admins')
+			.update({ role })
+			.eq('user_id', userId);
 
-		if (!result.success) {
-			return json({ error: result.error }, { status: 500 });
+		if (updateError) {
+			console.error('Error updating user role in project_admins:', updateError);
+			return json({ error: 'Failed to update user role' }, { status: 500 });
 		}
 
 		return json({ success: true, message: 'User role updated successfully' });
