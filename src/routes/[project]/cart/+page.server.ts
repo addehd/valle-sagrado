@@ -219,11 +219,11 @@ export const actions: Actions = {
       return fail(401, { error: 'Must be logged in' });
     }
 
-    // Get project ID for filtering
+    // Get project ID for filtering - use projects_info table like the load function
     const { data: projectData } = await supabase
-      .from('projects')
+      .from('projects_info')
       .select('id')
-      .eq('url_slug', projectSlug)
+      .eq('url', projectSlug)
       .single();
 
     if (!projectData) {
@@ -250,6 +250,7 @@ export const actions: Actions = {
       .in('product_sku', skus);
 
     if (error) {
+      console.error('Clear cart error:', error);
       return fail(500, { error: 'Failed to clear cart' });
     }
 

@@ -4,6 +4,45 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<!-- Theme initialization script to prevent FOUC -->
+		<script>
+			(function() {
+				function getStoredTheme() {
+					try {
+						return localStorage.getItem('theme');
+					} catch (e) {
+						return null;
+					}
+				}
+				
+				function getSystemTheme() {
+					return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+				}
+				
+				function setTheme() {
+					const storedTheme = getStoredTheme();
+					const systemTheme = getSystemTheme();
+					
+					if (storedTheme === 'dark' || (!storedTheme && systemTheme === 'dark') || storedTheme === 'system' && systemTheme === 'dark') {
+						document.documentElement.classList.add('dark');
+					} else {
+						document.documentElement.classList.remove('dark');
+					}
+				}
+				
+				setTheme();
+				
+				// Listen for system theme changes
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+					const storedTheme = getStoredTheme();
+					if (!storedTheme || storedTheme === 'system') {
+						setTheme();
+					}
+				});
+			})();
+		</script>
+		
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

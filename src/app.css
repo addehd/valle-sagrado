@@ -5,3 +5,6 @@
 	--color-brand-600: red;
 	--color-brand-700: blue;
 }
+
+/* Configure dark mode to use class-based toggling */
+@variant dark (&:where(.dark, .dark *));

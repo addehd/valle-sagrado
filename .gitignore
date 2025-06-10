@@ -47,3 +47,4 @@ tasks.json
 tasks/ 
 
 static/tik.mp4
+.aider*
