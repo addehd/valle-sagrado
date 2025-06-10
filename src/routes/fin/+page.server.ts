@@ -4,11 +4,12 @@ import { createReceipt, updateReceipt, getUserReceipts } from '$lib/receipts';
 import type { Receipt, ReceiptProcessedData } from '$lib/types';
 import OpenAI from 'openai';
 import sharp from 'sharp';
+import { OPENAI_API_KEY } from '$env/static/private';
 
 // Function to get OpenAI client with lazy initialization
 function getOpenAIClient() {
   return new OpenAI({
-    apiKey: "REDACTED"
+    apiKey: OPENAI_API_KEY
   });
 }
 
