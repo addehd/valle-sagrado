@@ -38,8 +38,14 @@
 				const data = await response.json();
 				products = data.products || [];
 				totalProducts = data.total || products.length;
+				
+				// Show message if no project is configured
+				if (data.message) {
+					error = data.message;
+				}
 			} else {
-				error = 'Failed to load products';
+				const errorData = await response.json().catch(() => ({}));
+				error = errorData.error || 'Failed to load products';
 			}
 		} catch (err) {
 			console.error('Error loading products:', err);
@@ -249,7 +255,31 @@
 		</div>
 	{:else if error}
 		<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-			{error}
+			<div class="flex">
+				<div class="flex-shrink-0">
+					<svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+					</svg>
+				</div>
+				<div class="ml-3">
+					<h3 class="text-sm font-medium text-red-800">
+						{error}
+					</h3>
+					{#if error.includes('No project associated') || error.includes('No project configured')}
+						<div class="mt-2 text-sm text-red-700">
+							<p>To manage products, you need to be assigned to a project.</p>
+							<div class="mt-3">
+								<div class="space-y-2">
+									<a href="/create" class="inline-block bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition-colors mr-2">
+										Create Project
+									</a>
+									<span class="text-xs text-gray-600">or contact an administrator to assign you to an existing project</span>
+								</div>
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
 		</div>
 	{:else}
 		<!-- Products Table -->

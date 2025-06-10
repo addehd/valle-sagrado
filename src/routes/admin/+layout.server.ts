@@ -4,15 +4,23 @@ export const load = async ({ locals }: any) => {
 	// Require admin authentication for all admin routes
 	requireAdmin(locals.user);
 
-	// Fetch current project info (assuming single project for now)
-	// TODO: In multi-project setup, this could be based on subdomain or user preference
-	const { data: project, error: projectError } = await locals.supabase
-		.from('projects_info')
-		.select('*')
-		.single();
+	// Fetch the user's project(s) through RPC function to bypass RLS restrictions
+	const { data: adminProjects, error: projectError } = await locals.supabase.rpc('get_user_projects', {
+		user_id_param: locals.user.id
+	});
 
-	if (projectError) {
-		console.error('Error fetching project info:', projectError);
+	let project = null;
+	if (!projectError && adminProjects && adminProjects.length > 0) {
+		// Use the first project the user is admin of
+		const userProject = adminProjects[0];
+		project = {
+			id: userProject.id,
+			name: userProject.name,
+			url: userProject.url,
+			// Add other fields if needed from the RPC result
+		};
+	} else if (projectError) {
+		console.error('Error fetching user project info:', projectError);
 	}
 
 	return {
