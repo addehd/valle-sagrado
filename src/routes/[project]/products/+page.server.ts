@@ -16,8 +16,54 @@ export const load: PageServerLoad = async ({ locals: { supabase }, params }) => 
 			console.error('Error fetching project:', projectError);
 			return {
 				products: [],
+				categories: { categories: [], flat: [] },
 				project: null,
 				error: 'Project not found'
+			};
+		}
+
+		// Load categories - moved from API
+		const { data: categoriesData, error: categoriesError } = await supabase
+			.from('categories')
+			.select(`
+				id,
+				name,
+				slug,
+				description,
+				parent_id,
+				image_url,
+				sort_order
+			`)
+			.eq('is_active', true)
+			.order('sort_order', { ascending: true });
+
+		// Build hierarchical structure for categories
+		let categories = { categories: [], flat: [] };
+		if (!categoriesError && categoriesData) {
+			const categoriesMap = new Map();
+			const rootCategories: any[] = [];
+
+			// First pass: create map of all categories
+			categoriesData.forEach(category => {
+				categoriesMap.set(category.id, { ...category, children: [] });
+			});
+
+			// Second pass: build hierarchy
+			categoriesData.forEach(category => {
+				const categoryWithChildren = categoriesMap.get(category.id);
+				if (category.parent_id) {
+					const parent = categoriesMap.get(category.parent_id);
+					if (parent) {
+						parent.children.push(categoryWithChildren);
+					}
+				} else {
+					rootCategories.push(categoryWithChildren);
+				}
+			});
+
+			categories = {
+				categories: rootCategories,
+				flat: categoriesData
 			};
 		}
 
@@ -33,6 +79,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, params }) => 
 			console.error('Error fetching products:', productsError);
 			return {
 				products: [],
+				categories,
 				project: projectData,
 				error: 'Failed to load products'
 			};
@@ -89,6 +136,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, params }) => 
 
 		return {
 			products: transformedProducts,
+			categories,
 			project: projectData,
 			error: null
 		};
@@ -97,6 +145,7 @@ export const load: PageServerLoad = async ({ locals: { supabase }, params }) => 
 		console.error('Unexpected error loading products:', error);
 		return {
 			products: [],
+			categories: { categories: [], flat: [] },
 			project: null,
 			error: 'An unexpected error occurred'
 		};

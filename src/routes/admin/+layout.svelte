@@ -50,6 +50,9 @@
 						<a href="/admin/products" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname.startsWith('/admin/products') ? 'bg-gray-100 text-gray-900' : ''}">
 							Products
 						</a>
+						<a href="/admin/csv-upload" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname.startsWith('/admin/csv-upload') ? 'bg-gray-100 text-gray-900' : ''}">
+							CSV Upload
+						</a>
 						<a href="/admin/orders" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium {$page.url.pathname.startsWith('/admin/orders') ? 'bg-gray-100 text-gray-900' : ''}">
 							Orders
 						</a>

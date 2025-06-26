@@ -6,14 +6,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// Get user session safely
 		const { session } = await safeGetSession();
 
-		if (!session?.user) {
-			return {
-				cartItems: [],
-				project: null,
-				total: 0
-			};
-		}
-
 		const projectSlug = params.project;
 
 		// Get project info using projects_info table
@@ -27,20 +19,36 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			throw error(404, 'Project not found');
 		}
 
-		// Get current user's cart items
+		if (!session?.user) {
+			return {
+				cartItems: [],
+				project,
+				totalAmount: 0,
+				summary: {
+					itemCount: 0,
+					subtotal: 0,
+					currency: 'USD'
+				}
+			};
+		}
+
+		// Get current user's cart items with enhanced selection
 		const { data: cartItems, error: cartError } = await supabase
 			.from('cart')
-			.select('id, quantity, product_sku')
+			.select('id, quantity, product_sku, created_at, updated_at')
 			.eq('user_id', session.user.id);
 
-		console.log('Cart items raw:', { cartItems, cartError });
-
-		if (cartError || !cartItems) {
+		if (cartError || !cartItems || cartItems.length === 0) {
 			console.error('Cart error:', cartError);
 			return {
 				project,
 				cartItems: [],
-				totalAmount: 0
+				totalAmount: 0,
+				summary: {
+					itemCount: 0,
+					subtotal: 0,
+					currency: 'USD'
+				}
 			};
 		}
 
@@ -48,52 +56,77 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		const skus = cartItems.map(item => item.product_sku);
 		const { data: products, error: productsError } = await supabase
 			.from('products')
-			.select('id, name, price, images, slug, project_id, sku')
+			.select('id, name, price, images, slug, project_id, sku, currency')
 			.in('sku', skus);
 
-		console.log('Products for cart:', { products, productsError });
-
-		if (productsError) {
+		if (productsError || !products) {
 			console.error('Products error:', productsError);
 			return {
 				project,
 				cartItems: [],
-				totalAmount: 0
+				totalAmount: 0,
+				summary: {
+					itemCount: 0,
+					subtotal: 0,
+					currency: 'USD'
+				}
 			};
 		}
 
 		// Combine cart items with product data and filter by project
-		const projectCartItems = cartItems
+		const enrichedCartItems = cartItems
 			.map(cartItem => {
 				const product = products?.find(p => p.sku === cartItem.product_sku);
 				if (product && product.project_id === project.id) {
 					return {
 						...cartItem,
-						products: product
+						user_id: session.user.id,
+						products: product,
+						product: {
+							id: product.id,
+							name: product.name,
+							price: parseFloat(product.price),
+							currency: product.currency || 'USD',
+							images: product.images,
+							slug: product.slug,
+							project_id: product.project_id
+						},
+						currentPrice: parseFloat(product.price),
+						itemTotal: parseFloat(product.price) * cartItem.quantity,
+						isAvailable: true
 					};
 				}
 				return null;
 			})
 			.filter(item => item !== null);
 
-		console.log('Final project cart items:', projectCartItems);
-
-		// Calculate total amount
-		const totalAmount = projectCartItems.reduce((total, item) => {
-			return total + (parseFloat(item.products.price) * item.quantity);
+		// Calculate summary
+		const itemCount = enrichedCartItems.reduce((total, item) => total + item.quantity, 0);
+		const subtotal = enrichedCartItems.reduce((total, item) => {
+			return total + (item.product.price * item.quantity);
 		}, 0);
 
 		return {
 			project,
-			cartItems: projectCartItems,
-			totalAmount
+			cartItems: enrichedCartItems,
+			totalAmount: subtotal,
+			summary: {
+				itemCount,
+				subtotal,
+				currency: 'USD'
+			}
 		};
 	} catch (error) {
 		console.error('Error loading cart:', error);
 		return {
 			cartItems: [],
 			project: null,
-			total: 0
+			totalAmount: 0,
+			summary: {
+				itemCount: 0,
+				subtotal: 0,
+				currency: 'USD'
+			}
 		};
 	}
 };
