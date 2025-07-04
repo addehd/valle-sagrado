@@ -17,6 +17,9 @@ importers:
       '@milkdown/theme-nord':
         specifier: ^7.10.5
         version: 7.11.1
+      '@stripe/stripe-js':
+        specifier: ^7.4.0
+        version: 7.4.0
       '@supabase/ssr':
         specifier: 0.4.0
         version: 0.4.0(@supabase/supabase-js@2.50.1(ws@8.18.2))
@@ -47,6 +50,9 @@ importers:
       sharp:
         specifier: ^0.34.2
         version: 0.34.2
+      stripe:
+        specifier: ^18.2.1
+        version: 18.2.1(@types/node@22.15.23)
       task-master-ai:
         specifier: ^0.15.0
         version: 0.15.0(@types/node@22.15.23)(react@19.1.0)(ws@8.18.2)
@@ -976,6 +982,10 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
+  '@stripe/stripe-js@7.4.0':
+    resolution: {integrity: sha512-lQHQPfXPTBeh0XFjq6PqSBAyR7umwcJbvJhXV77uGCUDD6ymXJU/f2164ydLMLCCceNuPlbV9b+1smx98efwWQ==}
+    engines: {node: '>=12.16'}
 
   '@supabase/auth-js@2.70.0':
     resolution: {integrity: sha512-BaAK/tOAZFJtzF1sE3gJ2FwTjLf4ky3PSvcvLGEgEmO4BSBkwWKu8l67rLLIBZPDnCyV7Owk2uPyKHa0kj5QGg==}
@@ -2856,6 +2866,15 @@ packages:
     resolution: {integrity: sha512-aulFJcD6YK8V1G7iRB5tigAP4TsHBZZrOV8pjV++zdUwmeV8uzbY7yn6h9MswN62adStNZFuCIx4haBnRuMDaw==}
     engines: {node: '>=18'}
 
+  stripe@18.2.1:
+    resolution: {integrity: sha512-GwB1B7WSwEBzW4dilgyJruUYhbGMscrwuyHsPUmSRKrGHZ5poSh2oU9XKdii5BFVJzXHn35geRvGJ6R8bYcp8w==}
+    engines: {node: '>=12.*'}
+    peerDependencies:
+      '@types/node': '>=12.x.x'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   strtok3@10.2.2:
     resolution: {integrity: sha512-Xt18+h4s7Z8xyZ0tmBoRmzxcop97R4BAh+dXouUDCYn+Em+1P3qpkUfI5ueWLT8ynC5hZ+q4iPEmGG1urvQGBg==}
     engines: {node: '>=18'}
@@ -4179,6 +4198,8 @@ snapshots:
   '@sindresorhus/merge-streams@4.0.0': {}
 
   '@standard-schema/spec@1.0.0': {}
+
+  '@stripe/stripe-js@7.4.0': {}
 
   '@supabase/auth-js@2.70.0':
     dependencies:
@@ -6434,6 +6455,12 @@ snapshots:
       ansi-regex: 6.1.0
 
   strip-final-newline@4.0.0: {}
+
+  stripe@18.2.1(@types/node@22.15.23):
+    dependencies:
+      qs: 6.14.0
+    optionalDependencies:
+      '@types/node': 22.15.23
 
   strtok3@10.2.2:
     dependencies:

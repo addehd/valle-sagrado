@@ -82,6 +82,16 @@ const supabase: Handle = async ({ event, resolve }) => {
        */
       return name === 'content-range' || name === 'x-supabase-api-version'
     },
+    transformPageChunk: ({ html }) => {
+      // Add CSP header to allow localhost connections for development
+      if (event.url.pathname.startsWith('/figma')) {
+        return html.replace(
+          '<head>',
+          '<head><meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob: http://localhost:* https://via.placeholder.com; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' http://localhost:* https://*">'
+        );
+      }
+      return html;
+    }
   })
 }
 

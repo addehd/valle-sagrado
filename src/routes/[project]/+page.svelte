@@ -14,23 +14,7 @@
 	const projectSlug = $derived($page.params.project);
 </script>
 
-  <!-- hero section -->
-  <div class="relative mb-8">
-    <div class="left-0 right-0 bg-gradient-to-t from-black/70">
-      <img src={data.project?.hero_img || data.project?.profile_image_url || "/images/valle.jpg"}
-        alt={data.project?.name} class="w-full h-64 md:h-96 object-cover shadow-lg" />
-    </div>
 
-    <div class="fixed top-0 left-0 right-0 p-0 text-center backdrop-blur-sm border-b-1 border-white/20">
-      <div class="flex flex-wrap p-5 items-center justify-center mt-2 ">
-          <img src={data.project?.profile_image_url} alt={data.project?.name} class="w-20 h-20 mr-2 rounded-full" />
-        <div class="flex flex-col justify-start ml-2 text-shadow-lg">
-          <h1 class="text-2xl md:text-3xl font-bold text-white">{data.project?.name}</h1>
-          <span class="text-white text-left">{data.project?.location || ''}</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
 <div class="container mx-auto px-4 bg-beige min-h-screen">
 
