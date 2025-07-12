@@ -3,6 +3,9 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	interface GeneratedDesign {
 		imageUrl: string;
@@ -19,12 +22,24 @@
 		cachedAt: number;
 	}
 
+	interface SavedDesign {
+		id: string;
+		user_id: string | null;
+		image_url: string;
+		prompt: string;
+		metadata: Record<string, any>;
+		created_at: string;
+		updated_at: string;
+	}
+
 	let loading = false;
+
 	let customPrompt = '';
 	let predefinedOption = '';
 	let colorCount = 1;
 	let generatedDesign: GeneratedDesign | null = null;
 	let error: string | null = null;
+
 	let imageLoading = false;
 	let imageError = false;
 	let zoomLevel = 1;
@@ -182,16 +197,19 @@
 			// For successful SvelteKit actions, the returned object is in result.data
 			const data = (result as any).data;
 			console.log('Result data:', data);
-			const design = data?.design;
-			console.log('Extracted design from result.data:', design);
 			
-			if (design) {
-				generatedDesign = design;
+			// Check if we have the success flag and design data
+			if (data?.success && data?.design) {
+				generatedDesign = data.design;
 				error = null; // Clear any previous errors
-				console.log('Successfully set generatedDesign');
+				console.log('Successfully set generatedDesign:', generatedDesign);
+				
+				// Note: The design has been auto-saved to the database, 
+				// so it will appear in the gallery on the next natural page refresh
 			} else {
 				error = 'No design data received from server';
-				console.log('No design found in result.data');
+				console.log('No design found in result.data or success flag missing');
+				console.log('Available data keys:', Object.keys(data || {}));
 			}
 		} else if (result.type === 'failure') {
 			const data = (result as any).data;
@@ -199,6 +217,8 @@
 			generatedDesign = null;
 		}
 	}
+
+
 
 	$: isFormValid = customPrompt.trim() || predefinedOption;
 
@@ -514,6 +534,27 @@
 		}
 	}
 
+	function formatDate(dateString: string): string {
+		try {
+			const date = new Date(dateString);
+			return date.toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+		} catch (error) {
+			return dateString;
+		}
+	}
+
+	function navigateToPage(page: number) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', page.toString());
+		window.location.href = url.toString();
+	}
+
 	// Load design history on mount
 	onMount(() => {
 		if (browser) {
@@ -642,8 +683,13 @@
 								src={generatedDesign.imageUrl} 
 								alt="Generated t-shirt design" 
 								class="max-w-full max-h-full object-contain"
-								on:error={() => {
-									error = 'Failed to load generated image';
+								on:load={() => {
+									console.log('✅ Image loaded successfully');
+								}}
+								on:error={(e) => {
+									console.error('❌ Image failed to load:', e);
+									console.error('❌ Image URL:', generatedDesign?.imageUrl);
+									error = 'Failed to load generated image. The image may have expired or be temporarily unavailable.';
 								}}
 							/>
 						</div>
@@ -690,4 +736,133 @@
 			</div>
 		</div>
 	</div>
+</div> 
+
+{#if generatedDesign}
+	<div class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200">
+		<div class="flex items-center mb-2">
+			<svg class="w-5 h-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+			</svg>
+			<h3 class="text-lg font-semibold text-green-800">Design Auto-Saved!</h3>
+		</div>
+		<p class="text-green-700 text-sm">
+			Your design has been automatically saved to your gallery. You can find it in the "Saved Designs" section below.
+		</p>
+	</div>
+{/if}
+
+<!-- Saved Designs Gallery -->
+<div class="mt-12 border-t pt-8">
+	<h2 class="text-2xl font-bold mb-6 text-gray-800">Saved Designs</h2>
+	
+	{#if data.designs.length === 0}
+		<div class="text-center py-12">
+			<div class="text-gray-400 text-6xl mb-4">
+				🎨
+			</div>
+			<p class="text-gray-500 text-lg">No saved designs yet.</p>
+			<p class="text-gray-400 text-sm mt-2">Generate and save your first design to see it here!</p>
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+			{#each data.designs as design (design.id)}
+				<div class="relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow group bg-white">
+					<div class="aspect-square relative">
+						<img 
+							src={design.image_url} 
+							alt={design.prompt.substring(0, 50)} 
+							class="w-full h-full object-cover"
+							loading="lazy"
+						/>
+						
+						<!-- Hover overlay with details -->
+						<div class="absolute inset-0 bg-black bg-opacity-80 p-4 text-white overflow-y-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+							<div class="h-full flex flex-col justify-between">
+								<div>
+									<p class="font-medium text-sm mb-2 text-blue-200">
+										{formatDate(design.created_at)}
+									</p>
+									<p class="text-sm mb-3 line-clamp-4">
+										{design.prompt}
+									</p>
+									
+									{#if design.metadata?.colorCount}
+										<p class="text-xs text-gray-300 mb-1">
+											Colors: {design.metadata.colorCount}
+										</p>
+									{/if}
+									
+									{#if design.metadata?.style}
+										<p class="text-xs text-gray-300 mb-1">
+											Style: {design.metadata.style}
+										</p>
+									{/if}
+									
+									{#if design.metadata?.model}
+										<p class="text-xs text-gray-300">
+											Model: {design.metadata.model}
+										</p>
+									{/if}
+								</div>
+								
+								<div class="flex gap-2 mt-4">
+									<a 
+										href={design.image_url} 
+										target="_blank" 
+										rel="noopener noreferrer"
+										class="flex-1 px-3 py-1 bg-blue-600 text-white text-xs rounded text-center hover:bg-blue-700 transition-colors"
+									>
+										View Full
+									</a>
+									<a 
+										href={design.image_url} 
+										download="design-{design.id}.png"
+										class="flex-1 px-3 py-1 bg-green-600 text-white text-xs rounded text-center hover:bg-green-700 transition-colors"
+									>
+										Download
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+		
+		<!-- Pagination -->
+		{#if data.totalPages > 1}
+			<div class="mt-8 flex justify-center">
+				<nav class="flex items-center space-x-2">
+					{#if data.page > 1}
+						<button 
+							on:click={() => navigateToPage(data.page - 1)}
+							class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+						>
+							Previous
+						</button>
+					{/if}
+					
+					{#each Array(data.totalPages) as _, i}
+						{@const pageNum = i + 1}
+						<button 
+							on:click={() => navigateToPage(pageNum)}
+							class="px-3 py-2 text-sm rounded transition-colors {pageNum === data.page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+						>
+							{pageNum}
+						</button>
+					{/each}
+					
+					{#if data.page < data.totalPages}
+						<button 
+							on:click={() => navigateToPage(data.page + 1)}
+							class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+						>
+							Next
+						</button>
+					{/if}
+				</nav>
+			</div>
+		{/if}
+	{/if}
 </div> 

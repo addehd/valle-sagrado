@@ -320,4 +320,24 @@ export interface ProcessedReceiptFile {
 	receipt_id?: string;
 	error?: string;
 	processed_data?: ReceiptProcessedData;
+}
+
+// Custom Design interfaces
+export interface CustomDesign {
+	id: string;
+	user_id: string | null;
+	image_url: string;
+	prompt: string;
+	metadata: {
+		model?: string;
+		colorCount?: number;
+		style?: string;
+		aiPrompt?: string;
+		revisedPrompt?: string;
+		parameters?: Record<string, any>;
+		tags?: string[];
+		[key: string]: any;
+	};
+	created_at: string;
+	updated_at: string;
 } 
