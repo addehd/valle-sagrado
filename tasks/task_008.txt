@@ -1,0 +1,123 @@
+# Task ID: 8
+# Title: Create Supabase Configuration System for Global Project Settings
+# Status: done
+# Dependencies: 7
+# Priority: high
+# Description: Implement a configuration system using Supabase to store and manage global project settings, including map starting position, zoom levels, and other parameters.
+# Details:
+1. Create a new 'config' table in Supabase with the following columns:
+   - id (primary key)
+   - key (string, unique)
+   - value (jsonb)
+   - created_at (timestamp with time zone)
+   - updated_at (timestamp with time zone)
+
+2. Implement Supabase functions to manage the configuration:
+   - getConfig(key: string): Retrieve a specific configuration
+   - setConfig(key: string, value: any): Set or update a configuration
+   - getAllConfig(): Retrieve all configurations
+
+3. Create initial configuration entries:
+   - map_start_position: { lat: number, lng: number }
+   - map_zoom_levels: { min: number, max: number, default: number }
+   - other_global_settings: { setting1: value1, setting2: value2, ... }
+
+4. Update the map component to fetch configuration from Supabase:
+   ```svelte
+   <script>
+   import { onMount } from 'svelte';
+   import { getConfig } from '$lib/supabaseConfig';
+
+   let mapConfig;
+
+   onMount(async () => {
+     mapConfig = await getConfig('map_start_position');
+     initializeMap(mapConfig);
+   });
+
+   function initializeMap(config) {
+     // Use config to set up map
+   }
+   </script>
+   ```
+
+5. Implement an admin interface for managing global configurations:
+   - Create a new route: `/admin/config`
+   - Develop a form for editing configuration values
+   - Implement update functionality using the setConfig function
+
+6. Update relevant components throughout the application to use the new configuration system instead of hardcoded values.
+
+7. Implement error handling and validation for configuration values to ensure data integrity.
+
+8. Add appropriate access controls to ensure only authorized users can modify configurations.
+
+# Test Strategy:
+1. Unit Tests:
+   - Test getConfig, setConfig, and getAllConfig functions with various inputs
+   - Verify error handling for invalid keys or values
+
+2. Integration Tests:
+   - Ensure the map component correctly initializes with values from the config table
+   - Verify that changes in the admin configuration interface are reflected in the application
+
+3. UI Tests:
+   - Test the admin configuration interface for usability and correctness
+   - Verify that all form inputs are properly validated
+
+4. Performance Tests:
+   - Measure the impact of fetching configuration from Supabase on initial page load time
+   - Ensure efficient caching mechanisms are in place for frequently accessed configs
+
+5. Security Tests:
+   - Verify that only authorized users can access and modify configurations
+   - Test for SQL injection vulnerabilities in configuration management functions
+
+6. Regression Tests:
+   - Ensure that the new configuration system doesn't break existing functionality
+   - Verify that all components previously using hardcoded values now use the config system
+
+7. Edge Case Tests:
+   - Test behavior with missing or corrupted configuration data
+   - Verify system stability when rapidly changing configuration values
+
+8. Cross-browser and Device Testing:
+   - Ensure the configuration system works correctly across different browsers and devices
+
+# Subtasks:
+## 1. Create Supabase 'config' table [done]
+### Dependencies: None
+### Description: Set up the 'config' table in Supabase with the specified columns
+### Details:
+Create a new table named 'config' in Supabase with columns: id (primary key), key (string, unique), value (jsonb), created_at (timestamp with time zone), updated_at (timestamp with time zone)
+
+## 2. Implement Supabase configuration functions [done]
+### Dependencies: 8.1
+### Description: Create functions to manage configuration in Supabase
+### Details:
+Implement getConfig(key: string), setConfig(key: string, value: any), and getAllConfig() functions to interact with the 'config' table
+
+## 3. Create initial configuration entries [done]
+### Dependencies: 8.1, 8.2
+### Description: Populate the 'config' table with initial global settings
+### Details:
+Add entries for map_start_position, map_zoom_levels, and other_global_settings using the setConfig function
+
+## 4. Update map component to use Supabase configuration [done]
+### Dependencies: 8.2, 8.3
+### Description: Modify the map component to fetch and use configuration from Supabase
+### Details:
+Update the Svelte map component to use getConfig for retrieving map_start_position and other relevant settings
+
+## 5. Implement admin interface for configuration management [done]
+### Dependencies: 8.2
+### Description: Create an admin page for managing global configurations
+### Details:
+Develop a new route '/admin/config' with a form for editing configuration values, using setConfig for updates
+
+## 6. Refactor application to use new configuration system [done]
+### Dependencies: 8.2, 8.3, 8.4, 8.5
+### Description: Update components to use the Supabase configuration instead of hardcoded values
+### Details:
+Identify and modify all relevant components throughout the application to fetch and use configuration values from Supabase
+

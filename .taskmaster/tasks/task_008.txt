@@ -1,0 +1,166 @@
+# Task ID: 8
+# Title: Implement Migration for Existing Images
+# Status: pending
+# Dependencies: 6
+# Priority: medium
+# Description: Create a migration script to move existing DALL-E images to Supabase Storage.
+# Details:
+Implement a migration script to process existing images:
+
+```javascript
+import { createClient } from '@supabase/supabase-js'
+import { processDallEImage } from './image-processor'
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+
+/**
+ * Migrate existing images to Supabase Storage
+ * @param {number} batchSize - Number of images to process in each batch
+ * @param {number} concurrency - Number of concurrent processes
+ * @returns {Promise<{processed: number, failed: number, skipped: number}>}
+ */
+async function migrateExistingImages(batchSize = 50, concurrency = 5) {
+  let stats = { processed: 0, failed: 0, skipped: 0 }
+  let lastId = 0
+  let hasMore = true
+  
+  console.log('Starting migration of existing images...')
+  
+  while (hasMore) {
+    // Get batch of designs that have DALL-E URL but no storage URL
+    const { data, error } = await supabase
+      .from('custom_design')
+      .select('id, image_url')
+      .is('storage_url', null)
+      .not('image_url', 'is', null)
+      .gt('id', lastId)
+      .order('id', { ascending: true })
+      .limit(batchSize)
+    
+    if (error) {
+      console.error('Error fetching designs:', error)
+      throw error
+    }
+    
+    if (!data || data.length === 0) {
+      hasMore = false
+      break
+    }
+    
+    console.log(`Processing batch of ${data.length} designs...`)
+    
+    // Update lastId for next batch
+    lastId = data[data.length - 1].id
+    
+    // Process in chunks to control concurrency
+    for (let i = 0; i < data.length; i += concurrency) {
+      const chunk = data.slice(i, i + concurrency)
+      const promises = chunk.map(design => {
+        if (!design.image_url) {
+          stats.skipped++
+          return Promise.resolve()
+        }
+        
+        return processDallEImage(design.id, design.image_url)
+          .then(() => { stats.processed++ })
+          .catch(error => {
+            console.error(`Failed to process design ${design.id}:`, error)
+            stats.failed++
+          })
+      })
+      
+      await Promise.all(promises)
+      
+      console.log(`Progress: ${stats.processed} processed, ${stats.failed} failed, ${stats.skipped} skipped`)
+    }
+  }
+  
+  console.log('Migration completed:', stats)
+  return stats
+}
+
+// Command line script
+if (require.main === module) {
+  const batchSize = parseInt(process.env.BATCH_SIZE || '50', 10)
+  const concurrency = parseInt(process.env.CONCURRENCY || '5', 10)
+  
+  migrateExistingImages(batchSize, concurrency)
+    .then(stats => {
+      console.log('Migration completed successfully:', stats)
+      process.exit(0)
+    })
+    .catch(error => {
+      console.error('Migration failed:', error)
+      process.exit(1)
+    })
+}
+```
+
+Implement a resumable migration with checkpointing:
+
+```javascript
+async function resumableMigration(batchSize = 50, concurrency = 5) {
+  // Create a checkpoint table if it doesn't exist
+  await supabase.rpc('create_migration_checkpoint_table')
+  
+  // Get last checkpoint
+  const { data: checkpoint } = await supabase
+    .from('migration_checkpoints')
+    .select('*')
+    .eq('migration_name', 'dalle_to_supabase')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+  
+  const lastId = checkpoint?.last_id || 0
+  const stats = checkpoint?.stats || { processed: 0, failed: 0, skipped: 0 }
+  
+  console.log(`Resuming migration from ID ${lastId}...`)
+  
+  // Run the migration
+  const updatedStats = await migrateExistingImages(batchSize, concurrency, lastId, stats)
+  
+  // Save checkpoint
+  await supabase
+    .from('migration_checkpoints')
+    .insert({
+      migration_name: 'dalle_to_supabase',
+      last_id: updatedStats.lastId,
+      stats: updatedStats,
+      completed: !updatedStats.hasMore
+    })
+  
+  return updatedStats
+}
+```
+
+Create the checkpoint table:
+
+```sql
+CREATE OR REPLACE FUNCTION create_migration_checkpoint_table()
+RETURNS void AS $$
+BEGIN
+  CREATE TABLE IF NOT EXISTS migration_checkpoints (
+    id SERIAL PRIMARY KEY,
+    migration_name TEXT NOT NULL,
+    last_id INTEGER NOT NULL,
+    stats JSONB NOT NULL,
+    completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  );
+  
+  CREATE INDEX IF NOT EXISTS idx_migration_checkpoints_name 
+  ON migration_checkpoints(migration_name);
+ END;
+$$ LANGUAGE plpgsql;
+```
+
+# Test Strategy:
+1. Test the migration script with a small subset of data first
+2. Verify images are correctly transferred to Supabase Storage
+3. Test resumability by interrupting and restarting the migration
+4. Verify checkpointing correctly tracks progress
+5. Test error handling during migration
+6. Verify statistics are accurately reported
+7. Test with various batch sizes and concurrency levels to find optimal settings
+8. Verify database consistency after migration

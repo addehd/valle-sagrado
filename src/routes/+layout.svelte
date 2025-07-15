@@ -4,6 +4,7 @@
 	import { themeStore } from '$lib/stores/theme'
 	import Header from '../components/Header.svelte'
 	import ThemeToggle from '../components/ThemeToggle.svelte'
+	import MetaTags from '../components/MetaTags.svelte'
 	let { children } = $props();
   // let { logo_url, colors, name, website_url, description } = data.brand;
     
@@ -11,6 +12,9 @@
 		themeStore.init();
 	}
 </script>
+
+<!-- Default Meta Tags for the entire site -->
+<MetaTags />
 
 <div class="min-h-screen dark:bg-gray-900 bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->

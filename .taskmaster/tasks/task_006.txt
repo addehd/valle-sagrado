@@ -1,0 +1,142 @@
+# Task ID: 6
+# Title: Implement End-to-End Image Processing Workflow
+# Status: pending
+# Dependencies: 3, 4, 5
+# Priority: high
+# Description: Create a complete workflow that handles the entire process from DALL-E image generation to Supabase Storage and database updates.
+# Details:
+Implement a comprehensive workflow function that orchestrates the entire process:
+
+```javascript
+import { downloadWithRetry } from './download-utils'
+import { uploadWithRetry } from './upload-utils'
+import { updateDesignWithStorageInfo, hasStorageInfo } from './database-utils'
+import { cleanupTempFile } from './file-utils'
+
+/**
+ * Process a DALL-E generated image and store it permanently
+ * @param {number} designId - The ID of the design
+ * @param {string} dalleUrl - The temporary DALL-E URL
+ * @returns {Promise<Object>} - The updated design with permanent storage info
+ */
+async function processDallEImage(designId, dalleUrl) {
+  let tempFilePath = null
+  
+  try {
+    // Check if already processed
+    const hasStorage = await hasStorageInfo(designId)
+    if (hasStorage) {
+      console.log(`Design ${designId} already has storage info, skipping processing`)
+      return
+    }
+    
+    // Step 1: Download the image from DALL-E
+    console.log(`Downloading image for design ${designId}...`)
+    const { filePath, fileName, mimeType } = await downloadWithRetry(dalleUrl)
+    tempFilePath = filePath
+    
+    // Step 2: Upload to Supabase Storage
+    console.log(`Uploading image to Supabase Storage...`)
+    const { url: storageUrl, path: storagePath } = await uploadWithRetry(
+      filePath,
+      fileName,
+      mimeType
+    )
+    
+    // Step 3: Update database with storage info
+    console.log(`Updating database for design ${designId}...`)
+    const updatedDesign = await updateDesignWithStorageInfo(
+      designId,
+      storageUrl,
+      storagePath,
+      dalleUrl
+    )
+    
+    console.log(`Successfully processed image for design ${designId}`)
+    return updatedDesign
+  } catch (error) {
+    console.error(`Error processing DALL-E image for design ${designId}:`, error)
+    throw error
+  } finally {
+    // Step 4: Clean up temporary files
+    if (tempFilePath) {
+      await cleanupTempFile(tempFilePath)
+    }
+  }
+}
+
+/**
+ * Process multiple DALL-E images in batch
+ * @param {Array<{designId: number, dalleUrl: string}>} items - Batch of items to process
+ * @returns {Promise<Array>} - Results of processing
+ */
+async function processBatch(items, concurrency = 3) {
+  const results = []
+  const errors = []
+  
+  // Process in chunks to control concurrency
+  for (let i = 0; i < items.length; i += concurrency) {
+    const chunk = items.slice(i, i + concurrency)
+    const promises = chunk.map(item => 
+      processDallEImage(item.designId, item.dalleUrl)
+        .then(result => results.push(result))
+        .catch(error => errors.push({ item, error }))
+    )
+    
+    await Promise.all(promises)
+  }
+  
+  return { results, errors }
+}
+```
+
+Implement a queue system for reliability with Bull or similar:
+
+```javascript
+import Queue from 'bull'
+
+// Create a Redis-backed queue
+const imageProcessingQueue = new Queue('image-processing', {
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+  }
+})
+
+// Add job to queue
+async function queueImageProcessing(designId, dalleUrl) {
+  return imageProcessingQueue.add({
+    designId,
+    dalleUrl
+  }, {
+    attempts: 5,
+    backoff: {
+      type: 'exponential',
+      delay: 5000
+    }
+  })
+}
+
+// Process jobs from queue
+imageProcessingQueue.process(async (job) => {
+  const { designId, dalleUrl } = job.data
+  return processDallEImage(designId, dalleUrl)
+})
+
+// Handle failed jobs
+imageProcessingQueue.on('failed', (job, error) => {
+  console.error(`Job ${job.id} failed:`, error)
+  // Notify administrators or log to monitoring system
+})
+```
+
+# Test Strategy:
+1. Test the end-to-end workflow with real DALL-E URLs
+2. Verify all steps (download, upload, database update, cleanup) work correctly
+3. Test error handling at each step of the process
+4. Verify the queue system handles job retries correctly
+5. Test batch processing with various batch sizes
+6. Verify concurrency control works as expected
+7. Test idempotency by running the same job multiple times
+8. Measure end-to-end performance and optimize bottlenecks
+9. Test system under load with many concurrent jobs

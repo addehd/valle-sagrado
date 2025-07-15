@@ -1,0 +1,142 @@
+# Task ID: 14
+# Title: Implement Dynamic Map Centering and Zoom for Location Pins
+# Status: done
+# Dependencies: 3
+# Priority: high
+# Description: Create functionality to automatically calculate the center point of all valid teacher/project location pins and set the map zoom level to ensure all markers are visible within the viewport.
+# Details:
+1. Identify the map component currently used in the application (likely Google Maps, Mapbox, or Leaflet).
+
+2. Create a utility function to calculate the center point of multiple coordinates:
+   ```javascript
+   function calculateCenterPoint(coordinates) {
+     if (!coordinates || coordinates.length === 0) return null;
+     
+     // Sum all latitudes and longitudes
+     const sumLat = coordinates.reduce((sum, coord) => sum + coord.lat, 0);
+     const sumLng = coordinates.reduce((sum, coord) => sum + coord.lng, 0);
+     
+     // Calculate average
+     return {
+       lat: sumLat / coordinates.length,
+       lng: sumLng / coordinates.length
+     };
+   }
+   ```
+
+3. Create a function to determine the optimal zoom level:
+   ```javascript
+   function calculateOptimalZoom(coordinates, mapWidth, mapHeight) {
+     if (!coordinates || coordinates.length <= 1) return DEFAULT_ZOOM;
+     
+     // Find the bounds of all coordinates
+     let minLat = Infinity, maxLat = -Infinity;
+     let minLng = Infinity, maxLng = -Infinity;
+     
+     coordinates.forEach(coord => {
+       minLat = Math.min(minLat, coord.lat);
+       maxLat = Math.max(maxLat, coord.lat);
+       minLng = Math.min(minLng, coord.lng);
+       maxLng = Math.max(maxLng, coord.lng);
+     });
+     
+     // Calculate the bounds size
+     const latDiff = maxLat - minLat;
+     const lngDiff = maxLng - minLng;
+     
+     // Apply a formula to determine zoom based on the bounds and map dimensions
+     // This formula will vary based on the mapping library used
+     // Example for Google Maps:
+     const WORLD_DIM = { height: 256, width: 256 };
+     const ZOOM_MAX = 18;
+     
+     const latZoom = Math.floor(Math.log2(mapHeight / WORLD_DIM.height / latDiff));
+     const lngZoom = Math.floor(Math.log2(mapWidth / WORLD_DIM.width / lngDiff));
+     
+     return Math.min(latZoom, lngZoom, ZOOM_MAX);
+   }
+   ```
+
+4. Modify the map component to use these utility functions:
+   - Collect all valid location coordinates from teachers/projects
+   - Filter out any invalid coordinates (null, undefined, etc.)
+   - Calculate the center point using the utility function
+   - Determine the optimal zoom level
+   - Apply these values to the map component
+
+5. Implement a fallback mechanism for edge cases:
+   - If no valid coordinates exist, use a default center point and zoom level
+   - If only one coordinate exists, use that as center with a default zoom level
+   - Handle cases where coordinates might be extremely distant from each other
+
+6. Add a resize event listener to recalculate zoom when the map container size changes:
+   ```javascript
+   useEffect(() => {
+     const handleResize = () => {
+       // Get current map container dimensions
+       const mapElement = document.getElementById('map-container');
+       if (!mapElement) return;
+       
+       const width = mapElement.clientWidth;
+       const height = mapElement.clientHeight;
+       
+       // Recalculate zoom based on new dimensions
+       const newZoom = calculateOptimalZoom(coordinates, width, height);
+       setZoom(newZoom);
+     };
+     
+     window.addEventListener('resize', handleResize);
+     return () => window.removeEventListener('resize', handleResize);
+   }, [coordinates]);
+   ```
+
+7. Update the map component props to use the calculated values:
+   ```jsx
+   <Map
+     center={centerPoint || DEFAULT_CENTER}
+     zoom={zoomLevel || DEFAULT_ZOOM}
+     markers={locationPins}
+     // other props...
+   />
+   ```
+
+# Test Strategy:
+1. Unit Testing:
+   - Create unit tests for the `calculateCenterPoint` function:
+     - Test with an empty array (should return null or default value)
+     - Test with a single coordinate (should return that coordinate)
+     - Test with multiple coordinates (should return the average)
+     - Test with coordinates at extreme positions (very distant from each other)
+   
+   - Create unit tests for the `calculateOptimalZoom` function:
+     - Test with an empty array (should return default zoom)
+     - Test with a single coordinate (should return default zoom)
+     - Test with coordinates close together (should return higher zoom value)
+     - Test with coordinates far apart (should return lower zoom value)
+     - Test with different map container dimensions
+
+2. Integration Testing:
+   - Create a test component with mock location data
+   - Verify the map renders with the correct center point
+   - Verify the map renders with the correct zoom level
+   - Test with different sets of location data (varying numbers and distributions)
+   - Test the resize functionality by programmatically changing the container size
+
+3. Manual Testing:
+   - Test the map with real project/teacher location data
+   - Verify all markers are visible within the viewport
+   - Test edge cases:
+     - Only one location pin
+     - No location pins
+     - Locations spread across different continents
+     - Locations very close together
+   - Test on different screen sizes (desktop, tablet, mobile)
+   - Test with browser window resizing
+
+4. Visual Regression Testing:
+   - Take screenshots of the map with different sets of location pins
+   - Compare with expected results to ensure consistent rendering
+
+5. Performance Testing:
+   - Measure the calculation time for large sets of location pins
+   - Ensure the resize event handler is properly debounced to prevent performance issues

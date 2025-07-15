@@ -1,0 +1,111 @@
+# Task ID: 7
+# Title: Restructure E-commerce Routes and Implement Dynamic Project Configuration
+# Status: done
+# Dependencies: 3, 4
+# Priority: high
+# Description: Reorganize e-commerce routes into a dynamic project structure to support project-specific e-commerce functionality.
+# Details:
+1. Restructure e-commerce routes:
+   a. Create a new directory structure: `src/routes/[project]/e-commerce/`
+   b. Move existing e-commerce related routes (cart, checkout, products) into this new structure
+   c. Update import statements and navigation links throughout the application
+   d. Implement dynamic routing to handle project-specific e-commerce functionality
+   e. Ensure that the new route structure works with existing admin interfaces
+
+2. Update existing components:
+   a. Modify product listing, cart, and checkout components to work with the new route structure
+   b. Ensure that project-specific configurations are respected in relevant components
+
+Example of a dynamic route structure:
+```
+src/routes/
+  ├── [project]/
+  │   └── e-commerce/
+  │       ├── cart/
+  │       │   └── +page.svelte
+  │       ├── checkout/
+  │       │   └── +page.svelte
+  │       ├── products/
+  │       │   ├── +page.svelte
+  │       │   └── [productId]/
+  │       │       └── +page.svelte
+  │       └── +layout.svelte
+```
+
+Example of using the project parameter in a Svelte component:
+```svelte
+<script lang="ts">
+  import { page } from '$app/stores';
+  
+  // Access the project slug from the URL parameters
+  const projectSlug = $page.params.project;
+  
+  // Use the project slug to fetch project-specific data
+  $: fetchProductsForProject(projectSlug);
+  
+  async function fetchProductsForProject(slug) {
+    // Implementation to fetch products for the specific project
+  }
+</script>
+```
+
+# Test Strategy:
+1. Route restructuring tests:
+   a. Verify that all e-commerce routes are accessible under the new `/[project]/e-commerce/` structure
+   b. Test navigation between pages to ensure all links are updated correctly
+   c. Confirm that project-specific routes load the correct data
+
+2. E-commerce functionality tests:
+   a. Complete a purchase flow (add to cart, checkout, payment) for multiple projects to ensure project-specific functionality works
+   b. Verify that product listings are correct for each project
+
+3. Performance tests:
+   a. Measure load times for e-commerce pages before and after the restructuring to ensure no significant performance degradation
+
+4. Regression tests:
+   a. Run existing test suite to ensure that the restructuring hasn't broken any previously working functionality
+   b. Pay special attention to admin interfaces for product and order management
+
+5. Cross-browser and responsive design tests:
+   a. Verify that the restructured pages work correctly across different browsers and device sizes
+
+6. Database integrity tests:
+   a. Ensure that existing orders and products are still associated with the correct projects after the restructuring
+
+# Subtasks:
+## 1. Create new directory structure for e-commerce routes [done]
+### Dependencies: None
+### Description: Set up the new directory structure for project-specific e-commerce routes
+### Details:
+Create the directory structure 'src/routes/[project]/e-commerce/' and move existing e-commerce related routes (cart, checkout, products) into this new structure
+
+## 2. Update import statements and navigation links [done]
+### Dependencies: 7.1
+### Description: Modify import statements and navigation links throughout the application to reflect the new route structure
+### Details:
+Search for all import statements and navigation links referencing the old e-commerce routes and update them to use the new project-specific structure
+
+## 3. Implement dynamic routing for project-specific e-commerce [done]
+### Dependencies: 7.1, 7.2
+### Description: Create a dynamic routing system to handle project-specific e-commerce functionality
+### Details:
+Implement logic to dynamically route e-commerce requests based on the project slug, ensuring that the correct project-specific components and data are loaded
+
+## 9. Update e-commerce components for project-specific functionality [done]
+### Dependencies: 7.1, 7.2, 7.3
+### Description: Modify product listing, cart, and checkout components to work with the new route structure
+### Details:
+Update all e-commerce components to extract and use the project parameter from the URL, ensuring they load and display project-specific data correctly
+
+## 10. Ensure compatibility with existing admin interfaces [done]
+### Dependencies: 7.1, 7.2, 7.3, 7.9
+### Description: Verify and update admin interfaces to work with the new project-specific e-commerce structure
+### Details:
+Test admin interfaces for product and order management with the new route structure, making any necessary adjustments to ensure they function correctly with project-specific e-commerce data
+
+## 11. Comprehensive testing of restructured e-commerce flow [done]
+### Dependencies: 7.1, 7.2, 7.3, 7.9, 7.10
+### Description: Test the complete e-commerce flow from product browsing to checkout in the new structure
+### Details:
+Perform end-to-end testing of the entire e-commerce flow for multiple projects, including product browsing, adding to cart, checkout process, and order confirmation
+

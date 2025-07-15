@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Products from '$components/Products.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 	import { page } from '$app/stores';
 
 	interface Props {
@@ -10,12 +11,26 @@
 	const { data }: Props = $props();
 	
 	const projectSlug = $derived($page.params.project);
+	const currentUrl = $derived($page.url.href);
+	
+	// Create products page meta tags
+	const productsTitle = $derived(`Products - ${data.project?.name || 'Valle Sagrado'}`);
+	const productsDescription = $derived(`Browse all products from ${data.project?.name || 'Valle Sagrado'}. Discover authentic handmade items from local artisans in the Sacred Valley.`);
+	const productsImage = $derived('/images/valle.jpg');
+	const productsKeywords = $derived(
+		[data.project?.name, 'products', 'Valle Sagrado', 'Sacred Valley', 'Peru', 'handmade', 'authentic', 'local artisans'].filter(Boolean).join(', ')
+	);
 </script>
 
-<svelte:head>
-	<title>Products - {data.project?.name || 'Valle Sagrado'}</title>
-	<meta name="description" content="Browse all products from {data.project?.name || 'Valle Sagrado'}" />
-</svelte:head>
+<!-- Products page Meta Tags -->
+<MetaTags 
+	title={productsTitle}
+	description={productsDescription}
+	image={productsImage}
+	url={currentUrl}
+	keywords={productsKeywords}
+	type="website"
+/>
 
 <div class="min-h-screen bg-gray-50">
 	<!-- Header -->

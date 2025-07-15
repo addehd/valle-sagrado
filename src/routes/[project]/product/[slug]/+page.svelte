@@ -1,15 +1,54 @@
 <script lang="ts">
   import AddToCart from '../../../../components/AddToCart.svelte';
   import CartHeader from '../../../../components/CartHeader.svelte';
+  import MetaTags from '../../../../components/MetaTags.svelte';
+  import { page } from '$app/stores';
   
-  export let data;
+  let { data } = $props();
   const product = data.product;
   const project = data.project;
+  
+  // Derive current URL for meta tags
+  const currentUrl = $derived($page.url.href);
+  
+  // Create product-specific meta tags
+  const productTitle = $derived(product ? `${product.name} - ${project?.name || 'Product'}` : 'Product Not Found');
+  const productDescription = $derived(
+    product?.description || 
+    (product ? `${product.name} available at ${project?.name || 'Valle Sagrado'}. Authentic handmade products from the Sacred Valley.` : 'Product not found')
+  );
+  const productImage = $derived(
+    product?.image_url || 
+    product?.images?.[0] || 
+    '/images/valle.jpg'
+  );
+  const productKeywords = $derived(
+    [product?.category, product?.brand, project?.name, 'Valle Sagrado', 'Sacred Valley', 'Peru', 'handmade', 'authentic'].filter(Boolean).join(', ')
+  );
 </script>
 
-<svelte:head>
-  <title>{product ? `${product.name} - ${project?.name || 'Product'}` : 'Product Not Found'}</title>
-</svelte:head>
+<!-- Product-specific Meta Tags -->
+{#if product && project}
+  <MetaTags 
+    title={productTitle}
+    description={productDescription}
+    image={productImage}
+    url={currentUrl}
+    keywords={productKeywords}
+    type="product"
+    productPrice={product.price?.toString()}
+    productCurrency="USD"
+    productAvailability={product.stock > 0 ? 'in stock' : 'out of stock'}
+    productBrand={product.brand || project.name}
+    productCategory={product.category}
+  />
+{:else}
+  <MetaTags 
+    title="Product Not Found - Valle Sagrado"
+    description="The requested product could not be found. Browse our collection of authentic handmade products from the Sacred Valley."
+    url={currentUrl}
+  />
+{/if}
 
 {#if product && project}
   <main class="container mx-auto px-6 py-12">

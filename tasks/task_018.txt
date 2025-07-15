@@ -1,0 +1,142 @@
+# Task ID: 18
+# Title: Configure Vercel to Use npm for Builds Instead of pnpm
+# Status: done
+# Dependencies: 16
+# Priority: high
+# Description: Create a Vercel configuration to override the default build system from pnpm to npm, resolving deployment failures while maintaining pnpm for local development.
+# Details:
+1. Create a `vercel.json` configuration file in the project root with the following content:
+```json
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build"
+      }
+    }
+  ]
+}
+```
+
+2. Ensure the `package.json` file has the correct build script that works with npm:
+   - Verify that the `build` script in `package.json` is compatible with both npm and pnpm
+   - Check for any pnpm-specific features or commands that might need adjustment
+
+3. Update the Vercel project settings in the dashboard:
+   - Navigate to the project in the Vercel dashboard
+   - Go to Settings > General > Build & Development Settings
+   - Override the Framework Preset if necessary
+   - Set the Build Command to `npm run build`
+   - Set the Install Command to `npm install`
+
+4. Ensure all dependencies are properly listed in `package.json`:
+   - Check that there are no dependencies only installed via pnpm but missing from `package.json`
+   - Verify that all dev dependencies required for the build are correctly categorized
+
+5. If using a monorepo or workspace setup:
+   - Adjust the configuration to account for workspace-specific settings
+   - Consider adding a `.npmrc` file if needed to configure npm behavior
+
+6. Document the change in the project README:
+   - Explain that local development uses pnpm while production builds use npm
+   - Include instructions for other developers to understand this configuration
+
+# Test Strategy:
+1. Test the configuration locally before deploying:
+   - Run `vercel build --local` to simulate the build process locally
+   - Verify that the build completes successfully using npm instead of pnpm
+
+2. Deploy to a preview environment:
+   - Push the changes to a feature branch
+   - Verify that Vercel creates a preview deployment successfully
+   - Check the build logs to confirm npm commands are being used instead of pnpm
+   - Verify that the application functions correctly in the preview environment
+
+3. Monitor the deployment process:
+   - Watch the build logs in real-time during deployment
+   - Confirm that the error code 1 from "pnpm run build" no longer occurs
+   - Verify that all build steps complete successfully
+
+4. Validate the production deployment:
+   - After merging to the main branch, verify the production build succeeds
+   - Check that all application features work correctly in production
+   - Verify that subsequent deployments continue to use npm for builds
+
+5. Test local development workflow:
+   - Confirm that local development still works with pnpm commands
+   - Verify that developers can still use `pnpm install` and `pnpm dev` locally
+   - Ensure the development experience remains unchanged
+
+# Subtasks:
+## 1. Create vercel.json configuration file [done]
+### Dependencies: None
+### Description: Create a vercel.json file in the project root to override the default build system from pnpm to npm.
+### Details:
+1. Create a new file named `vercel.json` in the project root directory
+2. Add the configuration to use npm for installation and build processes:
+```json
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build"
+      }
+    }
+  ]
+}
+```
+3. Save the file and ensure it's properly formatted
+
+## 2. Verify package.json build script compatibility [done]
+### Dependencies: 18.1
+### Description: Ensure that the build script in package.json works with both npm and pnpm by checking for any pnpm-specific features.
+### Details:
+1. Open the project's `package.json` file
+2. Review the `build` script and any related scripts it might call
+3. Identify any pnpm-specific commands or features (like pnpm-specific flags)
+4. Replace pnpm-specific commands with npm-compatible alternatives
+5. Ensure all dependencies required for the build process are correctly listed in dependencies or devDependencies
+6. Check for any workspace-specific configurations if using a monorepo setup
+
+## 3. Configure Vercel dashboard settings [done]
+### Dependencies: 18.1, 18.2
+### Description: Update the project settings in the Vercel dashboard to ensure they align with the new npm-based build configuration.
+### Details:
+1. Navigate to the Vercel dashboard and select the project
+2. Go to Settings > General > Build & Development Settings
+3. Override the Framework Preset if necessary
+4. Set the Build Command to `npm run build`
+5. Set the Install Command to `npm install`
+6. Save the changes
+7. If using a monorepo, ensure the Root Directory setting is correctly configured
+
+## 4. Test deployment with npm configuration [done]
+### Dependencies: 18.1, 18.2, 18.3
+### Description: Deploy the application to verify that the npm-based build process works correctly on Vercel.
+### Details:
+1. Push the changes (vercel.json and any package.json modifications) to the repository
+2. Trigger a new deployment on Vercel (either automatically via git integration or manually)
+3. Monitor the build logs carefully for any errors related to the build process
+4. Verify that npm commands are being used instead of pnpm
+5. Check that the application deploys successfully and functions as expected
+6. If errors occur, review the logs to identify and fix any issues with the npm configuration
+
+## 5. Document the configuration in project README [done]
+### Dependencies: 18.4
+### Description: Update the project documentation to explain the dual package manager setup for local development and production builds.
+### Details:
+1. Open the project's README.md file
+2. Add a new section titled "Build Configuration"
+3. Explain that the project uses pnpm for local development but npm for Vercel deployments
+4. Document the purpose of the vercel.json file
+5. Include instructions for other developers on how to work with this configuration
+6. Add any troubleshooting tips for common issues that might arise
+7. If applicable, explain why this approach was chosen over alternatives
+8. Commit and push the updated README
+

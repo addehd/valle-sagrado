@@ -1,0 +1,122 @@
+# Task ID: 5
+# Title: Create Database Update Functions for Image Storage
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Implement functions to update the database with Supabase Storage URLs and metadata after successful image uploads.
+# Details:
+Create functions to update the custom_design table with storage information:
+
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+
+/**
+ * Updates the custom_design table with storage information
+ * @param {number} designId - The ID of the design to update
+ * @param {string} storageUrl - The public URL from Supabase Storage
+ * @param {string} storagePath - The storage path in the bucket
+ * @param {string} originalUrl - The original DALL-E URL
+ * @returns {Promise<Object>} - The updated design record
+ */
+async function updateDesignWithStorageInfo(designId, storageUrl, storagePath, originalUrl) {
+  try {
+    const { data, error } = await supabase
+      .from('custom_design')
+      .update({
+        storage_url: storageUrl,
+        storage_path: storagePath,
+        original_url: originalUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', designId)
+      .select()
+    
+    if (error) {
+      throw error
+    }
+    
+    return data[0]
+  } catch (error) {
+    console.error('Error updating design with storage info:', error)
+    throw error
+  }
+}
+
+/**
+ * Checks if a design already has storage information
+ * @param {number} designId - The ID of the design to check
+ * @returns {Promise<boolean>}
+ */
+async function hasStorageInfo(designId) {
+  try {
+    const { data, error } = await supabase
+      .from('custom_design')
+      .select('storage_url')
+      .eq('id', designId)
+      .single()
+    
+    if (error) {
+      throw error
+    }
+    
+    return !!data.storage_url
+  } catch (error) {
+    console.error('Error checking storage info:', error)
+    return false
+  }
+}
+```
+
+Implement a transaction to ensure data consistency:
+
+```javascript
+async function updateDesignWithStorageInfoTransaction(designId, storageUrl, storagePath, originalUrl) {
+  // Start a PostgreSQL transaction using Supabase's rpc function
+  const { error } = await supabase.rpc('update_design_storage_info', {
+    p_design_id: designId,
+    p_storage_url: storageUrl,
+    p_storage_path: storagePath,
+    p_original_url: originalUrl
+  })
+  
+  if (error) {
+    console.error('Transaction error:', error)
+    throw error
+  }
+}
+```
+
+Create the corresponding stored procedure in PostgreSQL:
+
+```sql
+CREATE OR REPLACE FUNCTION update_design_storage_info(
+  p_design_id INT,
+  p_storage_url TEXT,
+  p_storage_path TEXT,
+  p_original_url TEXT
+) RETURNS void AS $$
+BEGIN
+  UPDATE custom_design
+  SET 
+    storage_url = p_storage_url,
+    storage_path = p_storage_path,
+    original_url = p_original_url,
+    updated_at = NOW()
+  WHERE id = p_design_id;
+  
+  -- Add any additional related updates here within the same transaction
+END;
+$$ LANGUAGE plpgsql;
+```
+
+# Test Strategy:
+1. Test updating the database with valid storage information
+2. Verify the updated records contain the correct URLs and paths
+3. Test error handling by simulating database errors
+4. Test the transaction to ensure atomicity
+5. Verify data consistency by checking related records
+6. Test concurrent updates to ensure no race conditions
+7. Measure query performance and optimize if necessary
+8. Test the hasStorageInfo function with various scenarios

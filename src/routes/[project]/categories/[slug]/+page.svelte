@@ -5,6 +5,7 @@
 	import type { Product, Category, ProductsResponse } from '$lib/types';
 	import ProductGrid from '$components/ProductGrid.svelte';
 	import SearchAndFilter from '$components/SearchAndFilter.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 
 	let categorySlug = '';
 	let projectSlug = '';
@@ -199,10 +200,14 @@
 		) : null;
 </script>
 
-<svelte:head>
-	<title>{category ? `${category.name} - Valle Sagrado` : 'Category - Valle Sagrado'}</title>
-	<meta name="description" content={category ? `Browse ${category.name} products from local artisans.` : 'Browse category products from local artisans.'} />
-</svelte:head>
+<!-- Category-specific Meta Tags -->
+<MetaTags 
+	title={category ? `${category.name} - Valle Sagrado` : 'Category - Valle Sagrado'}
+	description={category ? `Browse ${category.name} products from local artisans.` : 'Browse category products from local artisans.'}
+	url={$page.url.href}
+	keywords={category ? `${category.name}, products, Valle Sagrado, Sacred Valley, Peru, local artisans, handmade` : 'category, products, Valle Sagrado, Sacred Valley, Peru, local artisans, handmade'}
+	type="website"
+/>
 
 <div class="min-h-screen bg-gray-50">
 	{#if categoryLoading}

@@ -1,0 +1,215 @@
+# Task ID: 10
+# Title: Implement Frontend Integration and UI Updates
+# Status: pending
+# Dependencies: 6, 9
+# Priority: medium
+# Description: Update the frontend application to use Supabase Storage URLs and handle image display.
+# Details:
+Update frontend components to use Supabase Storage URLs:
+
+```javascript
+// React component for displaying design images
+import React, { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabaseClient'
+
+const DesignImage = ({ designId, fallbackUrl }) => {
+  const [imageUrl, setImageUrl] = useState(fallbackUrl || '/placeholder.png')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  
+  useEffect(() => {
+    async function fetchImageUrl() {
+      try {
+        setLoading(true)
+        
+        // Get design from database
+        const { data, error } = await supabase
+          .from('custom_design')
+          .select('storage_url, original_url')
+          .eq('id', designId)
+          .single()
+        
+        if (error) throw error
+        
+        // Use storage URL if available, fall back to original URL
+        if (data.storage_url) {
+          setImageUrl(data.storage_url)
+        } else if (data.original_url) {
+          setImageUrl(data.original_url)
+          console.warn(`Design ${designId} using original URL, not yet migrated to storage`)
+        } else if (fallbackUrl) {
+          setImageUrl(fallbackUrl)
+        }
+      } catch (err) {
+        console.error('Error fetching image URL:', err)
+        setError(err.message)
+        // Keep using fallback URL if there's an error
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    if (designId) {
+      fetchImageUrl()
+    }
+  }, [designId, fallbackUrl])
+  
+  if (loading) {
+    return <div className="image-placeholder loading">Loading...</div>
+  }
+  
+  if (error) {
+    return (
+      <div className="image-error">
+        <p>Error loading image: {error}</p>
+        {fallbackUrl && <img src={fallbackUrl} alt="Fallback design" />}
+      </div>
+    )
+  }
+  
+  return (
+    <img 
+      src={imageUrl} 
+      alt="Design" 
+      className="design-image"
+      onError={() => {
+        // If storage URL fails, try fallback
+        if (imageUrl !== fallbackUrl && fallbackUrl) {
+          console.warn(`Image load failed for ${imageUrl}, using fallback`)
+          setImageUrl(fallbackUrl)
+        }
+      }}
+    />
+  )
+}
+
+// Usage in a design gallery component
+const DesignGallery = ({ designs }) => {
+  return (
+    <div className="design-gallery">
+      {designs.map(design => (
+        <div key={design.id} className="design-card">
+          <h3>{design.name}</h3>
+          <DesignImage 
+            designId={design.id} 
+            fallbackUrl={design.image_url} 
+          />
+          <p>{design.description}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+Implement image upload component:
+
+```javascript
+import React, { useState } from 'react'
+import { supabase } from '../lib/supabaseClient'
+
+const ImageUploader = ({ designId, onSuccess }) => {
+  const [file, setFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState(null)
+  
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0]
+    
+    // Validate file type and size
+    if (selectedFile) {
+      if (!selectedFile.type.startsWith('image/')) {
+        setError('Please select an image file')
+        return
+      }
+      
+      if (selectedFile.size > 10 * 1024 * 1024) { // 10MB
+        setError('File size must be less than 10MB')
+        return
+      }
+      
+      setFile(selectedFile)
+      setError(null)
+    }
+  }
+  
+  const handleUpload = async () => {
+    if (!file) {
+      setError('Please select a file first')
+      return
+    }
+    
+    try {
+      setUploading(true)
+      setError(null)
+      
+      // Create form data
+      const formData = new FormData()
+      formData.append('image', file)
+      
+      // Upload using API endpoint
+      const response = await fetch(`/api/designs/${designId}/image`, {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+      
+      const data = await response.json()
+      
+      // Call success callback with the new URL
+      if (onSuccess) {
+        onSuccess(data.url)
+      }
+      
+      // Reset form
+      setFile(null)
+    } catch (err) {
+      console.error('Upload error:', err)
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+  
+  return (
+    <div className="image-uploader">
+      <h3>Upload Design Image</h3>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="file-input">
+        <input 
+          type="file" 
+          accept="image/*" 
+          onChange={handleFileChange} 
+          disabled={uploading}
+        />
+        {file && <p>Selected: {file.name}</p>}
+      </div>
+      
+      <button 
+        onClick={handleUpload} 
+        disabled={!file || uploading}
+        className="upload-button"
+      >
+        {uploading ? 'Uploading...' : 'Upload Image'}
+      </button>
+    </div>
+  )
+}
+```
+
+# Test Strategy:
+1. Test image display component with various URL scenarios (storage URL, original URL, fallback URL)
+2. Verify error handling when images fail to load
+3. Test image uploader with valid and invalid file types and sizes
+4. Verify upload progress indication works correctly
+5. Test error handling during upload failures
+6. Verify successful uploads update the UI correctly
+7. Test responsive design on different screen sizes
+8. Verify accessibility compliance for image components
+9. Test performance with many images on a single page

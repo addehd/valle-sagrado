@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import MetaTags from '$components/MetaTags.svelte';
 	import type { Category } from '$lib/types';
 
 	let categories: Category[] = [];
 	let loading = true;
 	let error = '';
 
-	$: projectSlug = $page.params.project;
+	const projectSlug = $derived($page.params.project);
+	const currentUrl = $derived($page.url.href);
 
 	onMount(async () => {
 		try {
@@ -28,10 +30,14 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Categories - Valle Sagrado</title>
-	<meta name="description" content="Browse our product categories and discover unique items from local artisans." />
-</svelte:head>
+<!-- Categories page Meta Tags -->
+<MetaTags 
+	title="Categories - Valle Sagrado"
+	description="Browse our product categories and discover unique items from local artisans."
+	url={currentUrl}
+	keywords="categories, products, Valle Sagrado, Sacred Valley, Peru, local artisans, handmade"
+	type="website"
+/>
 
 <div class="min-h-screen bg-gray-50">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

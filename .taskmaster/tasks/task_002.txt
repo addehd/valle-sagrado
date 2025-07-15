@@ -1,0 +1,62 @@
+# Task ID: 2
+# Title: Update Database Schema for Supabase Storage Integration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Modify the custom_design table to include columns for storing Supabase Storage URLs and metadata.
+# Details:
+Execute the SQL commands specified in the PRD to update the database schema:
+
+```sql
+-- Add or modify columns in custom_design table
+ALTER TABLE custom_design
+ADD COLUMN IF NOT EXISTS storage_url TEXT,
+ADD COLUMN IF NOT EXISTS storage_path TEXT,
+ADD COLUMN IF NOT EXISTS original_url TEXT;
+```
+
+Additionally, consider adding indexes for performance optimization:
+
+```sql
+-- Add index for faster lookups by storage_path
+CREATE INDEX IF NOT EXISTS idx_custom_design_storage_path ON custom_design(storage_path);
+```
+
+Implementation can be done using Supabase's SQL editor or programmatically:
+
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+
+async function updateDatabaseSchema() {
+  const { error } = await supabase.rpc('update_custom_design_schema')
+  if (error) {
+    console.error('Error updating schema:', error)
+    throw error
+  }
+}
+```
+
+Create a stored procedure for the schema update:
+
+```sql
+CREATE OR REPLACE FUNCTION update_custom_design_schema()
+RETURNS void AS $$
+BEGIN
+  ALTER TABLE custom_design
+  ADD COLUMN IF NOT EXISTS storage_url TEXT,
+  ADD COLUMN IF NOT EXISTS storage_path TEXT,
+  ADD COLUMN IF NOT EXISTS original_url TEXT;
+  
+  CREATE INDEX IF NOT EXISTS idx_custom_design_storage_path ON custom_design(storage_path);
+END;
+$$ LANGUAGE plpgsql;
+```
+
+# Test Strategy:
+1. Execute the schema update in a test environment first
+2. Verify the new columns exist in the custom_design table
+3. Test inserting and querying data using the new columns
+4. Verify index creation and performance improvement for queries using storage_path
+5. Run a rollback test to ensure the migration can be safely undone if needed

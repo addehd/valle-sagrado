@@ -1,0 +1,652 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Integrate Stripe Payment Gateway",
+      "description": "Implement Stripe checkout integration for secure payment processing in the Valle Sagrado e-commerce platform.",
+      "status": "in-progress",
+      "dependencies": [],
+      "priority": "high",
+      "details": "The Stripe integration is already fully implemented in the codebase. We have now created a comprehensive mock Stripe system that allows for complete testing without requiring Stripe API keys.\n\nExisting implementation includes:\n- Stripe packages installed (@stripe/stripe-js and stripe)\n- Complete checkout API endpoint (/api/checkout) with PaymentIntent creation\n- Full frontend checkout page with Stripe Elements\n- Order creation and confirmation flow\n- Error handling and 3D Secure support\n- Email confirmation system\n- Mock Stripe system for development and testing\n\nMock Stripe system components:\n- MockStripe class with payment intents, customers, and payment methods\n- MockStripeClient for client-side operations\n- Smart Stripe Loader that automatically detects if real Stripe keys are configured\n- Mock Card Element Component that visually mimics Stripe Elements\n- Updated Payment Intent API that switches between real and mock Stripe\n\nRequired environment variables (when using real Stripe):\n- STRIPE_SECRET_KEY (server-side)\n- PUBLIC_STRIPE_PUBLISHABLE_KEY (client-side)\n- PUBLIC_BASE_URL (for payment return URLs)\n\nThis task can now proceed with testing using the mock Stripe system while we await the client's Stripe API keys for production implementation.",
+      "testStrategy": "1. Test the complete payment flow using the mock Stripe system\n2. Verify the system correctly switches between mock and real Stripe based on environment variables\n3. Test with various mock test cards (success, failure, 3D Secure)\n4. Verify order creation in database after successful payment\n5. Verify email notifications are sent correctly\n6. Test error handling scenarios\n7. Once client provides Stripe API keys, create a Stripe test account and repeat tests with real Stripe integration",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Create Stripe test account",
+          "description": "Sign up for a Stripe test account and obtain test API keys",
+          "status": "to-do"
+        },
+        {
+          "id": "1.2",
+          "title": "Configure environment variables",
+          "description": "Add the required environment variables to the project:\n- STRIPE_SECRET_KEY\n- PUBLIC_STRIPE_PUBLISHABLE_KEY\n- PUBLIC_BASE_URL",
+          "status": "to-do"
+        },
+        {
+          "id": "1.3",
+          "title": "Test payment flow",
+          "description": "Test the complete payment flow from cart to checkout to order confirmation using Stripe test cards",
+          "status": "to-do"
+        },
+        {
+          "id": "1.4",
+          "title": "Verify order creation and email notifications",
+          "description": "Confirm that orders are properly created in the database after successful payments and that email notifications are sent correctly",
+          "status": "to-do"
+        },
+        {
+          "id": "1.5",
+          "title": "Follow up on Stripe API keys",
+          "description": "Contact client to obtain Stripe API keys needed to complete the integration testing",
+          "status": "to-do"
+        },
+        {
+          "id": "1.6",
+          "title": "Test mock Stripe implementation",
+          "description": "Test the complete payment flow using the mock Stripe system to verify functionality without requiring API keys",
+          "status": "to-do"
+        },
+        {
+          "id": "1.7",
+          "title": "Test automatic switching between mock and real Stripe",
+          "description": "Verify that the system correctly switches between mock and real Stripe based on the presence of environment variables",
+          "status": "to-do"
+        },
+        {
+          "id": "1.8",
+          "title": "Document mock Stripe usage",
+          "description": "Create documentation for the team on how to use the mock Stripe system for development and testing",
+          "status": "to-do"
+        },
+        {
+          "id": 2.8,
+          "title": "Document testing results",
+          "description": "Document comprehensive testing results from the mock Stripe testing session including successful payments, error scenarios, and system behavior",
+          "details": "",
+          "status": "in-progress",
+          "dependencies": [],
+          "parentTaskId": 1
+        },
+        {
+          "id": 3.8,
+          "title": "Test product page functionality",
+          "description": "Test the product page display, navigation, and add to cart functionality after fixing database integration issues",
+          "details": "",
+          "status": "in-progress",
+          "dependencies": [],
+          "parentTaskId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Implement Order Processing System",
+      "description": "Create a system to handle order creation, confirmation, and basic email notifications upon successful payment.",
+      "details": "1. Create an 'orders' table in Supabase\n2. Implement order creation logic after successful Stripe payment\n3. Generate unique order IDs\n4. Store order details including products, quantities, and customer information\n5. Set up Supabase Edge Functions for sending order confirmation emails\n6. Use a templating engine like Handlebars for email templates\n7. Implement error handling and logging\n\nSupabase Edge Function for sending emails:\n```javascript\nimport { createClient } from '@supabase/supabase-js';\nimport nodemailer from 'nodemailer';\n\nexport async function handler(event, context) {\n  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);\n  const { orderId } = JSON.parse(event.body);\n  \n  // Fetch order details from database\n  const { data: order, error } = await supabase\n    .from('orders')\n    .select('*')\n    .eq('id', orderId)\n    .single();\n  \n  if (error) throw error;\n  \n  // Send email using nodemailer\n  const transporter = nodemailer.createTransport(/* SMTP config */);\n  await transporter.sendMail({\n    from: 'orders@vallesagrado.com',\n    to: order.customer_email,\n    subject: 'Order Confirmation',\n    html: `<h1>Thank you for your order #${order.id}</h1>...`\n  });\n  \n  return { statusCode: 200, body: JSON.stringify({ message: 'Email sent' }) };\n}\n```",
+      "testStrategy": "1. Unit test order creation function\n2. Integration test order flow from payment to database insertion\n3. Test email sending functionality with various SMTP providers\n4. Verify email content and formatting\n5. Test error handling scenarios (e.g., email sending failure)",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "Develop Admin Product Management Interface",
+      "description": "Complete and enhance the existing admin interface for managing products, including editing, listing, and order management functionality.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "details": "## Existing Implementation (Already Done)\n1. ✅ Product creation form at `/create-product` with full interface\n2. ✅ Image upload handling (multiple file support)\n3. ✅ Complete product fields (SKU, name, price, stock, categories, etc.)\n4. ✅ Form validation and error handling\n5. ✅ Server-side product creation API\n6. ✅ Stock management system (`src/lib/stock.ts`)\n7. ✅ Stock API endpoints (`/api/stock`)\n8. ✅ Image upload API (`/api/images/upload`)\n9. ✅ Admin Homepage (`/admin/`) with dashboard statistics and quick actions\n10. ✅ Product Management Interface (`/admin/products/`) with listing, search, and filtering\n11. ✅ Dashboard API endpoints (`/api/admin/dashboard-stats` and `/api/admin/products`)\n\n## Remaining Tasks\n1. Create product editing interface (`/admin/products/[sku]/edit`)\n   - Reuse components from the creation form\n   - Implement product data fetching by SKU\n   - Handle image updates (add/remove)\n   - Update server-side API for product updates\n2. Implement basic order management interface\n   - Order listing and details view\n   - Order status updates\n   - Fulfillment tracking\n3. Add admin authentication protection\n   - Protect all admin routes\n   - Implement role-based access control\n   - Create login/logout functionality for admin users\n\n## Current Product Features\n- Full product form with all e-commerce fields\n- Multi-image upload\n- Stock quantity management\n- Categories and attributes (JSON format)\n- Product status (draft/active/archived)\n- Sale pricing with date ranges\n- Weight and dimensions\n\n## Admin Dashboard Features\n- Dashboard statistics (products, orders, stock alerts)\n- Quick action buttons for common tasks\n- Recent activity feed\n- Modern card-based UI design\n\n## Product Management Features\n- Professional product listing table with images\n- Advanced search and filtering (status, name, SKU, brand)\n- Sorting by name, price, stock, creation date\n- Real-time status updates via dropdown\n- Quick actions (Edit, View, Delete)\n- Stock status indicators with color coding\n- Responsive design for mobile/desktop\n- Pagination and filtering for large product catalogs",
+      "testStrategy": "1. Verify existing `/create-product` functionality\n   - Test form validation\n   - Test image upload with multiple files\n   - Test product creation with all fields\n   - Test error handling\n\n2. Test admin dashboard\n   - Verify dashboard statistics accuracy\n   - Test quick action buttons functionality\n   - Verify recent activity feed displays correctly\n   - Test responsive design on different devices\n\n3. Test product management interface\n   - Verify product listing displays correctly with images\n   - Test advanced search and filtering functionality\n   - Test sorting by different columns\n   - Verify real-time status updates work correctly\n   - Test quick actions (edit, view, delete)\n   - Verify stock status indicators display correctly\n   - Test pagination with large product catalogs\n\n4. Test product editing interface\n   - Verify product data is correctly loaded\n   - Test updating different product fields\n   - Test adding/removing images\n   - Verify stock updates\n\n5. Test order management interface\n   - Verify order listing and details\n   - Test order status updates\n\n6. Test admin authentication\n   - Verify protected routes require authentication\n   - Test role-based access control\n   - Test login/logout functionality",
+      "subtasks": [
+        {
+          "id": "3.1",
+          "title": "Test existing product creation interface",
+          "description": "Verify the functionality of the existing `/create-product` interface",
+          "status": "completed"
+        },
+        {
+          "id": "3.2",
+          "title": "Implement product editing interface",
+          "description": "Create `/admin/products/[sku]/edit` route reusing components from the creation form",
+          "status": "completed"
+        },
+        {
+          "id": "3.3",
+          "title": "Create admin product dashboard",
+          "description": "Implement a product listing and management dashboard for admins",
+          "status": "completed"
+        },
+        {
+          "id": "3.4",
+          "title": "Implement basic order management",
+          "description": "Create an interface for viewing and managing customer orders",
+          "status": "completed"
+        },
+        {
+          "id": "3.5",
+          "title": "Add admin authentication",
+          "description": "Implement authentication and authorization for admin routes",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Implement Basic Order Management for Admins",
+      "description": "Create a simple interface for admins to view and update order statuses.",
+      "details": "1. Add an 'Orders' section to the admin dashboard\n2. Implement a list view of all orders with key details\n3. Create a detailed view for individual orders\n4. Add functionality to update order status (e.g., processing, shipped, delivered)\n5. Implement filtering and sorting options for orders\n6. Add basic search functionality\n\nSvelte component for order list:\n```svelte\n<script>\nimport { onMount } from 'svelte';\nimport { createClient } from '@supabase/supabase-js';\n\nconst supabase = createClient('SUPABASE_URL', 'SUPABASE_ANON_KEY');\n\nlet orders = [];\n\nonMount(async () => {\n  const { data, error } = await supabase\n    .from('orders')\n    .select('*')\n    .order('created_at', { ascending: false });\n  \n  if (data) orders = data;\n});\n\nasync function updateStatus(orderId, newStatus) {\n  const { data, error } = await supabase\n    .from('orders')\n    .update({ status: newStatus })\n    .eq('id', orderId);\n  \n  // Update local state or refetch orders\n}\n</script>\n\n<table>\n  <thead>\n    <tr>\n      <th>Order ID</th>\n      <th>Customer</th>\n      <th>Total</th>\n      <th>Status</th>\n      <th>Actions</th>\n    </tr>\n  </thead>\n  <tbody>\n    {#each orders as order}\n      <tr>\n        <td>{order.id}</td>\n        <td>{order.customer_name}</td>\n        <td>${order.total.toFixed(2)}</td>\n        <td>{order.status}</td>\n        <td>\n          <select on:change={(e) => updateStatus(order.id, e.target.value)}>\n            <option value=\"processing\">Processing</option>\n            <option value=\"shipped\">Shipped</option>\n            <option value=\"delivered\">Delivered</option>\n          </select>\n        </td>\n      </tr>\n    {/each}\n  </tbody>\n</table>\n```",
+      "testStrategy": "1. Unit test order status update function\n2. Integration test order list fetching and display\n3. Test filtering and sorting functionality\n4. Verify real-time updates when order status changes\n5. Test search functionality with various inputs\n6. Perform usability testing on the order management interface",
+      "priority": "medium",
+      "dependencies": [
+        2,
+        3
+      ],
+      "status": "done",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Implement Error Handling and User Feedback",
+      "description": "Enhance the application with comprehensive error handling and user-friendly feedback messages.",
+      "details": "1. Create a global error handling mechanism\n2. Implement user-friendly error messages for common scenarios\n3. Add loading indicators for asynchronous operations\n4. Create toast notifications for success/error feedback\n5. Implement form validation with clear error messages\n6. Add confirmation dialogs for critical actions (e.g., deleting products)\n\nGlobal error handling in SvelteKit:\n```javascript\n// hooks.server.js\nexport function handleError({ error, event }) {\n  console.error(error);\n  return {\n    message: 'An unexpected error occurred. Please try again later.',\n    code: error?.code ?? 'UNKNOWN'\n  };\n}\n\n// +error.svelte\n<script>\n  import { page } from '$app/stores';\n</script>\n\n<h1>{$page.status}: {$page.error.message}</h1>\n```\n\nToast notification component:\n```svelte\n<script>\nimport { fade } from 'svelte/transition';\n\nexport let message = '';\nexport let type = 'info';\nexport let duration = 3000;\n\nlet visible = true;\n\nsetTimeout(() => {\n  visible = false;\n}, duration);\n</script>\n\n{#if visible}\n  <div transition:fade={{ duration: 300 }} class=\"toast {type}\">\n    {message}\n  </div>\n{/if}\n\n<style>\n  .toast {\n    position: fixed;\n    top: 20px;\n    right: 20px;\n    padding: 10px 20px;\n    border-radius: 4px;\n    color: white;\n    z-index: 1000;\n  }\n  .info { background-color: #3498db; }\n  .success { background-color: #2ecc71; }\n  .error { background-color: #e74c3c; }\n</style>\n```",
+      "testStrategy": "1. Unit test error handling functions\n2. Integration test error scenarios across the application\n3. Test form validation for all input fields\n4. Verify toast notifications appear and disappear correctly\n5. Test loading indicators for all asynchronous operations\n6. Perform usability testing focusing on error scenarios and user feedback",
+      "priority": "medium",
+      "dependencies": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "Finalize SEO, Responsiveness, and Legal Compliance",
+      "description": "Implement basic SEO, ensure mobile responsiveness, and add necessary legal pages to prepare for launch.",
+      "details": "1. Implement dynamic meta tags for SEO\n2. Create a sitemap.xml file\n3. Add structured data (JSON-LD) for products\n4. Ensure responsive design across all pages\n5. Create Terms of Service and Privacy Policy pages\n6. Implement cookie consent banner\n7. Perform final cross-browser testing\n\nDynamic meta tags in SvelteKit:\n```svelte\n<script>\nexport let title = 'Valle Sagrado';\nexport let description = 'Discover authentic Peruvian products';\nexport let image = 'https://vallesagrado.com/og-image.jpg';\n</script>\n\n<svelte:head>\n  <title>{title}</title>\n  <meta name=\"description\" content={description}>\n  <meta property=\"og:title\" content={title}>\n  <meta property=\"og:description\" content={description}>\n  <meta property=\"og:image\" content={image}>\n  <meta name=\"twitter:card\" content=\"summary_large_image\">\n</svelte:head>\n```\n\nStructured data for products:\n```javascript\n<script>\nexport let product;\n\nconst structuredData = {\n  '@context': 'https://schema.org/',\n  '@type': 'Product',\n  name: product.name,\n  description: product.description,\n  image: product.image_url,\n  offers: {\n    '@type': 'Offer',\n    price: product.price,\n    priceCurrency: 'USD',\n    availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'\n  }\n};\n</script>\n\n<svelte:head>\n  <script type=\"application/ld+json\">\n    {JSON.stringify(structuredData)}\n  </script>\n</svelte:head>\n```",
+      "testStrategy": "1. Validate meta tags and structured data using testing tools\n2. Test sitemap.xml generation and submission to search engines\n3. Perform mobile responsiveness testing on various devices and browsers\n4. Validate legal compliance of Terms of Service and Privacy Policy\n5. Test cookie consent functionality and opt-out mechanism\n6. Conduct accessibility testing (WCAG compliance)\n7. Perform final UAT (User Acceptance Testing) before launch",
+      "priority": "medium",
+      "dependencies": [
+        5
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement Dynamic Meta Tags for SEO",
+          "description": "Create reusable components for dynamic meta tags that can be used across all pages to improve SEO.",
+          "dependencies": [],
+          "details": "Create a MetaTags.svelte component that accepts title, description, and image props. Implement this in the root layout.svelte file with default values, and allow individual pages to override these values. Use the provided code snippet as a starting point and ensure it works with SvelteKit's routing system.\n<info added on 2025-05-30T15:06:32.817Z>\nSuccessfully implemented comprehensive dynamic meta tags for SEO:\n\n1. **MetaTags.svelte Component** - Created a reusable component with:\n   - Dynamic title, description, image, and keywords\n   - Open Graph and Twitter Card support\n   - SEO length optimization (title ≤60 chars, description ≤160 chars)\n   - Canonical URL support\n   - Theme color meta tags\n   - Support for different content types (website, product, etc.)\n\n2. **Root Layout Integration** - Added default meta tags to `src/routes/+layout.svelte`\n\n3. **Home Page SEO** - Enhanced home page with Sacred Valley focused keywords, compelling description mentioning free shipping, and Peru/Cusco/Machu Picchu related terms\n\n4. **Product Pages SEO** - Enhanced individual product pages with dynamic titles using product meta_title or name, product descriptions with fallbacks, product images for social sharing, product-specific keywords from tags, and proper canonical URLs with product slugs\n\n5. **Products Listing SEO** - Enhanced products listing page with dynamic titles based on search/category filters, dynamic descriptions adapting to current filters, search-aware meta descriptions, and category-specific meta information\n\nTechnical implementation includes Svelte 5 runes syntax, TypeScript support, length validation for SEO best practices, fallback content for missing data, and social media optimization. All testing verified proper rendering and functionality.\n</info added on 2025-05-30T15:06:32.817Z>",
+          "status": "done",
+          "testStrategy": "Verify meta tags are correctly rendered in the HTML head for different pages using browser dev tools. Test with social media preview tools to ensure proper display."
+        },
+        {
+          "id": 2,
+          "title": "Add Structured Data for Products",
+          "description": "Implement JSON-LD structured data for product pages to improve search engine visibility and rich snippet display.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create a StructuredData.svelte component that accepts a product object and generates the appropriate JSON-LD markup. Integrate this component into product detail pages. Use the provided code snippet and ensure the data is dynamically populated from the product data.\n<info added on 2025-05-30T15:10:42.299Z>\n✅ SUBTASK 6.2 COMPLETED - Structured Data Implementation\n\nSuccessfully implemented comprehensive JSON-LD structured data for product pages:\n\n🎯 **What I Built:**\n1. **StructuredData.svelte Component** - A specialized component for product schema markup:\n   - Complete Product schema.org implementation\n   - Dynamic pricing and availability information\n   - Brand and manufacturer details\n   - Image handling with proper URL resolution\n   - Weight and dimensions support\n   - Material detection from product tags\n   - Category information integration\n   - Handcrafted/artisan specific properties\n\n2. **Product Page Integration** - Added to `src/routes/product/[slug]/+page.svelte`:\n   - Automatic JSON-LD generation for each product\n   - Seamless integration with existing product data\n   - Proper handling of optional product fields\n\n🔧 **Technical Features:**\n- **Schema.org Product Type** with complete metadata\n- **Offer Schema** including price, currency, availability\n- **Brand & Manufacturer** information\n- **Image Gallery** properly formatted for search engines\n- **Inventory Status** (InStock/OutOfStock) based on actual stock\n- **Product Dimensions** from existing product.dimensions field\n- **Material Detection** from product tags (alpaca, ceramic, etc.)\n- **Sacred Valley Origin** as additional property\n- **Handcrafted Designation** for artisan products\n\n🚀 **SEO Benefits:**\n- Rich snippets in search results\n- Product information cards\n- Price and availability display\n- Enhanced e-commerce search visibility\n- Better product discovery\n- Improved click-through rates\n\n✅ **Testing Ready:**\n- Use Google's Rich Results Test tool\n- Validate with Schema.org validator\n- Test with actual product data\n- Verify proper JSON-LD output\n\nThis provides comprehensive structured data that will significantly improve Valle Sagrado's product visibility in search engines and enable rich product snippets!\n</info added on 2025-05-30T15:10:42.299Z>",
+          "status": "done",
+          "testStrategy": "Test using Google's Rich Results Test tool to verify structured data is valid and properly implemented."
+        },
+        {
+          "id": 3,
+          "title": "Generate Sitemap.xml File",
+          "description": "Create a dynamic sitemap.xml file that includes all important pages of the website.",
+          "dependencies": [],
+          "details": "Create an endpoint in SvelteKit at src/routes/sitemap.xml/+server.js that generates an XML sitemap dynamically. Include all product pages, category pages, and static pages. Set the Content-Type header to 'application/xml' and ensure proper XML formatting with appropriate lastmod dates.\n<info added on 2025-05-30T15:15:37.927Z>\nSuccessfully implemented dynamic sitemap.xml generation for comprehensive SEO coverage. Created a dynamic sitemap endpoint at src/routes/sitemap.xml/+server.ts that fetches all active products and categories from Supabase, includes static pages with proper priorities, and generates valid XML sitemap format with proper lastmod dates from database and SEO-optimized change frequencies and priorities.\n\nAlso implemented a robots.txt endpoint at src/routes/robots.txt/+server.ts that directs search engines to the sitemap location, protects admin and API routes from crawling, allows important product and category pages, and sets a respectful crawl delay.\n\nThe implementation includes static pages with appropriate priorities (Homepage: 1.0/daily, Products: 0.9/daily, About/Contact: 0.7-0.6/monthly, Legal: 0.3/yearly) and dynamic content with proper SEO signals (products: 0.7/weekly, categories: 0.8/weekly) using real lastmod dates from database timestamps.\n\nAdded error handling with graceful fallback to static pages if database fails, proper caching headers (1 hour normal, 5 min on error), XML validation, and console logging for debugging. The implementation is ready for testing via /sitemap.xml and /robots.txt endpoints, validation with online sitemap validators, and submission to Google Search Console.\n</info added on 2025-05-30T15:15:37.927Z>",
+          "status": "done",
+          "testStrategy": "Validate the sitemap using online XML sitemap validation tools and ensure all important URLs are included."
+        },
+        {
+          "id": 4,
+          "title": "Ensure Responsive Design Implementation",
+          "description": "Review and fix any responsive design issues across all pages to ensure proper display on mobile, tablet, and desktop devices.",
+          "dependencies": [],
+          "details": "Implement responsive design using CSS media queries. Focus on navigation menu, product grids, checkout process, and image displays. Create a mobile-first approach with breakpoints at 768px and 1024px. Test and fix any layout issues, especially on forms and product detail pages.\n<info added on 2025-05-30T15:25:09.319Z>\nANALYSIS SUMMARY:\n\nMost components already implement responsive design with Tailwind CSS classes:\n- ProductGrid: grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4\n- SearchAndFilter: flex-col sm:flex-row\n- Header: mobile menu functionality\n- Product detail pages: grid lg:grid-cols-2\n- Checkout form: grid-cols-1 lg:grid-cols-2\n- Cart page: proper mobile spacing\n\nAreas requiring responsive improvements:\n1. Home page map needs better mobile handling\n2. Form typography scaling for mobile devices\n3. Touch interactions for image galleries on mobile\n4. Mobile grid spacing on category pages\n5. Enhanced mobile navigation UX\n\nImplementation plan:\n- Apply mobile-first approach consistently across all components\n- Maintain existing breakpoints (768px and 1024px)\n- Focus on fixing the identified problem areas\n- Ensure consistent responsive behavior throughout the application\n</info added on 2025-05-30T15:25:09.319Z>\n<info added on 2025-05-30T15:29:31.599Z>\nCOMPLETED RESPONSIVE DESIGN IMPROVEMENTS:\n\n1. **Home Page Enhanced**:\n   - Implemented responsive map heights (50vh on mobile to 100vh on desktop)\n   - Added mobile-specific overlay with intro text\n   - Created separate desktop/tablet intro overlay with better positioning\n   - Added mobile content section below map for better UX\n   - Improved button layouts for mobile (full-width to auto-width on larger screens)\n\n2. **Header Navigation Improved**:\n   - Enhanced mobile menu with proper show/hide animations\n   - Added touch-friendly mobile menu buttons with larger tap targets\n   - Implemented click-outside functionality to close menus\n   - Better mobile typography scaling (text-lg to text-2xl responsive)\n   - Improved user dropdown with proper mobile interactions\n   - Added proper active states for navigation items\n   - Enhanced mobile menu with smooth transitions\n\n3. **Cart Page Enhanced**:\n   - Improved mobile layout from horizontal to vertical stacking on small screens\n   - Better image sizing (24x24 on mobile, 20x20 on desktop)\n   - Enhanced quantity controls with larger touch targets (10x10 from 8x8)\n   - Added touch-manipulation CSS for better mobile interactions\n   - Improved text alignment (center on mobile, left/right on desktop)\n   - Better spacing and padding adjustments for mobile\n\n4. **Image Gallery Component**:\n   - Added touch-manipulation class for better mobile interactions\n   - Maintained existing responsive grid layout\n   - Enhanced thumbnail interaction for touch devices\n\n5. **Checkout Page Enhanced**:\n   - Improved spacing and padding for mobile (p-4 sm:p-6)\n   - Better typography scaling for mobile (text-lg sm:text-xl)\n   - Maintained existing responsive grid layout\n\nRESPONSIVE DESIGN STANDARDS APPLIED:\n- Mobile-first approach with progressive enhancement\n- Consistent breakpoints (sm: 640px, md: 768px, lg: 1024px, xl: 1280px)\n- Touch-friendly interactions with larger tap targets\n- Proper spacing and typography scaling\n- Smooth transitions and animations for better UX\n\nAll critical pages now have improved mobile responsiveness with better touch interactions and optimized layouts for different screen sizes.\n</info added on 2025-05-30T15:29:31.599Z>",
+          "status": "done",
+          "testStrategy": "Test on multiple device sizes using Chrome DevTools device emulation. Verify usability on actual mobile devices if possible."
+        },
+        {
+          "id": 5,
+          "title": "Create Terms of Service Page",
+          "description": "Develop a comprehensive Terms of Service page that covers usage policies, purchasing terms, and other legal requirements.",
+          "dependencies": [],
+          "details": "Create a new route at /terms with appropriate content sections including: acceptance of terms, user accounts, payment terms, shipping policies, returns and refunds, intellectual property rights, and limitation of liability. Structure with clear headings and ensure content is legally sound.",
+          "status": "done",
+          "testStrategy": "Review for legal compliance and readability. Ensure proper navigation to this page from footer links."
+        },
+        {
+          "id": 6,
+          "title": "Create Privacy Policy Page",
+          "description": "Develop a comprehensive Privacy Policy page that explains data collection, usage, and user rights.",
+          "dependencies": [],
+          "details": "Create a new route at /privacy with sections covering: information collected, usage of information, cookies, third-party services, data security, user rights (GDPR/CCPA compliance), and contact information. Ensure the policy accurately reflects actual data practices of the site.\n<info added on 2025-05-30T15:39:58.294Z>\nCOMPLETED PRIVACY POLICY WITH DATABASE INTEGRATION:\n\n✅ **Database Structure Created**:\n- Created `legal_content` table in Supabase PostgreSQL with proper schema\n- Table includes: id, content_type, title, content (JSONB), last_updated, created_at, is_active\n- Added proper indexes for performance (content_type, is_active)\n- Enabled Row Level Security with public read access for active content\n- Admin-only policy for content management\n\n✅ **Privacy Policy Content Populated**:\n- Inserted comprehensive privacy policy content as structured JSON\n- Covers all essential sections: data collection, usage, cookies, third-parties, security, user rights (GDPR/CCPA), retention, international transfers, contact info\n- Content is stored in JSONB format for flexible structuring and easy updates\n\n✅ **Privacy Page Implementation**:\n- Created `src/routes/privacy/+page.server.ts` with database load function\n- Built dynamic privacy page component that renders from database content\n- Includes error handling and fallback content when database is unavailable\n- Proper TypeScript typing and SEO meta tags\n- Responsive design with proper styling\n\n✅ **Terms of Service Database Integration**:\n- Added terms of service content to the same legal_content table\n- Updated existing terms page to load from database instead of static content\n- Created matching server-side load function and dynamic rendering\n- Both pages now use the same database-driven architecture\n\n✅ **Benefits of Database Approach**:\n- Content can be updated without code deployments\n- Centralized legal content management\n- Version tracking with timestamps\n- Multi-language support ready (can add language field)\n- Admin interface can be built later for content management\n- Proper fallback handling for high availability\n</info added on 2025-05-30T15:39:58.294Z>",
+          "status": "done",
+          "testStrategy": "Review for legal compliance with relevant regulations (GDPR, CCPA). Ensure proper navigation to this page from footer links."
+        },
+        {
+          "id": 7,
+          "title": "Implement Cookie Consent Banner",
+          "description": "Create and implement a GDPR-compliant cookie consent banner that allows users to accept or customize cookie preferences.",
+          "dependencies": [
+            6
+          ],
+          "details": "Create a CookieConsent.svelte component that displays on first visit. Store consent in localStorage. Include options for 'Accept All', 'Reject Non-Essential', and 'Customize'. Implement the logic to respect user choices for analytics and tracking scripts. Ensure the banner links to the Privacy Policy page.",
+          "status": "pending",
+          "testStrategy": "Test banner appearance on first visit and proper storage of preferences. Verify that tracking scripts are only loaded when consent is given."
+        },
+        {
+          "id": 8,
+          "title": "Perform Cross-Browser Testing",
+          "description": "Test the website across multiple browsers and devices to ensure consistent functionality and appearance.",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "details": "Test the website on Chrome, Firefox, Safari, and Edge browsers. Focus on critical user flows: product browsing, cart functionality, checkout process, and form submissions. Document and fix any browser-specific issues. Pay special attention to CSS compatibility issues and JavaScript functionality.",
+          "status": "pending",
+          "testStrategy": "Create a testing matrix with browsers/devices and features. Use BrowserStack or similar tools for browsers not available locally. Document and prioritize fixes for any issues found."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Restructure E-commerce Routes and Implement Dynamic Project Configuration",
+      "description": "Reorganize e-commerce routes into a dynamic project structure to support project-specific e-commerce functionality.",
+      "status": "done",
+      "dependencies": [
+        3,
+        4
+      ],
+      "priority": "high",
+      "details": "1. Restructure e-commerce routes:\n   a. Create a new directory structure: `src/routes/[project]/e-commerce/`\n   b. Move existing e-commerce related routes (cart, checkout, products) into this new structure\n   c. Update import statements and navigation links throughout the application\n   d. Implement dynamic routing to handle project-specific e-commerce functionality\n   e. Ensure that the new route structure works with existing admin interfaces\n\n2. Update existing components:\n   a. Modify product listing, cart, and checkout components to work with the new route structure\n   b. Ensure that project-specific configurations are respected in relevant components\n\nExample of a dynamic route structure:\n```\nsrc/routes/\n  ├── [project]/\n  │   └── e-commerce/\n  │       ├── cart/\n  │       │   └── +page.svelte\n  │       ├── checkout/\n  │       │   └── +page.svelte\n  │       ├── products/\n  │       │   ├── +page.svelte\n  │       │   └── [productId]/\n  │       │       └── +page.svelte\n  │       └── +layout.svelte\n```\n\nExample of using the project parameter in a Svelte component:\n```svelte\n<script lang=\"ts\">\n  import { page } from '$app/stores';\n  \n  // Access the project slug from the URL parameters\n  const projectSlug = $page.params.project;\n  \n  // Use the project slug to fetch project-specific data\n  $: fetchProductsForProject(projectSlug);\n  \n  async function fetchProductsForProject(slug) {\n    // Implementation to fetch products for the specific project\n  }\n</script>\n```",
+      "testStrategy": "1. Route restructuring tests:\n   a. Verify that all e-commerce routes are accessible under the new `/[project]/e-commerce/` structure\n   b. Test navigation between pages to ensure all links are updated correctly\n   c. Confirm that project-specific routes load the correct data\n\n2. E-commerce functionality tests:\n   a. Complete a purchase flow (add to cart, checkout, payment) for multiple projects to ensure project-specific functionality works\n   b. Verify that product listings are correct for each project\n\n3. Performance tests:\n   a. Measure load times for e-commerce pages before and after the restructuring to ensure no significant performance degradation\n\n4. Regression tests:\n   a. Run existing test suite to ensure that the restructuring hasn't broken any previously working functionality\n   b. Pay special attention to admin interfaces for product and order management\n\n5. Cross-browser and responsive design tests:\n   a. Verify that the restructured pages work correctly across different browsers and device sizes\n\n6. Database integrity tests:\n   a. Ensure that existing orders and products are still associated with the correct projects after the restructuring",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create new directory structure for e-commerce routes",
+          "description": "Set up the new directory structure for project-specific e-commerce routes",
+          "dependencies": [],
+          "details": "Create the directory structure 'src/routes/[project]/e-commerce/' and move existing e-commerce related routes (cart, checkout, products) into this new structure",
+          "status": "done",
+          "testStrategy": "Verify that the new directory structure exists and contains the correct files"
+        },
+        {
+          "id": 2,
+          "title": "Update import statements and navigation links",
+          "description": "Modify import statements and navigation links throughout the application to reflect the new route structure",
+          "dependencies": [
+            1
+          ],
+          "details": "Search for all import statements and navigation links referencing the old e-commerce routes and update them to use the new project-specific structure",
+          "status": "done",
+          "testStrategy": "Run automated tests to ensure all imports are valid and navigation links are working correctly"
+        },
+        {
+          "id": 3,
+          "title": "Implement dynamic routing for project-specific e-commerce",
+          "description": "Create a dynamic routing system to handle project-specific e-commerce functionality",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Implement logic to dynamically route e-commerce requests based on the project slug, ensuring that the correct project-specific components and data are loaded",
+          "status": "done",
+          "testStrategy": "Test various project slugs to confirm that the correct e-commerce pages are loaded for each project"
+        },
+        {
+          "id": 9,
+          "title": "Update e-commerce components for project-specific functionality",
+          "description": "Modify product listing, cart, and checkout components to work with the new route structure",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Update all e-commerce components to extract and use the project parameter from the URL, ensuring they load and display project-specific data correctly",
+          "status": "done",
+          "testStrategy": "Test each component with different project parameters to verify they display the correct project-specific content"
+        },
+        {
+          "id": 10,
+          "title": "Ensure compatibility with existing admin interfaces",
+          "description": "Verify and update admin interfaces to work with the new project-specific e-commerce structure",
+          "dependencies": [
+            1,
+            2,
+            3,
+            9
+          ],
+          "details": "Test admin interfaces for product and order management with the new route structure, making any necessary adjustments to ensure they function correctly with project-specific e-commerce data",
+          "status": "done",
+          "testStrategy": "Perform comprehensive testing of admin interfaces with multiple test projects to verify all functionality works as expected"
+        },
+        {
+          "id": 11,
+          "title": "Comprehensive testing of restructured e-commerce flow",
+          "description": "Test the complete e-commerce flow from product browsing to checkout in the new structure",
+          "dependencies": [
+            1,
+            2,
+            3,
+            9,
+            10
+          ],
+          "details": "Perform end-to-end testing of the entire e-commerce flow for multiple projects, including product browsing, adding to cart, checkout process, and order confirmation",
+          "status": "done",
+          "testStrategy": "Create test scenarios covering the complete user journey through the e-commerce flow for multiple different projects"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Create Supabase Configuration System for Global Project Settings",
+      "description": "Implement a configuration system using Supabase to store and manage global project settings, including map starting position, zoom levels, and other parameters.",
+      "details": "1. Create a new 'config' table in Supabase with the following columns:\n   - id (primary key)\n   - key (string, unique)\n   - value (jsonb)\n   - created_at (timestamp with time zone)\n   - updated_at (timestamp with time zone)\n\n2. Implement Supabase functions to manage the configuration:\n   - getConfig(key: string): Retrieve a specific configuration\n   - setConfig(key: string, value: any): Set or update a configuration\n   - getAllConfig(): Retrieve all configurations\n\n3. Create initial configuration entries:\n   - map_start_position: { lat: number, lng: number }\n   - map_zoom_levels: { min: number, max: number, default: number }\n   - other_global_settings: { setting1: value1, setting2: value2, ... }\n\n4. Update the map component to fetch configuration from Supabase:\n   ```svelte\n   <script>\n   import { onMount } from 'svelte';\n   import { getConfig } from '$lib/supabaseConfig';\n\n   let mapConfig;\n\n   onMount(async () => {\n     mapConfig = await getConfig('map_start_position');\n     initializeMap(mapConfig);\n   });\n\n   function initializeMap(config) {\n     // Use config to set up map\n   }\n   </script>\n   ```\n\n5. Implement an admin interface for managing global configurations:\n   - Create a new route: `/admin/config`\n   - Develop a form for editing configuration values\n   - Implement update functionality using the setConfig function\n\n6. Update relevant components throughout the application to use the new configuration system instead of hardcoded values.\n\n7. Implement error handling and validation for configuration values to ensure data integrity.\n\n8. Add appropriate access controls to ensure only authorized users can modify configurations.",
+      "testStrategy": "1. Unit Tests:\n   - Test getConfig, setConfig, and getAllConfig functions with various inputs\n   - Verify error handling for invalid keys or values\n\n2. Integration Tests:\n   - Ensure the map component correctly initializes with values from the config table\n   - Verify that changes in the admin configuration interface are reflected in the application\n\n3. UI Tests:\n   - Test the admin configuration interface for usability and correctness\n   - Verify that all form inputs are properly validated\n\n4. Performance Tests:\n   - Measure the impact of fetching configuration from Supabase on initial page load time\n   - Ensure efficient caching mechanisms are in place for frequently accessed configs\n\n5. Security Tests:\n   - Verify that only authorized users can access and modify configurations\n   - Test for SQL injection vulnerabilities in configuration management functions\n\n6. Regression Tests:\n   - Ensure that the new configuration system doesn't break existing functionality\n   - Verify that all components previously using hardcoded values now use the config system\n\n7. Edge Case Tests:\n   - Test behavior with missing or corrupted configuration data\n   - Verify system stability when rapidly changing configuration values\n\n8. Cross-browser and Device Testing:\n   - Ensure the configuration system works correctly across different browsers and devices",
+      "status": "done",
+      "dependencies": [
+        7
+      ],
+      "priority": "high",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Supabase 'config' table",
+          "description": "Set up the 'config' table in Supabase with the specified columns",
+          "dependencies": [],
+          "details": "Create a new table named 'config' in Supabase with columns: id (primary key), key (string, unique), value (jsonb), created_at (timestamp with time zone), updated_at (timestamp with time zone)",
+          "status": "done",
+          "testStrategy": "Verify table creation and column specifications using Supabase dashboard or API"
+        },
+        {
+          "id": 2,
+          "title": "Implement Supabase configuration functions",
+          "description": "Create functions to manage configuration in Supabase",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement getConfig(key: string), setConfig(key: string, value: any), and getAllConfig() functions to interact with the 'config' table",
+          "status": "done",
+          "testStrategy": "Write unit tests for each function to ensure proper data retrieval and storage"
+        },
+        {
+          "id": 3,
+          "title": "Create initial configuration entries",
+          "description": "Populate the 'config' table with initial global settings",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Add entries for map_start_position, map_zoom_levels, and other_global_settings using the setConfig function",
+          "status": "done",
+          "testStrategy": "Verify the presence and correctness of initial entries in the 'config' table"
+        },
+        {
+          "id": 4,
+          "title": "Update map component to use Supabase configuration",
+          "description": "Modify the map component to fetch and use configuration from Supabase",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "Update the Svelte map component to use getConfig for retrieving map_start_position and other relevant settings",
+          "status": "done",
+          "testStrategy": "Test the map component to ensure it correctly applies the fetched configuration"
+        },
+        {
+          "id": 5,
+          "title": "Implement admin interface for configuration management",
+          "description": "Create an admin page for managing global configurations",
+          "dependencies": [
+            2
+          ],
+          "details": "Develop a new route '/admin/config' with a form for editing configuration values, using setConfig for updates",
+          "status": "done",
+          "testStrategy": "Perform end-to-end testing of the admin interface, including form submission and data persistence"
+        },
+        {
+          "id": 6,
+          "title": "Refactor application to use new configuration system",
+          "description": "Update components to use the Supabase configuration instead of hardcoded values",
+          "dependencies": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "details": "Identify and modify all relevant components throughout the application to fetch and use configuration values from Supabase",
+          "status": "done",
+          "testStrategy": "Conduct thorough integration testing to ensure all components correctly use the new configuration system"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Secure API Keys with Environment Variables",
+      "description": "Move all sensitive API keys from public files to a .env.local file and ensure this file is added to .gitignore to prevent accidental exposure of credentials.",
+      "details": "1. Identify all API keys and sensitive credentials in the codebase:\n   - Stripe API keys\n   - Supabase credentials\n   - Any other third-party service credentials\n\n2. Create a .env.local file in the project root with the following structure:\n```\n# Stripe Configuration\nSTRIPE_SECRET_KEY=sk_test_...\nSTRIPE_PUBLISHABLE_KEY=pk_test_...\n\n# Supabase Configuration\nPUBLIC_SUPABASE_URL=https://your-project.supabase.co\nPUBLIC_SUPABASE_ANON_KEY=your-anon-key\n\n# Other API Keys\nOTHER_SERVICE_API_KEY=your-api-key\n```\n\n3. Ensure .env.local is added to .gitignore:\n```\n# Add to .gitignore\n.env.local\n.env.*.local\n```\n\n4. Update all references in the codebase to use environment variables:\n   - For server-side code (SvelteKit endpoints, hooks, etc.):\n     ```javascript\n     import { STRIPE_SECRET_KEY } from '$env/static/private';\n     \n     // Use STRIPE_SECRET_KEY in your code\n     ```\n   \n   - For client-side code (components, stores, etc.):\n     ```javascript\n     import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';\n     \n     // Use PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in your code\n     ```\n\n5. Update the Stripe integration code:\n   - Modify `/api/checkout` endpoint to use environment variables\n   - Update any client-side Stripe initialization\n\n6. Update Supabase client initialization:\n   ```javascript\n   import { createClient } from '@supabase/supabase-js';\n   import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';\n   \n   export const supabase = createClient(\n     PUBLIC_SUPABASE_URL,\n     PUBLIC_SUPABASE_ANON_KEY\n   );\n   ```\n\n7. Create a .env.example file with the structure but without actual values:\n   ```\n   # Stripe Configuration\n   STRIPE_SECRET_KEY=\n   STRIPE_PUBLISHABLE_KEY=\n   \n   # Supabase Configuration\n   PUBLIC_SUPABASE_URL=\n   PUBLIC_SUPABASE_ANON_KEY=\n   \n   # Other API Keys\n   OTHER_SERVICE_API_KEY=\n   ```\n\n8. Document the environment variable requirements in the project README.md:\n   - List all required environment variables\n   - Provide instructions for obtaining API keys\n   - Explain how to set up the .env.local file\n\n9. Verify that no sensitive information is committed to the repository by checking all recent commits and public files.",
+      "testStrategy": "1. Verify .gitignore configuration:\n   - Check that .env.local is listed in the .gitignore file\n   - Attempt to stage .env.local and confirm Git ignores it\n\n2. Test environment variable loading:\n   - Create a test .env.local file with dummy values\n   - Run the application locally and verify it starts without errors\n   - Check server logs to ensure no \"missing environment variable\" errors\n\n3. Test Stripe integration:\n   - Complete a test purchase flow using test API keys\n   - Verify payment processing works correctly\n   - Check that no API keys are visible in browser network requests\n\n4. Test Supabase integration:\n   - Verify authentication flows work correctly\n   - Test database operations to ensure connectivity\n   - Confirm that Supabase client is initialized with environment variables\n\n5. Security audit:\n   - Use grep or similar tools to search for hardcoded API keys:\n     ```bash\n     grep -r \"sk_\" --include=\"*.js\" --include=\"*.ts\" --include=\"*.svelte\" ./src\n     grep -r \"pk_\" --include=\"*.js\" --include=\"*.ts\" --include=\"*.svelte\" ./src\n     ```\n   - Check browser network requests to ensure no API keys are leaked\n   - Review frontend bundle to verify no secret keys are included\n\n6. Documentation verification:\n   - Confirm README.md includes clear instructions for environment setup\n   - Verify .env.example exists and contains all required variables (without values)\n\n7. Deployment test:\n   - Test the application in a staging environment with proper environment variables\n   - Verify that the application can access all required services\n   - Confirm that no sensitive data is exposed in logs or error messages",
+      "status": "done",
+      "dependencies": [
+        1,
+        8
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Add Title and Text Box to Start Screen with Visual Styling",
+      "description": "Implement a title and text box in the top left corner of the start screen with blur effect, opacity adjustment, and rounded corners to enhance visual hierarchy and branding.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "1. Create a container div for the title and text box positioned in the top left corner of the start screen.\n2. Add an h1 element for the title with appropriate styling (font-size, font-weight, color).\n3. Add a paragraph element or div for the text content.\n4. Apply the following CSS styles to the container:\n   - Position: absolute with appropriate top and left values\n   - Background-color with opacity (using rgba() or opacity property)\n   - Border-radius for rounded corners (e.g., 10px or 1rem)\n   - Backdrop-filter: blur() for the blur effect (with appropriate fallbacks for browser compatibility)\n   - Padding and margin for proper spacing\n   - Z-index to ensure proper layering\n5. Ensure the text remains readable against the blurred background\n6. Make the component responsive for different screen sizes\n7. Consider adding subtle animations or transitions for when the start screen loads\n8. Ensure the styling aligns with the overall application branding guidelines\n9. Add appropriate ARIA attributes for accessibility",
+      "testStrategy": "1. Visual inspection: Verify the title and text box appear in the top left corner of the start screen with the specified styling effects.\n2. Cross-browser testing: Check that the blur effect, opacity, and rounded corners render correctly across Chrome, Firefox, Safari, and Edge.\n3. Responsive testing: Confirm the component displays properly on various screen sizes (mobile, tablet, desktop).\n4. Accessibility testing: Verify the text is readable and meets contrast requirements despite the opacity and blur effects.\n5. Performance testing: Ensure the blur effect doesn't cause noticeable performance issues, especially on mobile devices.\n6. Unit tests: Verify the component renders with the correct props and styling.\n7. Integration tests: Confirm the component integrates properly with the start screen.\n8. User feedback: Collect opinions on the visual appeal and readability of the styled text box.\n9. Validate that the styling matches the approved design specifications and branding guidelines.",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Test Navigation Flow and Link Functionality",
+      "description": "Create and execute a comprehensive testing plan to verify all links and navigation paths from the home page, ensuring proper user journey flow and confirming all links function correctly.",
+      "status": "pending",
+      "dependencies": [
+        10
+      ],
+      "priority": "medium",
+      "details": "1. Create a site map or navigation flowchart documenting all expected navigation paths from the home page\n2. Develop a test matrix that includes:\n   - All links on the home page\n   - Secondary navigation paths (links from pages linked from home)\n   - Navigation elements (menus, breadcrumbs, footer links)\n   - Special navigation cases (login/logout flows, user account sections)\n3. For each link, verify:\n   - Correct destination URL\n   - Proper page loading\n   - Appropriate page title and content\n   - Browser back/forward navigation works correctly\n   - No broken links or 404 errors\n4. Test navigation across different devices and screen sizes:\n   - Desktop (various resolutions)\n   - Mobile devices (phones and tablets)\n   - Different browsers (Chrome, Firefox, Safari, Edge)\n5. Check for accessibility in navigation:\n   - Keyboard navigation works properly\n   - Screen reader compatibility\n   - Focus states are visible\n6. Document any issues found with screenshots and detailed reproduction steps\n7. Create a summary report of test results with recommendations for fixes",
+      "testStrategy": "1. Manual testing:\n   - Follow the test matrix to manually click through each link and navigation path\n   - Document the expected vs. actual results for each test case\n   - Verify visual elements and transitions during navigation\n\n2. Automated testing:\n   - Implement basic link checker tools to identify broken links\n   - Create simple automated tests for critical user journeys\n   - Run automated tests across different browser environments\n\n3. User flow validation:\n   - Conduct task-based testing (e.g., \"Find product X and add to cart\")\n   - Time how long it takes to complete common user journeys\n   - Identify any confusing or unintuitive navigation patterns\n\n4. Regression testing:\n   - After fixing any identified issues, retest the affected areas\n   - Perform a quick smoke test of the entire navigation system\n\n5. Documentation:\n   - Create a final report documenting test coverage\n   - Include metrics like percentage of links tested, pass/fail rates\n   - Provide recommendations for navigation improvements based on testing insights",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Implement Service Type for Products",
+      "description": "Create a service product type that behaves differently from physical products in the client interface, with custom display elements, booking flow, and checkout process.",
+      "status": "pending",
+      "dependencies": [
+        3
+      ],
+      "priority": "high",
+      "details": "1. Create a new product type enum or flag in the product model to distinguish between physical products and services\n2. Extend the existing product schema to include service-specific attributes:\n   - Duration (time required for service)\n   - Available time slots\n   - Provider/staff member information\n   - Location details (if applicable)\n   - Cancellation policy\n\n3. Modify the product display component to render differently based on product type:\n   - For services: emphasize availability calendar, duration, provider details\n   - For physical products: maintain current display with inventory, shipping options\n\n4. Implement a booking flow for services:\n   - Create a calendar/time slot selection component\n   - Add provider/staff selection if multiple options exist\n   - Implement booking confirmation with details summary\n\n5. Modify the checkout process to handle services differently:\n   - For services: collect any additional required information (e.g., special requests)\n   - Skip shipping method selection for service-only orders\n   - Adjust order confirmation to display booking details for services\n\n6. Update the cart component to display service items with their booking details\n   - Show selected date/time\n   - Show provider/staff if applicable\n   - Display cancellation policy\n\n7. Implement proper validation for service bookings:\n   - Prevent double-bookings for the same time slot\n   - Validate service availability before confirming\n\n8. Update relevant API endpoints to handle service-specific operations:\n   - Booking creation/modification\n   - Availability checking\n   - Service-specific checkout processing",
+      "testStrategy": "1. Unit Tests:\n   - Verify product type identification logic correctly distinguishes services from physical products\n   - Test service-specific attribute validation\n   - Ensure booking validation logic prevents scheduling conflicts\n\n2. Integration Tests:\n   - Confirm product display components render correctly based on product type\n   - Verify booking flow correctly captures and stores all required information\n   - Test that checkout process adapts appropriately for service-only, physical-only, and mixed orders\n   - Ensure cart correctly displays service items with booking details\n\n3. End-to-End Tests:\n   - Complete user journey for booking a service:\n     a. Browse services\n     b. Select service\n     c. Choose time slot\n     d. Add to cart\n     e. Complete checkout\n   - Test mixed cart checkout with both services and physical products\n   - Verify order confirmation displays appropriate information for services\n\n4. Edge Cases:\n   - Test handling of service cancellations\n   - Verify behavior when a service becomes unavailable after being added to cart\n   - Test time zone handling for service bookings\n   - Confirm proper error messaging for invalid booking attempts\n\n5. Performance Testing:\n   - Measure load time differences between service and physical product pages\n   - Test system performance with concurrent booking attempts for the same service",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Implement Dynamic Project Favicon",
+      "description": "Create functionality to dynamically display project-specific favicons when users are viewing project pages (/[project]) instead of the default Valle Sagrado favicon.",
+      "details": "1. Create a system to store project logos suitable for favicon use:\n   - Add a `favicon` or `logo` field to the project data model\n   - Ensure uploaded images are properly sized for favicon use (typically 32x32px or 16x16px)\n   - Store favicon images in an appropriate location (e.g., public/favicons/[project-id].png)\n\n2. Implement dynamic favicon switching logic:\n   - Create a utility function to determine the current project context from the URL\n   - Modify the app's head component to dynamically set the favicon based on the current route\n   - Handle fallback to the default favicon when no project is active or when the project has no custom favicon\n\n3. Update the SvelteKit layout component to include dynamic favicon links:\n```svelte\n<script>\n  import { page } from '$app/stores';\n  import { onMount } from 'svelte';\n  import { getProjectFromUrl } from '$lib/utils/project';\n  \n  let currentProject = null;\n  let faviconPath = '/favicon.png'; // Default favicon\n  \n  $: {\n    // Extract project from URL when route changes\n    const projectSlug = $page.params.project;\n    if (projectSlug) {\n      // Fetch project data or use cached data\n      getProjectData(projectSlug).then(project => {\n        currentProject = project;\n        // Update favicon if project has a custom one\n        if (project && project.favicon) {\n          faviconPath = project.favicon;\n        } else {\n          faviconPath = '/favicon.png'; // Fallback to default\n        }\n      });\n    } else {\n      // Reset to default when not in a project context\n      faviconPath = '/favicon.png';\n      currentProject = null;\n    }\n  }\n</script>\n\n<svelte:head>\n  <link rel=\"icon\" href={faviconPath} />\n</svelte:head>\n```\n\n4. Add favicon upload capability to the project management interface:\n   - Extend the project creation/editing form to include favicon upload\n   - Add image processing to ensure proper dimensions and format\n   - Implement preview functionality to show how the favicon will appear\n\n5. Optimize favicon delivery:\n   - Consider using different favicon formats for different browsers (ico, png, svg)\n   - Implement proper caching headers for favicon resources\n   - Consider using a favicon package like `svelte-favicon` if complexity increases",
+      "testStrategy": "1. Unit Testing:\n   - Create unit tests for the project URL parsing utility\n   - Test the favicon selection logic with various URL patterns\n   - Verify fallback behavior when project data is missing or incomplete\n\n2. Integration Testing:\n   - Verify that the favicon correctly updates when navigating between different project pages\n   - Test the favicon upload functionality in the project management interface\n   - Ensure proper error handling when favicon images fail to load\n\n3. Manual Testing:\n   - Navigate to different project pages and verify the favicon changes appropriately\n   - Test across multiple browsers (Chrome, Firefox, Safari, Edge) to ensure compatibility\n   - Check favicon appearance on different devices (desktop, mobile, tablet)\n   - Verify favicon appears correctly in browser tabs, bookmarks, and history\n\n4. Performance Testing:\n   - Measure any impact on page load time from the dynamic favicon implementation\n   - Verify that favicon switching doesn't cause layout shifts or other visual disruptions\n\n5. Edge Cases:\n   - Test behavior when rapidly switching between projects\n   - Verify behavior when a project has an invalid or corrupted favicon\n   - Test with very long project names and special characters in project slugs",
+      "status": "pending",
+      "dependencies": [
+        8
+      ],
+      "priority": "medium",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "Implement Dynamic Map Centering and Zoom for Location Pins",
+      "description": "Create functionality to automatically calculate the center point of all valid teacher/project location pins and set the map zoom level to ensure all markers are visible within the viewport.",
+      "details": "1. Identify the map component currently used in the application (likely Google Maps, Mapbox, or Leaflet).\n\n2. Create a utility function to calculate the center point of multiple coordinates:\n   ```javascript\n   function calculateCenterPoint(coordinates) {\n     if (!coordinates || coordinates.length === 0) return null;\n     \n     // Sum all latitudes and longitudes\n     const sumLat = coordinates.reduce((sum, coord) => sum + coord.lat, 0);\n     const sumLng = coordinates.reduce((sum, coord) => sum + coord.lng, 0);\n     \n     // Calculate average\n     return {\n       lat: sumLat / coordinates.length,\n       lng: sumLng / coordinates.length\n     };\n   }\n   ```\n\n3. Create a function to determine the optimal zoom level:\n   ```javascript\n   function calculateOptimalZoom(coordinates, mapWidth, mapHeight) {\n     if (!coordinates || coordinates.length <= 1) return DEFAULT_ZOOM;\n     \n     // Find the bounds of all coordinates\n     let minLat = Infinity, maxLat = -Infinity;\n     let minLng = Infinity, maxLng = -Infinity;\n     \n     coordinates.forEach(coord => {\n       minLat = Math.min(minLat, coord.lat);\n       maxLat = Math.max(maxLat, coord.lat);\n       minLng = Math.min(minLng, coord.lng);\n       maxLng = Math.max(maxLng, coord.lng);\n     });\n     \n     // Calculate the bounds size\n     const latDiff = maxLat - minLat;\n     const lngDiff = maxLng - minLng;\n     \n     // Apply a formula to determine zoom based on the bounds and map dimensions\n     // This formula will vary based on the mapping library used\n     // Example for Google Maps:\n     const WORLD_DIM = { height: 256, width: 256 };\n     const ZOOM_MAX = 18;\n     \n     const latZoom = Math.floor(Math.log2(mapHeight / WORLD_DIM.height / latDiff));\n     const lngZoom = Math.floor(Math.log2(mapWidth / WORLD_DIM.width / lngDiff));\n     \n     return Math.min(latZoom, lngZoom, ZOOM_MAX);\n   }\n   ```\n\n4. Modify the map component to use these utility functions:\n   - Collect all valid location coordinates from teachers/projects\n   - Filter out any invalid coordinates (null, undefined, etc.)\n   - Calculate the center point using the utility function\n   - Determine the optimal zoom level\n   - Apply these values to the map component\n\n5. Implement a fallback mechanism for edge cases:\n   - If no valid coordinates exist, use a default center point and zoom level\n   - If only one coordinate exists, use that as center with a default zoom level\n   - Handle cases where coordinates might be extremely distant from each other\n\n6. Add a resize event listener to recalculate zoom when the map container size changes:\n   ```javascript\n   useEffect(() => {\n     const handleResize = () => {\n       // Get current map container dimensions\n       const mapElement = document.getElementById('map-container');\n       if (!mapElement) return;\n       \n       const width = mapElement.clientWidth;\n       const height = mapElement.clientHeight;\n       \n       // Recalculate zoom based on new dimensions\n       const newZoom = calculateOptimalZoom(coordinates, width, height);\n       setZoom(newZoom);\n     };\n     \n     window.addEventListener('resize', handleResize);\n     return () => window.removeEventListener('resize', handleResize);\n   }, [coordinates]);\n   ```\n\n7. Update the map component props to use the calculated values:\n   ```jsx\n   <Map\n     center={centerPoint || DEFAULT_CENTER}\n     zoom={zoomLevel || DEFAULT_ZOOM}\n     markers={locationPins}\n     // other props...\n   />\n   ```",
+      "testStrategy": "1. Unit Testing:\n   - Create unit tests for the `calculateCenterPoint` function:\n     - Test with an empty array (should return null or default value)\n     - Test with a single coordinate (should return that coordinate)\n     - Test with multiple coordinates (should return the average)\n     - Test with coordinates at extreme positions (very distant from each other)\n   \n   - Create unit tests for the `calculateOptimalZoom` function:\n     - Test with an empty array (should return default zoom)\n     - Test with a single coordinate (should return default zoom)\n     - Test with coordinates close together (should return higher zoom value)\n     - Test with coordinates far apart (should return lower zoom value)\n     - Test with different map container dimensions\n\n2. Integration Testing:\n   - Create a test component with mock location data\n   - Verify the map renders with the correct center point\n   - Verify the map renders with the correct zoom level\n   - Test with different sets of location data (varying numbers and distributions)\n   - Test the resize functionality by programmatically changing the container size\n\n3. Manual Testing:\n   - Test the map with real project/teacher location data\n   - Verify all markers are visible within the viewport\n   - Test edge cases:\n     - Only one location pin\n     - No location pins\n     - Locations spread across different continents\n     - Locations very close together\n   - Test on different screen sizes (desktop, tablet, mobile)\n   - Test with browser window resizing\n\n4. Visual Regression Testing:\n   - Take screenshots of the map with different sets of location pins\n   - Compare with expected results to ensure consistent rendering\n\n5. Performance Testing:\n   - Measure the calculation time for large sets of location pins\n   - Ensure the resize event handler is properly debounced to prevent performance issues",
+      "status": "done",
+      "dependencies": [
+        3
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 15,
+      "title": "Fix Build Error in Production Build Process",
+      "description": "Investigate and resolve the build failure that's preventing successful production builds, specifically addressing the \"pnpm run build\" command that's exiting with error code 1.",
+      "details": "1. Analyze the build logs to identify the specific error:\n   - Check the console output for error messages, stack traces, and warnings\n   - Look for common build issues like missing dependencies, syntax errors, or configuration problems\n   - Identify which part of the build process is failing (e.g., TypeScript compilation, bundling, optimization)\n\n2. Reproduce the error locally:\n   - Run `pnpm run build` in a clean development environment\n   - Verify the error is consistent and reproducible\n   - Check if the error occurs in different environments (local dev, CI/CD pipeline)\n\n3. Common issues to investigate:\n   - Missing or incompatible dependencies in package.json\n   - TypeScript type errors that only appear during production builds\n   - Environment variables not properly configured for production\n   - Import/export issues that might be masked during development\n   - Memory limitations during build process\n   - Path resolution problems specific to production builds\n   - Issues with optimization or minification steps\n\n4. Potential fixes:\n   - Update package dependencies to compatible versions\n   - Resolve TypeScript errors by adding proper type definitions\n   - Fix import/export statements causing build failures\n   - Adjust build configuration in next.config.js or similar files\n   - Increase memory allocation for build process if needed\n   - Fix environment variable configuration for production builds\n\n5. After implementing fixes:\n   - Test the build process thoroughly\n   - Document the root cause and solution\n   - Consider adding build validation steps to prevent similar issues in the future",
+      "testStrategy": "1. Verify build success:\n   - Run `pnpm run build` and confirm it completes without errors\n   - Check that the exit code is 0 (success) rather than 1 (failure)\n   - Ensure all expected build artifacts are generated correctly\n\n2. Test the built application:\n   - Serve the production build locally using `pnpm start` or equivalent\n   - Verify all major functionality works in the production build\n   - Test critical user flows to ensure they function correctly\n   - Check for any console errors in the browser when using the production build\n\n3. Regression testing:\n   - Verify that fixing the build error hasn't introduced new issues\n   - Run existing test suites against the production build\n   - Compare behavior between development and production builds\n\n4. CI/CD validation:\n   - Push changes to a test branch and verify the build succeeds in CI/CD pipeline\n   - Confirm deployment processes work correctly with the fixed build\n\n5. Documentation:\n   - Document the issue and solution for future reference\n   - Update build documentation if necessary\n   - Consider adding specific tests or linting rules to catch similar issues earlier",
+      "status": "pending",
+      "dependencies": [
+        1,
+        2
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 16,
+      "title": "Fix Build Error in Production Deployment Process",
+      "description": "Investigate and resolve the build failure that's preventing successful production deployment, specifically addressing the \"pnpm run build\" command that's exiting with error code 1.",
+      "details": "1. Analyze the build logs to identify the specific error:\n   - Check the console output for error messages, stack traces, and warnings\n   - Look for common build issues like missing dependencies, syntax errors, or configuration problems\n   - Identify which part of the build process is failing (e.g., TypeScript compilation, bundling, optimization)\n\n2. Reproduce the error locally:\n   - Run `pnpm run build` in a clean development environment\n   - Verify if the error is consistent or environment-specific\n   - Check if the error occurs with npm as well (`npm run build`)\n\n3. Common issues to investigate:\n   - Missing or incompatible dependencies in package.json\n   - Environment variables required for production builds\n   - TypeScript type errors that only appear during production builds\n   - Import/export issues that may be masked during development\n   - Memory limitations during build process\n\n4. Specific fixes based on error type:\n   - For dependency issues: Update package.json and lock files\n   - For TypeScript errors: Resolve type issues or add appropriate type declarations\n   - For build configuration issues: Modify build scripts in package.json or configuration files\n   - For memory issues: Adjust build process to use more memory or split into smaller chunks\n\n5. Implement the fix:\n   - Make the necessary code or configuration changes\n   - Document the issue and solution for future reference\n   - Test the build process locally before pushing changes\n\n6. Update build process to use npm if necessary:\n   - If pnpm-specific issues are identified, modify deployment scripts to use npm instead\n   - Update any CI/CD configurations to reflect the change\n   - Ensure all necessary dependencies are correctly installed with npm\n\n7. Create a build verification process:\n   - Add pre-build checks to catch common issues before they cause build failures\n   - Consider adding a CI step that performs a build test before deployment",
+      "testStrategy": "1. Local verification:\n   - Run the build process locally using the same command that failed (`pnpm run build`)\n   - Verify that the build completes successfully without errors\n   - If switching to npm, test with `npm run build` as well\n\n2. Output verification:\n   - Check that all expected build artifacts are generated correctly\n   - Verify file sizes and content are appropriate for production builds\n   - Ensure all static assets are properly included\n\n3. Environment testing:\n   - Test the build in a staging environment that mirrors production\n   - Verify the build process works in the CI/CD pipeline\n   - Test with different Node.js versions if version compatibility is suspected\n\n4. Functional testing:\n   - Deploy the built application to a test environment\n   - Verify all key functionality works as expected with the production build\n   - Test critical user flows to ensure no regression\n\n5. Performance testing:\n   - Compare load times and performance metrics with previous successful builds\n   - Ensure build optimization is working correctly\n   - Verify bundle sizes are appropriate and not unexpectedly large\n\n6. Documentation:\n   - Document the root cause of the build failure\n   - Update build documentation with any new requirements or steps\n   - Create a troubleshooting guide for common build issues",
+      "status": "pending",
+      "dependencies": [
+        15
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 17,
+      "title": "Configure Vercel to Use npm for Builds Instead of pnpm",
+      "description": "Create a Vercel configuration to override the default build process, switching from pnpm to npm for production builds while maintaining pnpm for local development.",
+      "details": "1. Create a `vercel.json` configuration file in the project root with the following content:\n```json\n{\n  \"builds\": [\n    {\n      \"src\": \"package.json\",\n      \"use\": \"@vercel/node\",\n      \"config\": {\n        \"buildCommand\": \"npm run build\",\n        \"installCommand\": \"npm install\"\n      }\n    }\n  ]\n}\n```\n\n2. Ensure the `package.json` file has identical build scripts for both npm and pnpm:\n```json\n\"scripts\": {\n  \"build\": \"next build\",\n  // other scripts...\n}\n```\n\n3. Update the Vercel project settings through the dashboard:\n   - Navigate to the project in the Vercel dashboard\n   - Go to \"Settings\" > \"General\" > \"Build & Development Settings\"\n   - Override the default build command to `npm run build`\n   - Override the default install command to `npm install`\n   - Save the changes\n\n4. Consider adding a `.npmrc` file to ensure consistent behavior:\n```\nengine-strict=true\nlegacy-peer-deps=true\n```\n\n5. Update the project's README.md to document the dual package manager approach:\n   - Document that local development uses pnpm\n   - Document that production builds use npm\n   - Include instructions for contributors\n\n6. If necessary, ensure all dependencies are compatible with both package managers by checking for any pnpm-specific configurations or dependencies.",
+      "testStrategy": "1. Verify the configuration locally:\n   - Run `vercel build --local` to test the build process locally with the new configuration\n   - Confirm that npm is being used for the build process instead of pnpm\n\n2. Deploy to a preview environment:\n   - Push the changes to a feature branch\n   - Create a preview deployment in Vercel\n   - Monitor the build logs to confirm npm commands are being used\n   - Verify the build completes successfully without error code 1\n\n3. Check the deployed preview:\n   - Ensure all functionality works correctly in the preview deployment\n   - Test critical paths including Stripe checkout and order processing\n\n4. Perform a controlled production deployment:\n   - Merge the changes to the main branch\n   - Monitor the production build logs\n   - Verify the build completes successfully\n   - Check that the production site functions correctly\n\n5. Document the resolution:\n   - Update relevant documentation to reflect the package manager configuration\n   - Add notes about the solution to any related issue tickets\n   - Share the solution with the team for future reference",
+      "status": "pending",
+      "dependencies": [
+        16
+      ],
+      "priority": "high",
+      "subtasks": []
+    },
+    {
+      "id": 18,
+      "title": "Configure Vercel to Use npm for Builds Instead of pnpm",
+      "description": "Create a Vercel configuration to override the default build system from pnpm to npm, resolving deployment failures while maintaining pnpm for local development.",
+      "details": "1. Create a `vercel.json` configuration file in the project root with the following content:\n```json\n{\n  \"builds\": [\n    {\n      \"src\": \"package.json\",\n      \"use\": \"@vercel/node\",\n      \"config\": {\n        \"installCommand\": \"npm install\",\n        \"buildCommand\": \"npm run build\"\n      }\n    }\n  ]\n}\n```\n\n2. Ensure the `package.json` file has the correct build script that works with npm:\n   - Verify that the `build` script in `package.json` is compatible with both npm and pnpm\n   - Check for any pnpm-specific features or commands that might need adjustment\n\n3. Update the Vercel project settings in the dashboard:\n   - Navigate to the project in the Vercel dashboard\n   - Go to Settings > General > Build & Development Settings\n   - Override the Framework Preset if necessary\n   - Set the Build Command to `npm run build`\n   - Set the Install Command to `npm install`\n\n4. Ensure all dependencies are properly listed in `package.json`:\n   - Check that there are no dependencies only installed via pnpm but missing from `package.json`\n   - Verify that all dev dependencies required for the build are correctly categorized\n\n5. If using a monorepo or workspace setup:\n   - Adjust the configuration to account for workspace-specific settings\n   - Consider adding a `.npmrc` file if needed to configure npm behavior\n\n6. Document the change in the project README:\n   - Explain that local development uses pnpm while production builds use npm\n   - Include instructions for other developers to understand this configuration",
+      "testStrategy": "1. Test the configuration locally before deploying:\n   - Run `vercel build --local` to simulate the build process locally\n   - Verify that the build completes successfully using npm instead of pnpm\n\n2. Deploy to a preview environment:\n   - Push the changes to a feature branch\n   - Verify that Vercel creates a preview deployment successfully\n   - Check the build logs to confirm npm commands are being used instead of pnpm\n   - Verify that the application functions correctly in the preview environment\n\n3. Monitor the deployment process:\n   - Watch the build logs in real-time during deployment\n   - Confirm that the error code 1 from \"pnpm run build\" no longer occurs\n   - Verify that all build steps complete successfully\n\n4. Validate the production deployment:\n   - After merging to the main branch, verify the production build succeeds\n   - Check that all application features work correctly in production\n   - Verify that subsequent deployments continue to use npm for builds\n\n5. Test local development workflow:\n   - Confirm that local development still works with pnpm commands\n   - Verify that developers can still use `pnpm install` and `pnpm dev` locally\n   - Ensure the development experience remains unchanged",
+      "status": "done",
+      "dependencies": [
+        16
+      ],
+      "priority": "high",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create vercel.json configuration file",
+          "description": "Create a vercel.json file in the project root to override the default build system from pnpm to npm.",
+          "dependencies": [],
+          "details": "1. Create a new file named `vercel.json` in the project root directory\n2. Add the configuration to use npm for installation and build processes:\n```json\n{\n  \"builds\": [\n    {\n      \"src\": \"package.json\",\n      \"use\": \"@vercel/node\",\n      \"config\": {\n        \"installCommand\": \"npm install\",\n        \"buildCommand\": \"npm run build\"\n      }\n    }\n  ]\n}\n```\n3. Save the file and ensure it's properly formatted",
+          "status": "done",
+          "testStrategy": "Validate the JSON syntax using a linter or JSON validator to ensure there are no syntax errors."
+        },
+        {
+          "id": 2,
+          "title": "Verify package.json build script compatibility",
+          "description": "Ensure that the build script in package.json works with both npm and pnpm by checking for any pnpm-specific features.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. Open the project's `package.json` file\n2. Review the `build` script and any related scripts it might call\n3. Identify any pnpm-specific commands or features (like pnpm-specific flags)\n4. Replace pnpm-specific commands with npm-compatible alternatives\n5. Ensure all dependencies required for the build process are correctly listed in dependencies or devDependencies\n6. Check for any workspace-specific configurations if using a monorepo setup",
+          "status": "done",
+          "testStrategy": "Run `npm run build` locally to verify the build script works correctly with npm."
+        },
+        {
+          "id": 3,
+          "title": "Configure Vercel dashboard settings",
+          "description": "Update the project settings in the Vercel dashboard to ensure they align with the new npm-based build configuration.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "1. Navigate to the Vercel dashboard and select the project\n2. Go to Settings > General > Build & Development Settings\n3. Override the Framework Preset if necessary\n4. Set the Build Command to `npm run build`\n5. Set the Install Command to `npm install`\n6. Save the changes\n7. If using a monorepo, ensure the Root Directory setting is correctly configured",
+          "status": "done",
+          "testStrategy": "After saving the settings, trigger a manual deployment to verify the settings are applied correctly."
+        },
+        {
+          "id": 4,
+          "title": "Test deployment with npm configuration",
+          "description": "Deploy the application to verify that the npm-based build process works correctly on Vercel.",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "1. Push the changes (vercel.json and any package.json modifications) to the repository\n2. Trigger a new deployment on Vercel (either automatically via git integration or manually)\n3. Monitor the build logs carefully for any errors related to the build process\n4. Verify that npm commands are being used instead of pnpm\n5. Check that the application deploys successfully and functions as expected\n6. If errors occur, review the logs to identify and fix any issues with the npm configuration",
+          "status": "done",
+          "testStrategy": "After deployment, test the live application thoroughly to ensure all functionality works as expected."
+        },
+        {
+          "id": 5,
+          "title": "Document the configuration in project README",
+          "description": "Update the project documentation to explain the dual package manager setup for local development and production builds.",
+          "dependencies": [
+            4
+          ],
+          "details": "1. Open the project's README.md file\n2. Add a new section titled \"Build Configuration\"\n3. Explain that the project uses pnpm for local development but npm for Vercel deployments\n4. Document the purpose of the vercel.json file\n5. Include instructions for other developers on how to work with this configuration\n6. Add any troubleshooting tips for common issues that might arise\n7. If applicable, explain why this approach was chosen over alternatives\n8. Commit and push the updated README",
+          "status": "done",
+          "testStrategy": "Have another team member review the documentation to ensure it's clear and provides sufficient guidance."
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Implement Vercel MCP Server for Valle Sagrado Platform",
+      "description": "Create a Model Context Protocol (MCP) server that integrates with the Valle Sagrado platform, enabling AI assistants like Cursor to access platform data including projects, products, and statistics.",
+      "details": "1. Set up the MCP server infrastructure:\n   - Create a new API route in the existing Next.js application under `/api/mcp`\n   - Implement the core MCP protocol handlers following Vercel's MCP specification\n   - Configure proper authentication and authorization for MCP requests\n\n2. Implement the following MCP tools:\n   - `getProjects`: Retrieve a list of all projects with basic information\n   - `getProjectDetails`: Get comprehensive details about a specific project\n   - `getProducts`: Retrieve product catalog with filtering options\n   - `getPlatformStatistics`: Generate platform usage and performance metrics\n   - `rollDice`: Utility function for random number generation (for testing/demo purposes)\n\n3. Create data access layer for MCP tools:\n   - Implement Supabase queries to fetch required data\n   - Ensure proper error handling and response formatting\n   - Add caching mechanisms for frequently accessed data\n\n4. Implement schema definitions for MCP tools:\n   - Define JSON schema for each tool's input parameters\n   - Create response type definitions for structured data\n   - Document schema in OpenAPI-compatible format\n\n5. Configure Cursor integration:\n   - Set up the MCP endpoint URL in Cursor settings\n   - Configure authentication credentials\n   - Test the connection between Cursor and the MCP server\n\n6. Implement security measures:\n   - Add rate limiting to prevent abuse\n   - Implement proper authentication using API keys\n   - Add logging for all MCP requests for auditing\n   - Ensure sensitive data is properly filtered\n\n7. Create documentation:\n   - Document each MCP tool with examples\n   - Provide integration guide for Cursor and other AI assistants\n   - Add inline code documentation\n\nSample MCP tool implementation:\n```typescript\n// api/mcp/route.ts\nimport { NextRequest, NextResponse } from 'next/server';\nimport { createClient } from '@supabase/supabase-js';\n\n// Initialize Supabase client\nconst supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;\nconst supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;\nconst supabase = createClient(supabaseUrl, supabaseServiceKey);\n\nexport async function POST(req: NextRequest) {\n  try {\n    const body = await req.json();\n    const { tool, parameters } = body;\n    \n    // Validate request authentication\n    const authHeader = req.headers.get('authorization');\n    if (!validateAuth(authHeader)) {\n      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });\n    }\n    \n    // Handle different MCP tools\n    switch (tool) {\n      case 'getProjects':\n        return await handleGetProjects(parameters);\n      case 'getProjectDetails':\n        return await handleGetProjectDetails(parameters);\n      case 'getProducts':\n        return await handleGetProducts(parameters);\n      case 'getPlatformStatistics':\n        return await handleGetPlatformStatistics(parameters);\n      case 'rollDice':\n        return await handleRollDice(parameters);\n      default:\n        return NextResponse.json({ error: 'Unknown tool' }, { status: 400 });\n    }\n  } catch (error) {\n    console.error('MCP error:', error);\n    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });\n  }\n}\n\nasync function handleGetProjects(parameters: any) {\n  const { data, error } = await supabase\n    .from('projects')\n    .select('id, name, description, status, created_at');\n    \n  if (error) throw error;\n  \n  return NextResponse.json({ projects: data });\n}\n\nasync function handleGetProjectDetails(parameters: any) {\n  const { projectId } = parameters;\n  \n  if (!projectId) {\n    return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });\n  }\n  \n  const { data, error } = await supabase\n    .from('projects')\n    .select('*, products(*), location(*)')\n    .eq('id', projectId)\n    .single();\n    \n  if (error) throw error;\n  \n  return NextResponse.json({ project: data });\n}\n\n// Implement other handlers similarly\n```",
+      "testStrategy": "1. Unit Testing:\n   - Create unit tests for each MCP tool function using Jest\n   - Mock Supabase responses to test different scenarios\n   - Test error handling and edge cases\n   - Verify schema validation works correctly\n\n2. Integration Testing:\n   - Set up a test environment with a test database\n   - Create test data in Supabase for projects, products, etc.\n   - Test each MCP endpoint with real API calls\n   - Verify data consistency between direct database queries and MCP responses\n\n3. Cursor Integration Testing:\n   - Configure Cursor to use the test MCP server\n   - Test each tool through the Cursor interface\n   - Verify that Cursor can properly interpret and display the returned data\n   - Test error scenarios and verify appropriate error messages\n\n4. Security Testing:\n   - Attempt to access MCP endpoints without proper authentication\n   - Test rate limiting by sending multiple requests in quick succession\n   - Verify that sensitive data is properly filtered from responses\n   - Test with malformed requests to ensure proper error handling\n\n5. Performance Testing:\n   - Measure response times for each MCP tool\n   - Test with varying amounts of data to ensure scalability\n   - Verify caching mechanisms are working correctly\n   - Test concurrent requests to ensure stability\n\n6. Manual Testing Checklist:\n   - Verify getProjects returns the correct list of projects\n   - Test getProjectDetails with various project IDs\n   - Check that getProducts returns the expected product catalog\n   - Verify getPlatformStatistics returns accurate metrics\n   - Test rollDice with different parameters\n   - Verify all tools work correctly when accessed through Cursor\n\n7. Documentation Verification:\n   - Ensure all MCP tools are properly documented\n   - Verify that the integration guide works by following it step by step\n   - Check that error messages are clear and helpful",
+      "status": "done",
+      "dependencies": [
+        3,
+        8
+      ],
+      "priority": "medium",
+      "subtasks": []
+    },
+    {
+      "id": 20,
+      "title": "Implement Multi-Upload Receipt Processing System",
+      "description": "Create a frontend and backend system for processing multiple receipts from a ZIP file upload, using OpenAI API for OCR and data extraction.",
+      "details": "1. Frontend Implementation (/fin route):\n   - Create a drag-and-drop interface for ZIP file uploads using a library like react-dropzone\n   - Implement client-side ZIP extraction using jszip library\n   - Add progress tracking for batch processing\n\n2. Backend API Endpoints:\n   - Create /api/upload endpoint to handle file uploads\n   - Implement /api/process-receipt endpoint for OpenAI processing\n\n3. Server-side Processing:\n   - Use sharp library for image processing and pdf-parse for PDF text extraction\n   - Integrate OpenAI Vision API for OCR on images\n   - Use OpenAI API to interpret extracted text and structure data\n\n4. Data Storage:\n   - Create a 'receipts' table in Supabase with columns: id, user_id, merchant, date, total, raw_text, processed_data (JSONB), created_at\n   - Implement functions to store processed receipt data\n\n5. Error Handling and Logging:\n   - Implement try-catch blocks for all API calls and processing steps\n   - Use a logging library like winston to log errors and important events\n\n6. User Feedback:\n   - Create a results display component to show processed receipts\n   - Implement real-time updates using WebSockets or Server-Sent Events\n\nCode example for OpenAI Vision API call:\n\n```javascript\nconst openai = new OpenAI(process.env.OPENAI_API_KEY);\n\nasync function performOCR(imageBuffer) {\n  const response = await openai.chat.completions.create({\n    model: \"gpt-4-vision-preview\",\n    messages: [\n      {\n        role: \"user\",\n        content: [\n          { type: \"text\", text: \"Perform OCR on this receipt image and extract the text.\" },\n          { type: \"image_url\", image_url: { url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}` } },\n        ],\n      },\n    ],\n  });\n  return response.choices[0].message.content;\n}\n```\n\n7. Implement rate limiting and error handling for OpenAI API calls to manage usage and costs.",
+      "testStrategy": "1. Unit Tests:\n   - Test ZIP file extraction function with various file types\n   - Verify OpenAI API integration for OCR and text interpretation\n   - Test database operations for storing receipt data\n\n2. Integration Tests:\n   - Upload a ZIP file with multiple receipt images and PDFs\n   - Verify correct processing of all files in the ZIP\n   - Check database for accurate storage of extracted data\n\n3. UI/UX Testing:\n   - Test drag-and-drop functionality with different file types\n   - Verify progress tracking accuracy during batch processing\n   - Ensure proper error messages for invalid uploads\n\n4. Performance Testing:\n   - Measure processing time for ZIP files of varying sizes\n   - Test system under load with multiple concurrent uploads\n\n5. Security Testing:\n   - Verify proper file type validation to prevent malicious uploads\n   - Ensure secure handling of sensitive receipt data\n\n6. Error Handling:\n   - Test system behavior with corrupted ZIP files\n   - Verify graceful handling of OpenAI API failures\n\n7. End-to-End Testing:\n   - Upload a ZIP file, process receipts, and verify correct display of results\n   - Check email notifications (if implemented) for processed receipts\n\n8. Accessibility Testing:\n   - Ensure the upload interface is keyboard accessible\n   - Verify screen reader compatibility for the results display",
+      "status": "pending",
+      "dependencies": [
+        5,
+        8
+      ],
+      "priority": "high",
+      "subtasks": []
+    }
+  ]
+}

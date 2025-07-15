@@ -42,9 +42,9 @@ node_modules/
 *.sln
 *.sw?
 # OS specific
-# Task files
-tasks.json
-tasks/ 
-
 static/tik.mp4
 .aider*
+
+# Task files
+# tasks.json
+# tasks/ 

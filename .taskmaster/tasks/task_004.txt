@@ -1,0 +1,93 @@
+# Task ID: 4
+# Title: Implement Supabase Storage Upload Functionality
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Create helper functions to upload downloaded images to Supabase Storage and generate permanent URLs.
+# Details:
+Implement functions to upload images to Supabase Storage and generate permanent URLs:
+
+```javascript
+import { createClient } from '@supabase/supabase-js'
+import fs from 'fs/promises'
+import path from 'path'
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+const BUCKET_NAME = 'design-images'
+
+/**
+ * Uploads an image to Supabase Storage
+ * @param {string} filePath - Path to the local image file
+ * @param {string} fileName - Name to use for the uploaded file
+ * @param {string} mimeType - MIME type of the image
+ * @returns {Promise<{url: string, path: string}>}
+ */
+async function uploadImageToSupabase(filePath, fileName, mimeType) {
+  try {
+    // Read file content
+    const fileBuffer = await fs.readFile(filePath)
+    
+    // Generate a storage path with date-based organization
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const storagePath = `${year}/${month}/${fileName}`
+    
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(storagePath, fileBuffer, {
+        contentType: mimeType,
+        cacheControl: '3600',
+        upsert: false
+      })
+    
+    if (error) {
+      throw error
+    }
+    
+    // Generate public URL
+    const { data: urlData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(storagePath)
+    
+    return {
+      url: urlData.publicUrl,
+      path: storagePath
+    }
+  } catch (error) {
+    console.error('Error uploading to Supabase Storage:', error)
+    throw error
+  }
+}
+
+/**
+ * Uploads with retry mechanism
+ */
+async function uploadWithRetry(filePath, fileName, mimeType, maxRetries = 3) {
+  let lastError
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await uploadImageToSupabase(filePath, fileName, mimeType)
+    } catch (error) {
+      lastError = error
+      const delay = Math.pow(2, attempt) * 1000
+      console.log(`Upload retry ${attempt + 1}/${maxRetries} after ${delay}ms`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+  
+  throw lastError
+}
+```
+
+# Test Strategy:
+1. Test uploading various image types (PNG, JPEG) to Supabase Storage
+2. Verify the generated URLs are accessible and display the correct images
+3. Test error handling by simulating upload failures
+4. Verify retry mechanism works correctly
+5. Test file size limits by uploading images of different sizes
+6. Verify storage path structure and organization
+7. Test concurrent uploads to ensure no race conditions
+8. Measure upload performance and optimize if necessary

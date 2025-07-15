@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '$env/static/private';
+import { downloadAndUploadImage } from '$lib/image';
 
 // Server-side cache for generated designs
 interface ServerCacheEntry {
@@ -13,6 +14,10 @@ const serverCache = new Map<string, ServerCacheEntry>();
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour server-side cache
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 5; // 5 requests per minute per IP
+
+// Storage configuration for custom designs
+const DESIGN_STORAGE_BUCKET = 'teacher'; // Using existing bucket for now
+const DESIGN_STORAGE_FOLDER = 'custom-designs';
 
 // Rate limiting storage
 const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
@@ -251,7 +256,26 @@ Style: Modern, professional, suitable for apparel printing`;
 				throw new Error('No image URL returned from AI service');
 			}
 
-			// Create design object with AI-generated data
+			// Download the image from OpenAI and upload to Supabase Storage
+			console.log('🔄 Downloading image from OpenAI and uploading to Supabase Storage...');
+			const timestamp = Date.now();
+			const fileName = `design-${timestamp}-${Math.random().toString(36).slice(2)}.png`;
+			
+			const uploadResult = await downloadAndUploadImage(
+				generatedImage.url,
+				DESIGN_STORAGE_BUCKET,
+				DESIGN_STORAGE_FOLDER,
+				fileName
+			);
+
+			if (!uploadResult.success || !uploadResult.url) {
+				console.error('❌ Failed to upload image to Supabase Storage:', uploadResult.error);
+				throw new Error(`Failed to save image to storage: ${uploadResult.error || 'No URL returned'}`);
+			}
+
+			console.log('✅ Image uploaded successfully to Supabase Storage:', uploadResult.url);
+
+			// Create design object with AI-generated data using permanent storage URL
 			const design: {
 				imageUrl: string;
 				prompt: string;
@@ -262,7 +286,7 @@ Style: Modern, professional, suitable for apparel printing`;
 				revisedPrompt: string | null;
 				id?: string;
 			} = {
-				imageUrl: generatedImage.url,
+				imageUrl: uploadResult.url, // Use permanent Supabase Storage URL
 				prompt: finalPrompt,
 				aiPrompt: aiPrompt,
 				colorCount: colorCount,

@@ -259,3 +259,63 @@ export function generateImageSizes(): string {
 		'25vw'
 	].join(', ');
 } 
+
+/**
+ * Download an image from a URL and upload it to Supabase Storage
+ * Used for saving AI-generated images to permanent storage
+ */
+export async function downloadAndUploadImage(
+	imageUrl: string,
+	bucketName: string,
+	folderPath: string,
+	fileName: string
+): Promise<ImageUploadResult> {
+	try {
+		// Download the image from the URL
+		const response = await fetch(imageUrl);
+		if (!response.ok) {
+			throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
+		}
+
+		// Get the image data as a buffer
+		const imageBuffer = await response.arrayBuffer();
+		const imageFile = new Uint8Array(imageBuffer);
+
+		// Determine content type from response headers or filename
+		const contentType = response.headers.get('content-type') || 'image/png';
+		
+		// Generate the file path
+		const filePath = `${folderPath}/${fileName}`;
+
+		// Upload to Supabase Storage
+		const { data, error } = await supabase.storage
+			.from(bucketName)
+			.upload(filePath, imageFile, {
+				cacheControl: '31536000', // 1 year cache
+				upsert: false,
+				contentType: contentType
+			});
+
+		if (error) {
+			console.error('Storage upload error:', error);
+			return { success: false, error: error.message };
+		}
+
+		// Get public URL
+		const { data: urlData } = supabase.storage
+			.from(bucketName)
+			.getPublicUrl(filePath);
+
+		return {
+			success: true,
+			url: urlData.publicUrl,
+			path: filePath
+		};
+	} catch (error) {
+		console.error('Download and upload error:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Download and upload failed'
+		};
+	}
+} 
