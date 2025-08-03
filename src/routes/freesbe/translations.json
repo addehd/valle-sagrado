@@ -1,0 +1,86 @@
+{
+  "en": {
+    "breadcrumb": "Services",
+    "title": "Print on Demand Services",
+    "subtitle": "Custom printing solutions for your business, events, and personal needs. High-quality prints on frisbees, sweatshirts, coffee cups, and more.",
+    "viewAllServices": "View All Services",
+    "getQuoteAllServices": "Get Quote for All Services",
+    "requestQuoteSelected": "Request Quote for Selected",
+    "services": [
+      {
+        "title": "Custom Frisbee Printing",
+        "description": "High-quality UV-resistant prints on durable frisbees. Perfect for events, promotions, and gifts.",
+        "price": "From $8.99"
+      },
+      {
+        "title": "Premium Sweatshirt Printing",
+        "description": "Soft, comfortable sweatshirts with vibrant, long-lasting prints. Available in multiple colors and sizes.",
+        "price": "From $24.99"
+      },
+      {
+        "title": "Custom Coffee Cup Design",
+        "description": "Personalized ceramic mugs with dishwasher-safe printing. Great for businesses and personal gifts.",
+        "price": "From $12.99"
+      },
+      {
+        "title": "Bulk Order Discounts",
+        "description": "Special pricing for orders over 50 items. Perfect for corporate events, schools, and organizations.",
+        "price": "Contact for quote"
+      }
+    ],
+    "popular": "Popular",
+    "whyChooseUs": "Why Choose Our Print Services?",
+    "benefits": [
+      "Fast turnaround times (3-5 business days)",
+      "High-quality, durable materials",
+      "Custom design support available",
+      "Bulk order discounts for businesses",
+      "Eco-friendly printing options"
+    ],
+    "getInTouch": "Get in Touch",
+    "contactUsToday": "Contact Us Today",
+    "businessHours": "Mon-Fri: 9AM-6PM EST"
+  },
+  "sv": {
+    "breadcrumb": "Tjänster",
+    "title": "Print on Demand-tjänster",
+    "subtitle": "Anpassade trycklösningar för ditt företag, evenemang och personliga behov. Högkvalitativa tryck på frisbees, sweatshirts, kaffemuggar och mycket mer.",
+    "viewAllServices": "Visa alla tjänster",
+    "getQuoteAllServices": "Få offert för alla tjänster",
+    "requestQuoteSelected": "Begär offert för valda",
+    "services": [
+      {
+        "title": "Specialtryck på Frisbees",
+        "description": "Högkvalitativa UV-beständiga tryck på slitstarka frisbees. Perfekt för evenemang, kampanjer och gåvor.",
+        "price": "Från 8,99 USD"
+      },
+      {
+        "title": "Premiumtryck på Sweatshirts",
+        "description": "Mjuka och bekväma sweatshirts med livfulla, hållbara tryck. Finns i flera färger och storlekar.",
+        "price": "Från 24,99 USD"
+      },
+      {
+        "title": "Personliga Kaffemuggar",
+        "description": "Keramiska muggar med personligt tryck som tål diskmaskin. Perfekta för företag eller som personliga presenter.",
+        "price": "Från 12,99 USD"
+      },
+      {
+        "title": "Rabatter vid Stora Beställningar",
+        "description": "Specialpriser för beställningar över 50 artiklar. Perfekt för företagsevent, skolor och organisationer.",
+        "price": "Kontakta oss för offert"
+      }
+    ],
+    "popular": "Populär",
+    "whyChooseUs": "Varför välja våra trycktjänster?",
+    "benefits": [
+      "Snabba leveranstider (3–5 arbetsdagar)",
+      "Högkvalitativa, slitstarka material",
+      "Stöd för anpassad design",
+      "Mängdrabatter för företag",
+      "Miljövänliga tryckalternativ"
+    ],
+    "getInTouch": "Kontakta oss",
+    "contactUsToday": "Kontakta oss idag",
+    "businessHours": "Mån–Fre: 09:00–18:00 EST"
+  }
+}
