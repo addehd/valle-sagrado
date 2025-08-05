@@ -1,6 +1,6 @@
 {
   "en": {
-    "breadcrumb": "Services",
+    "breadcrumb": "Freesbe",
     "title": "Print on Demand Services",
     "subtitle": "Custom printing solutions for your business, events, and personal needs. High-quality prints on frisbees, sweatshirts, coffee cups, and more.",
     "viewAllServices": "View All Services",
@@ -39,10 +39,40 @@
     ],
     "getInTouch": "Get in Touch",
     "contactUsToday": "Contact Us Today",
-    "businessHours": "Mon-Fri: 9AM-6PM EST"
+    "businessHours": "Mon-Fri: 9AM-6PM EST",
+    "modal": {
+      "title": "Request Quote for Selected Services",
+      "selectedServices": "Selected Services:",
+      "customerInfo": "Customer Information",
+      "fullName": "Full Name",
+      "fullNameRequired": "Full Name *",
+      "email": "Email Address",
+      "emailRequired": "Email Address *",
+      "phone": "Phone Number",
+      "company": "Company Name",
+      "quantity": "Quantity",
+      "quantityRequired": "Quantity *",
+      "logoUpload": "Upload Logo/Design",
+      "logoPosition": "Logo/Design Position",
+      "logoPositions": {
+        "center": "Center",
+        "topLeft": "Top Left",
+        "topRight": "Top Right",
+        "bottomLeft": "Bottom Left",
+        "bottomRight": "Bottom Right",
+        "custom": "Custom Position"
+      },
+      "additionalNotes": "Additional Notes",
+      "notesPlaceholder": "Any special requirements, colors, or additional information...",
+      "cancel": "Cancel",
+      "sendRequest": "Send Quote Request",
+      "sending": "Sending...",
+      "close": "Close",
+      "logoPreview": "Logo preview"
+    }
   },
   "sv": {
-    "breadcrumb": "Tjänster",
+    "breadcrumb": "Freesbe",
     "title": "Print on Demand-tjänster",
     "subtitle": "Anpassade trycklösningar för ditt företag, evenemang och personliga behov. Högkvalitativa tryck på frisbees, sweatshirts, kaffemuggar och mycket mer.",
     "viewAllServices": "Visa alla tjänster",
@@ -81,6 +111,36 @@
     ],
     "getInTouch": "Kontakta oss",
     "contactUsToday": "Kontakta oss idag",
-    "businessHours": "Mån–Fre: 09:00–18:00 EST"
+    "businessHours": "Mån–Fre: 09:00–18:00 EST",
+    "modal": {
+      "title": "Begär offert för valda tjänster",
+      "selectedServices": "Valda tjänster:",
+      "customerInfo": "Kundinformation",
+      "fullName": "Fullständigt namn",
+      "fullNameRequired": "Fullständigt namn *",
+      "email": "E-postadress",
+      "emailRequired": "E-postadress *",
+      "phone": "Telefonnummer",
+      "company": "Företagsnamn",
+      "quantity": "Antal",
+      "quantityRequired": "Antal *",
+      "logoUpload": "Ladda upp logga/design",
+      "logoPosition": "Logga/design position",
+      "logoPositions": {
+        "center": "Centrum",
+        "topLeft": "Uppe till vänster",
+        "topRight": "Uppe till höger",
+        "bottomLeft": "Nere till vänster",
+        "bottomRight": "Nere till höger",
+        "custom": "Anpassad position"
+      },
+      "additionalNotes": "Ytterligare anteckningar",
+      "notesPlaceholder": "Särskilda krav, färger eller ytterligare information...",
+      "cancel": "Avbryt",
+      "sendRequest": "Skicka offertförfrågan",
+      "sending": "Skickar...",
+      "close": "Stäng",
+      "logoPreview": "Förhandsvisning av logga"
+    }
   }
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import translationsData from './translations.json';
+	import QuoteModal from '../../components/QuoteModal.svelte';
 	
 	interface Service {
 		id: number;
@@ -10,8 +11,9 @@
 	
 	type Language = 'en' | 'sv';
 	
-	let currentLanguage: Language = 'en';
+	let currentLanguage: Language = 'sv';
 	let translations = translationsData[currentLanguage];
+	let showQuoteModal = false;
 	
 	let services: Service[] = [
 		{
@@ -38,6 +40,7 @@
 	
 	$: selectedCount = services.filter(service => service.selected).length;
 	$: translations = translationsData[currentLanguage];
+	$: selectedServices = services.filter(service => service.selected);
 	
 	function toggleLanguage() {
 		currentLanguage = currentLanguage === 'en' ? 'sv' : 'en';
@@ -50,9 +53,18 @@
 	}
 	
 	function requestQuote() {
-		const selected = services.filter(service => service.selected);
-		console.log('Requesting quote for services:', selected);
-		// Here you could redirect to a contact form or open an email
+		if (selectedCount > 0) {
+			showQuoteModal = true;
+		}
+	}
+	
+	function handleModalClose() {
+		showQuoteModal = false;
+	}
+	
+	function handleQuoteSuccess(event: CustomEvent) {
+		console.log('Quote request successful:', event.detail);
+		// You can add success notification logic here
 	}
 	
 	function viewAllServices() {
@@ -61,22 +73,21 @@
 </script>
 
 <svelte:head>
-	<title>{translations.title} - {currentLanguage === 'en' ? 'Custom Frisbees & More' : 'Anpassade Frisbees & Mer'}</title>
+	<title>{translations.title} - {currentLanguage === 'sv' ? 'Anpassade Frisbees & Mer' : 'Custom Frisbees & More'}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-100">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-[5]">
 		<!-- Language Toggle -->
 		<div class="flex justify-end mb-4">
 			<button 
 				on:click={toggleLanguage}
-				class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200"
-			>
+				class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200">
 				<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
 				</svg>
 				<span class="text-sm font-medium text-gray-700">
-					{currentLanguage === 'en' ? 'Svenska' : 'English'}
+					{currentLanguage === 'sv' ? 'English' : 'Svenska'}
 				</span>
 			</button>
 		</div>
@@ -233,22 +244,31 @@
 			</div>
 		</div>
 		
-		<!-- Decorative left element (stylized sun rays) -->
-		<div class="fixed left-0 bottom-0 transform -translate-y-1/2 -translate-x-1/2 opacity-10 pointer-events-none z-[-0]">
+		<!-- Decorative element (stylized sun rays) -->
+		<div class="fixed left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 opacity-5 pointer-events-none z-[1]">
 			<div class="relative">
 				{#each Array(50) as _, i}
 					<div 
-						class="absolute bg-gray-900 origin-right"
+						class="absolute bg-gray-300 origin-right"
 						style="
-							width: 200px; 
+							width: 300px; 
 							height: 1px; 
 							transform: rotate({i * 3.6}deg);
 							transform-origin: right center;
 						"
 					></div>
 				{/each}
-				<div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-gray-200 rounded-full"></div>
+				<div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-20 h-20 bg-gray-100 rounded-full opacity-50"></div>
 			</div>
 		</div>
 	</div>
 </div>
+
+<!-- Quote Modal -->
+<QuoteModal 
+	isOpen={showQuoteModal}
+	{selectedServices}
+	{translations}
+	on:close={handleModalClose}
+	on:success={handleQuoteSuccess}
+/>

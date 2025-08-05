@@ -41,6 +41,7 @@
 		"@vercel/mcp-adapter": "^0.7.3",
 		"file-drop-element": "^1.0.1",
 		"jszip": "^3.10.1",
+		"nodemailer": "^7.0.5",
 		"openai": "^5.1.1",
 		"pdf-parse": "^1.1.1",
 		"sharp": "^0.34.2",
