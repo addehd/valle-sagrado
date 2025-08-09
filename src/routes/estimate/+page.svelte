@@ -226,13 +226,13 @@
 		{/if}
 
 		<!-- Stripe Integration Info -->
-		<div class="mt-8 p-4 bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-center transition-colors duration-200">
+		<!-- <div class="mt-8 p-4 bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-center transition-colors duration-200">
 			<p class="text-gray-600 dark:text-neutral-400 text-sm">
 				🔒 Payments are processed securely via <strong>Stripe</strong> with industry-standard encryption.
 				{#if !data.user}
 					All major credit cards accepted.
 				{/if}
 			</p>
-		</div>
+		</div> -->
 	</div>
 </div>
