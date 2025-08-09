@@ -1,13 +1,12 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { supabase } from '$lib/supabaseClient';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	const { supabase } = locals;
 
 	// Get estimates from database
 	const { data: estimates, error: estimatesError } = await supabase
-		.from('estimates')
+		.from('estimate')
 		.select('*')
 		.order('created_at', { ascending: false });
 
@@ -54,18 +53,17 @@ export const actions: Actions = {
 		const totalCost = hourlyRate * estimatedHours;
 
 		const { data, error: insertError } = await supabase
-			.from('estimates')
+			.from('estimate')
 			.insert({
 				title,
 				service_name: serviceName,
 				description: description || null,
 				hourly_rate: hourlyRate,
 				estimated_hours: estimatedHours,
-				total_cost: totalCost,
 				notes: notes || null,
 				status: 'draft',
 				is_completed: false,
-				created_by: user.id
+				user_id: user.id
 			})
 			.select()
 			.single();
@@ -115,24 +113,20 @@ export const actions: Actions = {
 			});
 		}
 
-		const totalCost = hourlyRate * estimatedHours;
-
 		const { data, error: updateError } = await supabase
-			.from('estimates')
+			.from('estimate')
 			.update({
 				title,
 				service_name: serviceName,
 				description: description || null,
 				hourly_rate: hourlyRate,
 				estimated_hours: estimatedHours,
-				total_cost: totalCost,
 				notes: notes || null,
 				status: status || 'draft',
-				is_completed: isCompleted,
-				updated_at: new Date().toISOString()
+				is_completed: isCompleted
 			})
 			.eq('id', id)
-			.eq('created_by', user.id) // Ensure user can only update their own estimates
+			.eq('user_id', user.id) // Ensure user can only update their own estimates
 			.select()
 			.single();
 
@@ -173,10 +167,10 @@ export const actions: Actions = {
 		}
 
 		const { error: deleteError } = await supabase
-			.from('estimates')
+			.from('estimate')
 			.delete()
 			.eq('id', id)
-			.eq('created_by', user.id); // Ensure user can only delete their own estimates
+			.eq('user_id', user.id); // Ensure user can only delete their own estimates
 
 		if (deleteError) {
 			console.error('Error deleting estimate:', deleteError);
