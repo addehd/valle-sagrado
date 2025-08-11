@@ -10,11 +10,186 @@ alwaysApply: true
     class list grows beyond ~6, extract to a small UI component.
   applies_to: "*.svelte"
 
-# Svelte 5 runes
-- name: UseSvelteRunes
+# HTML/Svelte Formatting
+- name: NoDanglingAngleBrackets
   description: |
-    Prefer runes like $:, on:click, use:enhance,
-    and <script context="server"> for server code.
+    **NEVER use dangling angle bracket formatting** where the closing `>` 
+    is placed on its own line. Always keep the closing `>` on the same line 
+    as the last attribute, even for multi-line tags with many attributes.
+    
+    ❌ DON'T: Dangling bracket style
+    ```svelte
+    <button
+      type="submit"
+      class="btn btn-primary"
+      on:click={handleClick}
+    >
+      Click me
+    </button>
+    ```
+    
+    ✅ DO: Keep closing bracket with last attribute
+    ```svelte
+    <button
+      type="submit"
+      class="btn btn-primary"
+      on:click={handleClick}>
+      Click me
+    </button>
+    ```
+    
+    ✅ DO: Single line when possible
+    ```svelte
+    <button type="submit" class="btn" on:click={handleClick}>Click me</button>
+    ```
+  applies_to: "*.svelte"
+
+- name: NoDanglingSelfClosingTags
+  description: |
+    **NEVER use dangling self-closing tag formatting** where the closing `/>` 
+    is placed on its own line. Always keep the `/>` on the same line as the 
+    last attribute for self-closing tags.
+    
+    ❌ DON'T: Dangling self-closing bracket style
+    ```svelte
+    <input
+      type="text"
+      class="form-input"
+      placeholder="Enter text"
+    />
+    
+    <img
+      src="/image.jpg"
+      alt="Description"
+      class="w-full h-auto"
+    />
+    ```
+    
+    ✅ DO: Keep self-closing bracket with last attribute
+    ```svelte
+    <input
+      type="text"
+      class="form-input"
+      placeholder="Enter text" />
+    
+    <img
+      src="/image.jpg"
+      alt="Description"
+      class="w-full h-auto" />
+    ```
+    
+    ✅ DO: Single line when possible
+    ```svelte
+    <input type="text" class="form-input" placeholder="Enter text" />
+    <img src="/image.jpg" alt="Description" class="w-full h-auto" />
+    ```
+  applies_to: "*.svelte"
+
+# Svelte 5 runes - ALWAYS PREFERRED
+- name: AlwaysUseSvelte5Runes
+  description: |
+    **ALWAYS use Svelte 5 runes instead of legacy syntax.** Svelte 5 runes are mandatory for all new code and refactoring.
+    
+    **State Management:**
+    ❌ DON'T: `let count = 0;` (legacy)
+    ✅ DO: `let count = $state(0);`
+    
+    ❌ DON'T: `let items = [];` (legacy)  
+    ✅ DO: `let items = $state([]);`
+    
+    **Props:**
+    ❌ DON'T: `export let name;` (legacy)
+    ✅ DO: `let { name } = $props();`
+    
+    ❌ DON'T: `export let count = 0;` (legacy with default)
+    ✅ DO: `let { count = 0 } = $props();`
+    
+    **Bindable Props:**
+    ❌ DON'T: `export let value;` + `bind:value` (legacy)
+    ✅ DO: `let { value = $bindable() } = $props();`
+    
+    **Reactive Statements:**
+    ❌ DON'T: `$: doubled = count * 2;` (legacy)
+    ✅ DO: `const doubled = $derived(count * 2);`
+    
+    ❌ DON'T: `$: if (count > 10) { ... }` (legacy)
+    ✅ DO: `$effect(() => { if (count > 10) { ... } });`
+    
+    **Event Handlers:**
+    ❌ DON'T: `createEventDispatcher()` + `dispatch('event')` (legacy)
+    ✅ DO: `let { onevent } = $props();` + `onevent?.(data);`
+    
+    ❌ DON'T: `on:click={handler}` (legacy)
+    ✅ DO: `onclick={handler}`
+    
+    **Lifecycle:**
+    ❌ DON'T: `onMount(() => { ... })` (legacy)
+    ✅ DO: `$effect(() => { ... });`
+    
+    ❌ DON'T: `beforeUpdate(() => { ... })` (legacy)
+    ✅ DO: `$effect.pre(() => { ... });`
+    
+    **Stores (when needed):**
+    ❌ DON'T: `$store` auto-subscription (legacy)
+    ✅ DO: Use `$state()` for local state or explicit store methods
+    
+    **Component Usage:**
+    ❌ DON'T: `<Component on:event={handler} bind:value />` (legacy)
+    ✅ DO: `<Component onevent={handler} bind:value />`
+    
+    **Migration Priority:**
+    1. Always use runes for new components
+    2. Convert existing components when editing them
+    3. Never mix legacy and runes syntax in the same component
+    4. Prefer $state() over let for reactive variables
+    5. Prefer $derived() over $: reactive statements
+    6. Prefer $effect() over lifecycle functions
+  applies_to: "*.svelte"
+
+- name: Svelte5EventHandlers
+  description: |
+    **ALWAYS use Svelte 5 event attribute syntax instead of legacy on: directives.**
+    
+    ❌ DON'T: Legacy event directives
+    ```svelte
+    <button on:click={handleClick}>Click me</button>
+    <input on:input={handleInput} on:focus={handleFocus} />
+    <form on:submit={handleSubmit}>
+    <Component on:custom={handleCustom} />
+    ```
+    
+    ✅ DO: Svelte 5 event attributes
+    ```svelte
+    <button onclick={handleClick}>Click me</button>
+    <input oninput={handleInput} onfocus={handleFocus} />
+    <form onsubmit={handleSubmit}>
+    <Component oncustom={handleCustom} />
+    ```
+    
+    **Common Event Mappings:**
+    - `on:click` → `onclick`
+    - `on:input` → `oninput`  
+    - `on:change` → `onchange`
+    - `on:submit` → `onsubmit`
+    - `on:focus` → `onfocus`
+    - `on:blur` → `onblur`
+    - `on:keydown` → `onkeydown`
+    - `on:custom` → `oncustom`
+    
+    **Component Events:**
+    Instead of `createEventDispatcher()`:
+    ```svelte
+    <!-- Parent -->
+    <Child oncustom={handleCustom} />
+    
+    <!-- Child -->
+    <script>
+      let { oncustom } = $props();
+      function doSomething() {
+        oncustom?.(data);
+      }
+    </script>
+    ```
   applies_to: "*.svelte"
 
 # Supabase in +page.server.ts

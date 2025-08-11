@@ -1,22 +1,28 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	let { 
+		editingEstimate = null, 
+		loading = false,
+		oncancel,
+		onsuccess
+	}: { 
+		editingEstimate?: any; 
+		loading?: boolean; 
+		oncancel?: () => void; 
+		onsuccess?: () => void; 
+	} = $props();
 	
-	export let editingEstimate: any = null;
-	export let loading = false;
-	
-	const dispatch = createEventDispatcher();
-	
-	let title = editingEstimate?.title || '';
-	let serviceName = editingEstimate?.service_name || '';
-	let description = editingEstimate?.description || '';
-	let hourlyRate = editingEstimate?.hourly_rate || '';
-	let estimatedHours = editingEstimate?.estimated_hours || '';
-	let notes = editingEstimate?.notes || '';
-	let status = editingEstimate?.status || 'draft';
-	let isCompleted = editingEstimate?.is_completed || false;
+	let title = $state(editingEstimate?.title || '');
+	let serviceName = $state(editingEstimate?.service_name || '');
+	let description = $state(editingEstimate?.description || '');
+	let hourlyRate = $state(editingEstimate?.hourly_rate || '');
+	let estimatedHours = $state(editingEstimate?.estimated_hours || '');
+	let notes = $state(editingEstimate?.notes || '');
+	let status = $state(editingEstimate?.status || 'draft');
+	let isCompleted = $state(editingEstimate?.is_completed || false);
 	
 	// Update form when editingEstimate changes
-	$: if (editingEstimate) {
+	$effect(() => {
+		if (editingEstimate) {
 		title = editingEstimate.title || '';
 		serviceName = editingEstimate.service_name || '';
 		description = editingEstimate.description || '';
@@ -25,16 +31,17 @@
 		notes = editingEstimate.notes || '';
 		status = editingEstimate.status || 'draft';
 		isCompleted = editingEstimate.is_completed || false;
-	}
+		}
+	});
 	
-	$: totalCost = (parseFloat(hourlyRate) || 0) * (parseFloat(estimatedHours) || 0);
+	const totalCost = $derived((parseFloat(hourlyRate) || 0) * (parseFloat(estimatedHours) || 0));
 	
 	function handleCancel() {
-		dispatch('cancel');
+		oncancel?.();
 	}
 	
 	function handleSuccess() {
-		dispatch('success');
+		onsuccess?.();
 	}
 </script>
 
@@ -60,8 +67,7 @@
 					bind:value={title}
 					required
 					class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-800 dark:text-neutral-100"
-					placeholder="Project title"
-				/>
+					placeholder="Project title" />
 			</div>
 			
 			<div>
@@ -75,8 +81,7 @@
 					bind:value={serviceName}
 					required
 					class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-800 dark:text-neutral-100"
-					placeholder="Service or task name"
-				/>
+					placeholder="Service or task name" />
 			</div>
 		</div>
 		
@@ -108,8 +113,7 @@
 					min="0"
 					step="0.01"
 					class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-800 dark:text-neutral-100"
-					placeholder="1000.00"
-				/>
+					placeholder="1000.00" />
 			</div>
 			
 			<div>
@@ -125,8 +129,7 @@
 					min="0"
 					step="0.5"
 					class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-800 dark:text-neutral-100"
-					placeholder="8.0"
-				/>
+					placeholder="8.0" />
 			</div>
 			
 			<div>
@@ -165,8 +168,7 @@
 						id="is_completed"
 						name="is_completed"
 						bind:checked={isCompleted}
-						class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-neutral-600 rounded"
-					/>
+						class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-neutral-600 rounded" />
 					<label for="is_completed" class="ml-2 block text-sm text-gray-700 dark:text-neutral-300">
 						Mark as completed
 					</label>
@@ -191,7 +193,7 @@
 		<div class="flex justify-end space-x-3 pt-4">
 			<button
 				type="button"
-				on:click={handleCancel}
+				onclick={handleCancel}
 				class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
 			>
 				Cancel

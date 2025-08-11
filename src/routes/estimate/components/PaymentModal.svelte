@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	let { estimate, onclose, onsuccess }: { 
+		estimate: any; 
+		onclose?: () => void; 
+		onsuccess?: () => void; 
+	} = $props();
 	
-	export let estimate: any;
-	
-	const dispatch = createEventDispatcher();
-	
-	let loading = false;
-	let error = '';
+	let loading = $state(false);
+	let error = $state('');
 	
 	function formatCurrency(amount: number, currency = 'SEK') {
 		return new Intl.NumberFormat('sv-SE', {
@@ -16,7 +16,7 @@
 	}
 	
 	function handleClose() {
-		dispatch('close');
+		onclose?.();
 	}
 	
 	async function handlePayment() {
@@ -28,7 +28,7 @@
 			// In a real implementation, you would integrate with Stripe or another payment processor
 			await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
 			
-			dispatch('success');
+			onsuccess?.();
 			alert('Payment processed successfully! (This is a demo)');
 		} catch (err) {
 			error = 'Payment failed. Please try again.';
@@ -47,8 +47,8 @@
 <!-- Modal backdrop -->
 <div 
 	class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-	on:click={handleBackdropClick}
-	on:keydown={(e) => e.key === 'Escape' && handleClose()}
+	onclick={handleBackdropClick}
+	onkeydown={(e) => e.key === 'Escape' && handleClose()}
 	role="dialog"
 	tabindex="-1"
 	aria-modal="true"
@@ -62,7 +62,7 @@
 				Payment Details
 			</h2>
 			<button
-				on:click={handleClose}
+				onclick={handleClose}
 				class="text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors"
 				aria-label="Close modal"
 			>
@@ -124,8 +124,7 @@
 							id="card-number"
 							placeholder="1234 5678 9012 3456"
 							class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-700 dark:text-neutral-100"
-							disabled={loading}
-						/>
+							disabled={loading} />
 					</div>
 					
 					<div class="grid grid-cols-2 gap-4">
@@ -138,8 +137,7 @@
 								id="expiry"
 								placeholder="MM/YY"
 								class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-700 dark:text-neutral-100"
-								disabled={loading}
-							/>
+								disabled={loading} />
 						</div>
 						<div>
 							<label for="cvc" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
@@ -150,8 +148,7 @@
 								id="cvc"
 								placeholder="123"
 								class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-neutral-700 dark:text-neutral-100"
-								disabled={loading}
-							/>
+								disabled={loading} />
 						</div>
 					</div>
 				</div>
@@ -174,14 +171,14 @@
 		<!-- Footer -->
 		<div class="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-neutral-700">
 			<button
-				on:click={handleClose}
+				onclick={handleClose}
 				class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
 				disabled={loading}
 			>
 				Cancel
 			</button>
 			<button
-				on:click={handlePayment}
+				onclick={handlePayment}
 				class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"
 				disabled={loading}
 			>

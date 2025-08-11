@@ -1,7 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const { supabase } = locals;
 
 	// Get estimates from database
@@ -15,11 +15,61 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw error(500, 'Failed to load estimates');
 	}
 
+	// Simple view config based on URL and user
+	const showCost = url.searchParams.get('cost') === 'show';
+	const isAdminMode = url.searchParams.get('admin') === 'true';
+	const viewConfig = getViewConfig(showCost, locals.user, isAdminMode);
+
 	return {
 		estimates: estimates || [],
-		user: locals.user
+		user: locals.user,
+		viewConfig,
+		showCost // Pass this explicitly for easy access
 	};
 };
+
+// Simple function to determine what to show
+function getViewConfig(showCost: boolean, user: any, isAdminMode: boolean = false) {
+	// If user is logged in, they see everything
+	if (user) {
+		return {
+			showPricing: true,
+			showActions: true,
+			showNotes: true,
+			canEdit: true,
+			canDelete: true,
+			canApprove: true,
+			canPay: false, // Logged in users don't need to pay
+			variant: 'admin'
+		};
+	}
+	
+	// Admin mode for testing (via ?admin=true)
+	if (isAdminMode) {
+		return {
+			showPricing: showCost,
+			showActions: true,
+			showNotes: false,
+			canEdit: false,
+			canDelete: false,
+			canApprove: true, // Allow approving in admin mode
+			canPay: showCost,
+			variant: 'public'
+		};
+	}
+	
+	// Public view - controlled by ?cost=show
+	return {
+		showPricing: showCost,
+		showActions: showCost,
+		showNotes: false,
+		canEdit: false,
+		canDelete: false,
+		canApprove: false,
+		canPay: showCost,
+		variant: 'public'
+	};
+}
 
 export const actions: Actions = {
 	create: async ({ request, locals }) => {
@@ -182,6 +232,58 @@ export const actions: Actions = {
 		return {
 			success: true,
 			message: 'Estimate deleted successfully!'
+		};
+	},
+
+	approve: async ({ request, locals, url }) => {
+		const { supabase, user } = locals;
+		const isAdminMode = url.searchParams.get('admin') === 'true';
+
+		// Allow approval in admin mode or if logged in
+		if (!user && !isAdminMode) {
+			throw error(401, 'Unauthorized');
+		}
+
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+
+		if (!id) {
+			return fail(400, {
+				error: 'Estimate ID is required'
+			});
+		}
+
+		// Build query - in admin mode, don't filter by user_id
+		let query = supabase
+			.from('estimate')
+			.update({
+				status: 'approved'
+			})
+			.eq('id', id);
+
+		// Only filter by user_id if we have a logged-in user
+		if (user) {
+			query = query.eq('user_id', user.id);
+		}
+
+		const { data, error: updateError } = await query.select().single();
+
+		if (updateError) {
+			console.error('Error approving estimate:', updateError);
+			return fail(500, {
+				error: 'Failed to approve estimate'
+			});
+		}
+
+		if (!data) {
+			return fail(404, {
+				error: 'Estimate not found or you do not have permission to approve it'
+			});
+		}
+
+		return {
+			success: true,
+			message: 'Estimate approved successfully!'
 		};
 	}
 };
