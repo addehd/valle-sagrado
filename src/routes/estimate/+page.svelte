@@ -9,7 +9,7 @@
 	import AdminTestingCard from './components/AdminTestingCard.svelte';
 	import EstimateSection from './components/EstimateSection.svelte';
 	import PaymentReadySection from './components/PaymentReadySection.svelte';
-	import TotalSummary from './components/TotalSummary.svelte';
+	import PayableSection from './components/PayableSection.svelte';
 	import EmptyState from './components/EmptyState.svelte';
 	import PaymentModal from './components/PaymentModal.svelte';
 
@@ -20,7 +20,8 @@
 	const ESTIMATE_STATUS = {
 		DRAFT: 'draft',
 		SENT: 'sent',
-		APPROVED: 'approved'
+		APPROVED: 'approved',
+		PROPOSITION: 'proposition'
 	};
 
 	// State management - grouped by purpose using Svelte 5 runes
@@ -55,7 +56,8 @@
 	const estimatesByStatus = $derived({
 		completed: data.estimates.filter(e => e.is_completed),
 		approved: data.estimates.filter(e => e.status === ESTIMATE_STATUS.APPROVED && !e.is_completed),
-		pending: data.estimates.filter(e => e.status !== ESTIMATE_STATUS.APPROVED && !e.is_completed)
+		payable: data.estimates.filter(e => e.status === ESTIMATE_STATUS.PROPOSITION && !e.is_completed),
+		pending: data.estimates.filter(e => e.status !== ESTIMATE_STATUS.APPROVED && e.status !== ESTIMATE_STATUS.PROPOSITION && !e.is_completed)
 	});
 
 	const totalValues = $derived({
@@ -138,16 +140,6 @@
 		<!-- Messages -->
 		<MessageBanner {form} />
 
-		<!-- Admin Panel -->
-		{#if data.user}
-			<AdminPanel
-				bind:showCreateForm={formState.show}
-				bind:editingEstimate={formState.editing}
-				bind:loading={formState.loading}
-				onformcancel={handleFormCancel}
-				onformsuccess={handleFormSuccess} />
-		{/if}
-
 		<!-- Main Content -->
 
 		<div class="space-y-8">
@@ -168,12 +160,21 @@
 				isCompleted={true}
 				onedit={handleEdit} />
 
-			<!-- Payment Ready Section -->
-			<PaymentReadySection
-				estimates={estimatesByStatus.approved}
-				{viewConfig}
-				{formatCurrency}
-				onpayment={handlePayment} />
+					<!-- Payable Estimates Section (proposition status) -->
+		<PayableSection
+			estimates={estimatesByStatus.payable}
+			{viewConfig}
+			{formatCurrency}
+			onpayment={handlePayment} />
+
+		<!-- Payment Ready Section (approved status) -->
+		<PaymentReadySection
+			estimates={estimatesByStatus.approved}
+			{viewConfig}
+			{formatCurrency}
+			onpayment={handlePayment} />
+
+
 
 			<!-- Empty State -->
 			{#if !showFlags.hasEstimates}
@@ -183,21 +184,31 @@
 			{/if}
 		</div>
 
-		<!-- Total Summary -->
-		{#if showFlags.totalSummary}
-			<TotalSummary {totalValues} {formatCurrency} />
-		{/if}
-
 		<!-- Admin Testing Card -->
 		{#if showFlags.adminTesting}
 			<AdminTestingCard />
+		{/if}
+
+		<!-- Admin Panel -->
+		{#if data.user}
+			<AdminPanel
+				bind:showCreateForm={formState.show}
+				bind:editingEstimate={formState.editing}
+				bind:loading={formState.loading}
+				onformcancel={handleFormCancel}
+				onformsuccess={handleFormSuccess}
+				estimates={data.estimates}
+				payableEstimates={estimatesByStatus.payable}
+				onpayment={handlePayment}
+				{showCost}
+				{formatCurrency} />
 		{/if}
 
 	</div>
 </div>
 
 <!-- Payment Modal -->
-{#if modalState.showPayment && modalState.selectedEstimate}
+{#if modalState.showPayment && modalState.selectedEstimate && (data.user || showCost)}
 	<PaymentModal
 		estimate={modalState.selectedEstimate}
 		onclose={closePaymentModal}

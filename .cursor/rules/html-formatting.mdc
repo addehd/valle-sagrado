@@ -1,0 +1,97 @@
+---
+description: Enforce proper HTML/Svelte bracket formatting - never use dangling closing brackets
+globs: "*.svelte", "*.html"
+alwaysApply: true
+---
+
+# HTML/Svelte Formatting Rules
+
+## **NEVER Use Dangling Closing Brackets**
+
+**CRITICAL**: Never place closing `>` brackets on their own line in HTML or Svelte markup. Always keep the closing `>` on the same line as the last attribute.
+
+### ❌ DON'T: Dangling closing bracket
+```svelte
+<div
+	class="container"
+	style="min-height: {innerHeight}px;"
+>
+	Content here
+</div>
+
+<button
+	type="submit"
+	class="btn btn-primary"
+	onclick={handleClick}
+>
+	Click me
+</button>
+```
+
+### ✅ DO: Keep closing bracket with last attribute
+```svelte
+<div
+	class="container"
+	style="min-height: {innerHeight}px;">
+	Content here
+</div>
+
+<button
+	type="submit"
+	class="btn btn-primary"
+	onclick={handleClick}>
+	Click me
+</button>
+```
+
+### ✅ DO: Single line when possible
+```svelte
+<div class="container" style="min-height: {innerHeight}px;">Content</div>
+<button type="submit" class="btn" onclick={handleClick}>Click me</button>
+```
+
+## **Self-Closing Tags Follow Same Rule**
+
+### ❌ DON'T: Dangling self-closing bracket
+```svelte
+<input
+	type="text"
+	class="form-input"
+	placeholder="Enter text"
+/>
+
+<img
+	src="/image.jpg"
+	alt="Description"
+	class="w-full h-auto"
+/>
+```
+
+### ✅ DO: Keep self-closing bracket with last attribute
+```svelte
+<input
+	type="text"
+	class="form-input"
+	placeholder="Enter text" />
+
+<img
+	src="/image.jpg"
+	alt="Description"
+	class="w-full h-auto" />
+```
+
+## **Applies to All HTML Elements**
+
+This rule applies to:
+- Regular HTML elements (`<div>`, `<button>`, `<span>`, etc.)
+- Svelte components (`<MyComponent>`)
+- Self-closing elements (`<input />`, `<img />`, `<br />`)
+- Elements with many attributes
+- Elements with Svelte directives and bindings
+
+## **Reasoning**
+
+- **Consistency**: Maintains uniform bracket placement across the codebase
+- **Readability**: Keeps related syntax together on the same line
+- **Editor Support**: Works better with most code formatters and linters
+- **Prevents Visual Noise**: Reduces unnecessary line breaks that don't add meaning

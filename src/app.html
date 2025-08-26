@@ -29,7 +29,10 @@
 					const storedTheme = getStoredTheme();
 					const systemTheme = getSystemTheme();
 					
-					if (storedTheme === 'dark' || (!storedTheme && systemTheme === 'dark') || storedTheme === 'system' && systemTheme === 'dark') {
+					// Use stored theme if valid, otherwise use system preference
+					const theme = (storedTheme === 'dark' || storedTheme === 'light') ? storedTheme : systemTheme;
+					
+					if (theme === 'dark') {
 						document.documentElement.classList.add('dark');
 					} else {
 						document.documentElement.classList.remove('dark');
@@ -37,20 +40,12 @@
 				}
 				
 				setTheme();
-				
-				// Listen for system theme changes
-				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
-					const storedTheme = getStoredTheme();
-					if (!storedTheme || storedTheme === 'system') {
-						setTheme();
-					}
-				});
 			})();
 		</script>
 		
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
+    	<div>%sveltekit.body%</div>
 	</body>
 </html>

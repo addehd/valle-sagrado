@@ -19,7 +19,18 @@ const config = {
 		alias: {
 			$components: resolve('./src/components')
 		}
-	}
+  },
+
+  // Enable Svelte Inspector via the built-in vite-plugin-svelte integration
+  // https://github.com/sveltejs/vite-plugin-svelte/blob/main/docs/inspector.md
+  vitePlugin: {
+    inspector: {
+      toggleKeyCombo: 'meta-shift',
+      holdMode: false,
+      showToggleButton: 'active',
+      toggleButtonPos: 'top-right'
+    }
+  }
 };
 
 export default config;

@@ -153,12 +153,20 @@
         style: MapStyle.SATELLITE,
         center: mapConfig.center,
         zoom: mapConfig.zoom,
-        pitch: 60
+        pitch: 60,
+        // Disable ALL default controls
+        attributionControl: false,
+        logoControl: false,
+        navigationControl: false,
+        scaleControl: false,
+        geolocateControl: false,
+        fullscreenControl: false
       });
 
-      // add markers for each teacher
-      console.log(data.teachers);
-      
+      // Add only the controls we want with custom positioning
+      map.addControl(new sdk.NavigationControl(), 'bottom-right');
+      map.addControl(new sdk.ScaleControl(), 'bottom-left');
+
       if (data.teachers && data.teachers.length > 0) {
         data.teachers.forEach((teacher: any, index: number) => {
           

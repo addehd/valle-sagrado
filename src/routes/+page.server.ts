@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
     return {
       teachers,
       ratings: []
-    };
+    }
   }
 
   return {
