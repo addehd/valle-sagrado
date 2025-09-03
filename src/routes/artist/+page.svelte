@@ -18,7 +18,7 @@
 	
 	// Image transition state
 	let currentImageIndex = 0;
-	const heroImages = ['/buo.png', '/buo.png']; // Using the same image as requested
+	const heroImages = ['/images/buo.png', '/images/buo2.png']; // Using the same image as requested
 	
 	// Auto-transition images every 3 seconds
 	onMount(() => {
@@ -87,53 +87,54 @@
 <svelte:window bind:scrollY bind:innerHeight />
 
 <div class="relative w-full min-h-screen transition-all duration-100 ease-out overflow-hidden" style="background-color: {currentBackgroundColor}">
-	<header class="fixed top-8 left-8 z-[100] text-gray-600 max-md:static max-md:text-center max-md:p-8 max-md:bg-black max-md:bg-opacity-50">
-		<h1 class="text-4xl font-light mb-2 tracking-[2px] drop-shadow-md max-md:text-3xl">Maria Ocampo</h1>
-		<p class="text-lg opacity-90 m-0 font-light mb-4">Discover unique artworks from talented artists around the world</p>
-		
-		<!-- Display mode controls -->
-		<div class="flex gap-2 mt-4">
-			<button 
-				class="px-3 py-1 text-sm rounded transition-all duration-200"
-				class:bg-gray-600={displayMode === 'side'}
-				class:text-white={displayMode === 'side'}
-				class:bg-white={displayMode !== 'side'}
-				class:bg-opacity-20={displayMode !== 'side'}
-				onclick={() => displayMode = 'side'}>
-				Side
-			</button>
-			<button 
-				class="px-3 py-1 text-sm rounded transition-all duration-200"
-				class:bg-gray-600={displayMode === 'fullscreen'}
-				class:text-white={displayMode === 'fullscreen'}
-				class:bg-white={displayMode !== 'fullscreen'}
-				class:bg-opacity-20={displayMode !== 'fullscreen'}
-				onclick={() => displayMode = 'fullscreen'}>
-				Fullscreen
-			</button>
-			<button 
-				class="px-3 py-1 text-sm rounded transition-all duration-200"
-				class:bg-gray-600={displayMode === 'centered'}
-				class:text-white={displayMode === 'centered'}
-				class:bg-white={displayMode !== 'centered'}
-				class:bg-opacity-20={displayMode !== 'centered'}
-				onclick={() => displayMode = 'centered'}>
-				Centered
-			</button>
+	<header class="fixed bottom-0 left-0 w-full z-[100] text-gray-600 max-md:static max-md:text-center">
+		<div class="absolute inset-0 -z-10 border-[0.21px] border-white bg-opacity-70 backdrop-blur-sm"></div>
+		<div class="p-8 max-md:p-8 text-center">
+			<h1 class="text-4xl font-thin mb-11 mr-11 tracking-[2px] float-right drop-shadow-md max-md:text-3xl">Maria Ocampo</h1>
+			
+			<!-- Display mode controls -->
+			<div class="flex gap-2 mt-4 fixed bottom-11 left-11">
+				<button 
+					class="px-3 py-1 text-sm rounded transition-all duration-200"
+					class:bg-gray-600={displayMode === 'side'}
+					class:text-white={displayMode === 'side'}
+					class:bg-white={displayMode !== 'side'}
+					class:bg-opacity-20={displayMode !== 'side'}
+					onclick={() => displayMode = 'side'}>
+					Side
+				</button>
+				<button 
+					class="px-3 py-1 text-sm rounded transition-all duration-200"
+					class:bg-gray-600={displayMode === 'fullscreen'}
+					class:text-white={displayMode === 'fullscreen'}
+					class:bg-white={displayMode !== 'fullscreen'}
+					class:bg-opacity-20={displayMode !== 'fullscreen'}
+					onclick={() => displayMode = 'fullscreen'}>
+					Fullscreen
+				</button>
+				<button 
+					class="px-3 py-1 text-sm rounded transition-all duration-200"
+					class:bg-gray-600={displayMode === 'centered'}
+					class:text-white={displayMode === 'centered'}
+					class:bg-white={displayMode !== 'centered'}
+					class:bg-opacity-20={displayMode !== 'centered'}
+					onclick={() => displayMode = 'centered'}>
+					Centered
+				</button>
+			</div>
 		</div>
 	</header>
 	
 	<!-- Fullscreen hero section with fading images -->
-	<section class="w-full h-screen flex items-center justify-center relative">
+	<section class="w-full h-screen flex items-center justify-center relative bg-white">
 		<div class="relative w-80 h-80 flex items-center justify-center">
 			{#each heroImages as image, index}
-				<img 
-					src={image} 
-					alt="Hero image {index + 1}"
-					class="absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000"
+				<div 
+					class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000"
 					class:opacity-100={index === currentImageIndex}
 					class:opacity-0={index !== currentImageIndex}
-					style="width: 20rem;" />
+					style="background-image: url({image}); background-size: cover; background-position: center; width: 27rem; height: 20rem;">
+				</div>
 			{/each}
 		</div>
 	</section>
@@ -152,7 +153,7 @@
 	<ColorSamples image={data.artPieces[0].artPieceImg} />
 	
 	<!-- Scroll indicator -->
-	<div class="fixed right-8 top-1/2 -translate-y-1/2 z-[100] md:right-8 md:top-1/2 md:translate-x-0 max-md:bottom-8 max-md:right-1/2 max-md:top-auto max-md:translate-x-1/2">
+	<!-- <div class="fixed right-8 top-1/2 -translate-y-1/2 z-[100] md:right-8 md:top-1/2 md:translate-x-0 max-md:bottom-8 max-md:right-1/2 max-md:top-auto max-md:translate-x-1/2">
 		<div class="flex flex-col gap-4 max-md:flex-row">
 			{#each data.artPieces as _, index}
 				<div 
@@ -162,7 +163,7 @@
 				</div>
 			{/each}
 		</div>
-	</div>
+	</div> -->
 </div>
 
 

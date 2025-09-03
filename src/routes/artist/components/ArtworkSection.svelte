@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ColorSamples from './ColorSamples.svelte';
+
 	export let artwork: {
 		id: number;
 		artname: string;
@@ -42,6 +44,7 @@
 						alt={artwork.artname}
 						loading="lazy"
 						class="w-full h-full object-cover" />
+					<ColorSamples image={artwork.artPieceImg} />
 				</div>
 				
 				<div class="py-8 xl:col-span-1" class:xl:order-1={index % 2 === 1}>
