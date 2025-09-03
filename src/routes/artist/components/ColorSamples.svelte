@@ -227,32 +227,32 @@
             buckets1 = split(buckets1);
             palettes.push({ name: 'Auto', swatches: getSwatches(buckets1), class: '' });
 
-            // Custom
-            iterations = 2;
-            buckets = split(buckets, 'hue');
-            iterations = 3;
-            buckets = split(buckets, 'luma');
-            palettes.push({ name: 'Custom', swatches: getSwatches(buckets), class: 'custom' });
+            // // Custom
+            // iterations = 2;
+            // buckets = split(buckets, 'hue');
+            // iterations = 3;
+            // buckets = split(buckets, 'luma');
+            // palettes.push({ name: 'Custom', swatches: getSwatches(buckets), class: 'custom' });
 
-            // Hue
-            iterations = 5;
-            buckets3 = split(buckets3, 'hue');
-            palettes.push({ name: 'Hue', swatches: getSwatches(buckets3), class: '' });
+            // // Hue
+            // iterations = 5;
+            // buckets3 = split(buckets3, 'hue');
+            // palettes.push({ name: 'Hue', swatches: getSwatches(buckets3), class: '' });
 
-            // Saturation
-            iterations = 5;
-            buckets4 = split(buckets4, 'saturation');
-            palettes.push({ name: 'Saturation', swatches: getSwatches(buckets4), class: '' });
+            // // Saturation
+            // iterations = 5;
+            // buckets4 = split(buckets4, 'saturation');
+            // palettes.push({ name: 'Saturation', swatches: getSwatches(buckets4), class: '' });
 
-            // Lightness
-            iterations = 5;
-            buckets5 = split(buckets5, 'lightness');
-            palettes.push({ name: 'Lightness', swatches: getSwatches(buckets5), class: '' });
+            // // Lightness
+            // iterations = 5;
+            // buckets5 = split(buckets5, 'lightness');
+            // palettes.push({ name: 'Lightness', swatches: getSwatches(buckets5), class: '' });
 
-            // Luma
-            iterations = 5;
-            buckets2 = split(buckets2, 'luma');
-            palettes.push({ name: 'Luma', swatches: getSwatches(buckets2), class: '' });
+            // // Luma
+            // iterations = 5;
+            // buckets2 = split(buckets2, 'luma');
+            // palettes.push({ name: 'Luma', swatches: getSwatches(buckets2), class: '' });
 
             console.log('Generated palettes:', palettes);
         };
@@ -274,19 +274,15 @@
     });
 </script>
 
-<div class="p-4">
+<div>
     <canvas bind:this={canvas} class="hidden"></canvas>
     <img bind:this={img} alt="" class="hidden">
 
     {#if palettes.length > 0}
         {#each palettes as palette}
-            <h2 class="font-sans text-lg uppercase mb-4 text-white">{palette.name}</h2>
-            <div class="mb-10 after:table after:clear-both after:content-[''] {palette.class === 'custom' ? 'custom-grid' : ''}">
-                {#each palette.swatches as swatch}
-                    <div 
-                        class="w-8 h-12 float-left border border-white/20" 
-                        style="background-color: rgba({Math.round(swatch[0])}, {Math.round(swatch[1])}, {Math.round(swatch[2])}, 1)"
-                    ></div>
+            <div class="mb-10 mr-l after:table after:clear-both after:content-[''] {palette.class === 'custom' ? 'custom-grid' : ''}">
+                {#each palette.swatches as swatch, index}
+                    <div class="w-8 h-12 float-left border border-white/20 {index === 0 ? 'rounded-l' : ''} {index === palette.swatches.length - 1 ? 'rounded-r' : ''}" style="background-color: rgba({Math.round(swatch[0])}, {Math.round(swatch[1])}, {Math.round(swatch[2])}, 1)" ></div>
                 {/each}
             </div>
         {/each}

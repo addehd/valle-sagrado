@@ -149,8 +149,6 @@
 				shadow="lg" />
 		</div>
 	{/each}
-
-	<ColorSamples image={data.artPieces[0].artPieceImg} />
 	
 	<!-- Scroll indicator -->
 	<!-- <div class="fixed right-8 top-1/2 -translate-y-1/2 z-[100] md:right-8 md:top-1/2 md:translate-x-0 max-md:bottom-8 max-md:right-1/2 max-md:top-auto max-md:translate-x-1/2">

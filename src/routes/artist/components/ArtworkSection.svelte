@@ -44,7 +44,6 @@
 						alt={artwork.artname}
 						loading="lazy"
 						class="w-full h-full object-cover" />
-					<ColorSamples image={artwork.artPieceImg} />
 				</div>
 				
 				<div class="py-8 xl:col-span-1" class:xl:order-1={index % 2 === 1}>
@@ -58,12 +57,9 @@
 						{artwork.shortDescription}
 					</p>
 					
-					<div class="flex mb-8 max-md:justify-center">
-						<div class="w-10 h-5 rounded-l-md" style="background-color: {artwork.primaryColor}"></div>
-						<div class="w-10 h-5 rounded-r-md -ml-0.5" style="background-color: {artwork.accentColor}"></div>
-					</div>
+					<ColorSamples image={artwork.artPieceImg} />
 					
-					<button class="bg-transparent border-2 px-8 py-4 text-base font-normal tracking-wide rounded-md cursor-pointer transition-all duration-300 uppercase hover:bg-white hover:bg-opacity-10 hover:-translate-y-0.5" style="border-color: {artwork.accentColor}; color: {artwork.accentColor};">
+					<button class="bg-transparent border-2 border-gray-600 text-gray-600 px-8 py-4 text-base font-normal tracking-wide rounded-md cursor-pointer transition-all duration-300 uppercase hover:bg-white hover:bg-opacity-10 hover:-translate-y-0.5">
 						View Artwork
 					</button>
 				</div>
@@ -94,6 +90,8 @@
 					<p class="text-xl leading-relaxed opacity-90 mb-8 font-light">
 						{artwork.shortDescription}
 					</p>
+					
+					<ColorSamples image={artwork.artPieceImg} />
 					
 					<div class="flex justify-center mb-8">
 						<div class="w-10 h-5 rounded-l-md" style="background-color: {artwork.primaryColor}"></div>
@@ -127,6 +125,8 @@
 				<p class="text-lg leading-relaxed opacity-90 mb-8 font-light max-w-2xl mx-auto">
 					{artwork.shortDescription}
 				</p>
+				
+				<ColorSamples image={artwork.artPieceImg} />
 				
 				<div class="flex justify-center mb-8">
 					<div class="w-10 h-5 rounded-l-md" style="background-color: {artwork.primaryColor}"></div>
