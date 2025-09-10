@@ -57,11 +57,7 @@
 						{artwork.shortDescription}
 					</p>
 					
-					<ColorSamples image={artwork.artPieceImg} />
-					
-					<button class="bg-transparent border-2 border-gray-600 text-gray-600 px-8 py-4 text-base font-normal tracking-wide rounded-md cursor-pointer transition-all duration-300 uppercase hover:bg-white hover:bg-opacity-10 hover:-translate-y-0.5">
-						View Artwork
-					</button>
+					<ColorSamples image={artwork.artPieceImg} color={artwork.color} />
 				</div>
 			</div>
 		</div>

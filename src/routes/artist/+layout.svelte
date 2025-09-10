@@ -17,14 +17,10 @@
 <div class="min-h-screen dark:bg-green-900 bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->
 	
-	<!-- Fixed Theme Toggle in top right corner -->
-	<div class="fixed top-4 right-4 z-40">
-		<!-- <ThemeToggle /> -->
-	</div>
-	
+	<!-- <div class="fixed top-4 right-4 z-40">
+		<ThemeToggle />
+	</div> -->
 
-	<div class="border-white border-11 fixed w-full h-full z-10">
-	</div>
 	<main class="border-white w-full">
 		{@render children()}
 	</main>

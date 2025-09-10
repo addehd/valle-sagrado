@@ -3,6 +3,10 @@
 	import { browser } from '$app/environment';
 	import ColorSamples from './components/ColorSamples.svelte';
 	import ArtworkSection from './components/ArtworkSection.svelte';
+	import ArtistHeader from './components/ArtistHeader.svelte';
+	import FullscreenVideo from '../../components/FullscreenVideo.svelte';
+	import FullscreenSlideshow from '../../components/FullscreenSlideshow.svelte';
+	import ContactSection from '../../components/ContactSection.svelte';
 	
     export let data: import('./$types').PageData;
 
@@ -13,6 +17,11 @@
 	
 	// Display mode for artworks: 'side', 'fullscreen', or 'centered'
 	let displayMode: 'side' | 'fullscreen' | 'centered' = 'side';
+	
+	// Handle display mode changes from the header component
+	const handleDisplayModeChange = (mode: 'fullscreen' | 'side') => {
+		displayMode = mode;
+	};
 	
 	let currentBackgroundColor = '#ffffff';
 	
@@ -41,20 +50,53 @@
 		};
 		
 		const rgb = hex2rgb(color);
+		console.log(`colorToPercent input: ${color}, percent: ${percent}, parsed RGB:`, rgb);
+		
 		const opacity = percent / 100;
 		// Mix the color with white at specified opacity
 		const r = Math.round(255 + (rgb.r - 255) * opacity);
 		const g = Math.round(255 + (rgb.g - 255) * opacity);
 		const b = Math.round(255 + (rgb.b - 255) * opacity);
 		
-		return `rgb(${r}, ${g}, ${b})`;
+		const result = `rgb(${r}, ${g}, ${b})`;
+		console.log(`colorToPercent result: ${result}`);
+		
+		return result;
+	}
+	
+	// Function to interpolate between two colors
+	function interpolateColor(color1: string, color2: string, factor: number): string {
+		console.log(`interpolateColor inputs: color1=${color1}, color2=${color2}, factor=${factor}`);
+		
+		// Parse RGB values from rgb() strings
+		const parseRgb = (rgbString: string) => {
+			const match = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+			return match ? {
+				r: parseInt(match[1], 10),
+				g: parseInt(match[2], 10),
+				b: parseInt(match[3], 10)
+			} : { r: 255, g: 255, b: 255 };
+		};
+		
+		const rgb1 = parseRgb(color1);
+		const rgb2 = parseRgb(color2);
+		
+		console.log('parsed rgb1:', rgb1, 'parsed rgb2:', rgb2);
+		
+		const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * factor);
+		const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * factor);
+		const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * factor);
+		
+		const result = `rgb(${r}, ${g}, ${b})`;
+		console.log(`interpolateColor result: ${result}`);
+		
+		return result;
 	}
 	
 	// Calculate background color based on scroll position
 	$: if (browser && data.artPieces) {
 		const sectionHeight = innerHeight;
 		const totalScrollHeight = data.artPieces.length * sectionHeight;
-		const scrollProgress = scrollY / Math.max(totalScrollHeight - innerHeight, 1);
 		
 		// Determine which section we're in
 		const exactSectionIndex = (scrollY / sectionHeight);
@@ -68,72 +110,51 @@
 		const currentColor = data.artPieces[currentIndex]?.primaryColor || '#ffffff';
 		const nextColor = data.artPieces[nextIndex]?.primaryColor || currentColor;
 		
-		// Convert to 5% colors and interpolate
+		// Convert to 5% opacity colors
 		const current5Percent = colorToPercent(currentColor, 5);
 		const next5Percent = colorToPercent(nextColor, 5);
 		
-		// For simplicity, we'll use current section's 5% color (you could interpolate between 5% colors if needed)
-		currentBackgroundColor = sectionProgress < 0.5 ? current5Percent : next5Percent;
+		// Smoothly interpolate between the 5% opacity colors based on scroll progress
+		const newBackgroundColor = interpolateColor(current5Percent, next5Percent, sectionProgress);
+		
+		currentBackgroundColor = newBackgroundColor;
 	}
 	
 	onMount(() => {
+		console.log('=== OnMount Debug ===');
+		console.log('data.artPieces:', data.artPieces);
+		console.log('data.artPieces.length:', data.artPieces?.length);
+		
 		// Set initial background color to 5% of first artwork's color
-		if (data.artPieces.length > 0) {
-			currentBackgroundColor = colorToPercent(data.artPieces[0].primaryColor, 5);
-		}
+		// if (data.artPieces && data.artPieces.length > 0) {
+		// 	console.log('First artwork primaryColor:', data.artPieces[0].primaryColor);
+		// 	const initialColor = colorToPercent(data.artPieces[0].primaryColor, 5);
+		// 	console.log('Initial background color set to:', initialColor);
+		// 	currentBackgroundColor = initialColor;
+		// } else {
+		// 	console.log('No artPieces found, keeping default background');
+		// }
+		console.log('===================');
 	});
 </script>
 
 <svelte:window bind:scrollY bind:innerHeight />
 
 <div class="relative w-full min-h-screen transition-all duration-100 ease-out overflow-hidden" style="background-color: {currentBackgroundColor}">
-	<header class="fixed bottom-0 left-0 w-full z-[100] text-gray-600 max-md:static max-md:text-center">
-		<div class="absolute inset-0 -z-10 border-[0.21px] border-white bg-opacity-70 backdrop-blur-sm"></div>
-		<div class="p-8 max-md:p-8 text-center">
-			<h1 class="text-4xl font-thin mb-11 mr-11 tracking-[2px] float-right drop-shadow-md max-md:text-3xl">Maria Ocampo</h1>
-			
-			<!-- Display mode controls -->
-			<div class="flex gap-2 mt-4 fixed bottom-11 left-11">
-				<button 
-					class="px-3 py-1 text-sm rounded transition-all duration-200"
-					class:bg-gray-600={displayMode === 'side'}
-					class:text-white={displayMode === 'side'}
-					class:bg-white={displayMode !== 'side'}
-					class:bg-opacity-20={displayMode !== 'side'}
-					onclick={() => displayMode = 'side'}>
-					Side
-				</button>
-				<button 
-					class="px-3 py-1 text-sm rounded transition-all duration-200"
-					class:bg-gray-600={displayMode === 'fullscreen'}
-					class:text-white={displayMode === 'fullscreen'}
-					class:bg-white={displayMode !== 'fullscreen'}
-					class:bg-opacity-20={displayMode !== 'fullscreen'}
-					onclick={() => displayMode = 'fullscreen'}>
-					Fullscreen
-				</button>
-				<button 
-					class="px-3 py-1 text-sm rounded transition-all duration-200"
-					class:bg-gray-600={displayMode === 'centered'}
-					class:text-white={displayMode === 'centered'}
-					class:bg-white={displayMode !== 'centered'}
-					class:bg-opacity-20={displayMode !== 'centered'}
-					onclick={() => displayMode = 'centered'}>
-					Centered
-				</button>
-			</div>
-		</div>
-	</header>
+	<ArtistHeader 
+		name="Maria Ocampo" 
+		displayMode={displayMode} 
+		onDisplayModeChange={handleDisplayModeChange} />
 	
 	<!-- Fullscreen hero section with fading images -->
 	<section class="w-full h-screen flex items-center justify-center relative bg-white">
-		<div class="relative w-80 h-80 flex items-center justify-center">
+		<div class="relative w-[30rem] h-80 flex items-center justify-center">
 			{#each heroImages as image, index}
 				<div 
 					class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000"
 					class:opacity-100={index === currentImageIndex}
 					class:opacity-0={index !== currentImageIndex}
-					style="background-image: url({image}); background-size: cover; background-position: center; width: 27rem; height: 20rem;">
+					style="background-image: url({image}); background-size: cover; background-position: center; width: 30rem; height: 20rem;">
 				</div>
 			{/each}
 		</div>
@@ -149,6 +170,41 @@
 				shadow="lg" />
 		</div>
 	{/each}
+
+	<section class="w-full min-h-screen flex items-center justify-center relative">
+		<FullscreenVideo 
+			src="/maria.mov"
+			controls={true}
+			muted={false}
+			loop={false}>
+
+		</FullscreenVideo>
+	</section>
+
+
+
+	<!-- Contact Section -->
+	<ContactSection 
+		artistName="Maria Ocampo"
+		welcomeText="Welcome to Atelje"
+		address="Rolfsgatan 16"
+		location="Sofielunds Folketshus"
+		mapCoordinates={{ lat: 55.6050, lng: 13.0100 }}
+		googleMapsQuery="Rolfsgatan+16,+Malmö,+Sweden" />
+
+		<!-- Fullscreen Slideshow Section -->
+	<FullscreenSlideshow 
+		images={[
+			'/images/show/kirseberg.jpg',
+			'/images/show/leonard-1.jpg',
+			'/images/show/leonard-2.jpg',
+			'/images/show/leonard-3.jpg'
+		]}
+		autoplay={true}
+		interval={5000}
+		showControls={true}
+		showIndicators={true} />
+
 	
 	<!-- Scroll indicator -->
 	<!-- <div class="fixed right-8 top-1/2 -translate-y-1/2 z-[100] md:right-8 md:top-1/2 md:translate-x-0 max-md:bottom-8 max-md:right-1/2 max-md:top-auto max-md:translate-x-1/2">

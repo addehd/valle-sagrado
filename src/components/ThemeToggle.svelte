@@ -5,9 +5,10 @@
     size?: 'sm' | 'md' | 'lg';
     showLabels?: boolean;
     variant?: 'default' | 'header';
+    clean?: boolean;
   }
   
-  let { size = 'md', showLabels = false, variant = 'default' }: Props = $props();
+  let { size = 'md', showLabels = false, variant = 'default', clean = true }: Props = $props();
   
   let currentTheme = $state<Theme>('light');
   
@@ -38,10 +39,12 @@
     }
   };
 
-  const getButtonClasses = (variant: string, size: 'sm' | 'md' | 'lg') => {
+  const getButtonClasses = (variant: string, size: 'sm' | 'md' | 'lg', clean: boolean) => {
     const baseClasses = `inline-flex items-center justify-center ${sizeClasses[size]} rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500`;
     
-    if (variant === 'header') {
+    if (clean) {
+      return `${baseClasses} text-gray-600 hover:text-gray-800 focus:ring-gray-300`;
+    } else if (variant === 'header') {
       return `${baseClasses} text-white hover:bg-white/10 active:bg-white/20 focus:ring-white/50`;
     } else {
       return `${baseClasses} border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-offset-2 dark:focus:ring-offset-gray-800`;
@@ -66,7 +69,7 @@
 <div class="flex items-center space-x-2">
   <button
     onclick={toggleTheme}
-    class={getButtonClasses(variant, size)}
+    class={getButtonClasses(variant, size, clean)}
     aria-label="Toggle theme ({currentTheme})"
     title="Current theme: {currentTheme} (click to toggle)"
   >
