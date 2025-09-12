@@ -151,10 +151,10 @@
 		<div class="relative w-[30rem] h-80 flex items-center justify-center">
 			{#each heroImages as image, index}
 				<div 
-					class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000"
+					class="absolute top-0 left-0 w-full h-full transition-all duration-1000 ease-in-out"
 					class:opacity-100={index === currentImageIndex}
 					class:opacity-0={index !== currentImageIndex}
-					style="background-image: url({image}); background-size: cover; background-position: center; width: 30rem; height: 20rem;">
+					style="background-image: url({image}); background-size: cover; background-position: center; width: 30rem; height: 20rem; transform: scale({index === currentImageIndex ? 1 : 0.95});">
 				</div>
 			{/each}
 		</div>
@@ -189,7 +189,7 @@
 		welcomeText="Welcome to Atelje"
 		address="Rolfsgatan 16"
 		location="Sofielunds Folketshus"
-		mapCoordinates={{ lat: 55.6050, lng: 13.0100 }}
+		mapCoordinates={{ lat: 55.5855856, lng: 13.0133482 }}
 		googleMapsQuery="Rolfsgatan+16,+Malmö,+Sweden" />
 
 		<!-- Fullscreen Slideshow Section -->

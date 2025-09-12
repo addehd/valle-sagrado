@@ -36,7 +36,7 @@
 	
 	{#if displayMode === 'side'}
 		<!-- Current layout with info on side -->
-		<div class="max-w-none w-full h-full flex items-center justify-center px-8">
+		<div class="max-w-none w-full h-full flex items-center justify-center px-4 md:px-8">
 			<div class="grid grid-cols-1 xl:grid-cols-3 gap-12 xl:gap-16 items-center w-full text-gray-600 max-xl:text-center" class:xl:grid-flow-col-dense={index % 2 === 1}>
 				<div class="relative aspect-[4/3] {shadowClass} xl:col-span-2 bg-white" class:xl:order-2={index % 2 === 1}>
 					<img 
@@ -47,10 +47,10 @@
 				</div>
 				
 				<div class="py-8 xl:col-span-1" class:xl:order-1={index % 2 === 1}>
-					<div class="text-base opacity-70 font-light tracking-[2px] mb-4">
+					<!-- <div class="text-base opacity-70 font-light tracking-[2px] mb-4">
 						{String(index + 1).padStart(2, '0')}
 					</div>
-					
+					 -->
 					<h2 class="text-5xl md:text-5xl max-md:text-3xl font-light mb-4 leading-tight tracking-wide">{artwork.artname}</h2>
 					
 					<p class="text-lg leading-relaxed opacity-90 mb-8 font-light">
@@ -72,7 +72,7 @@
 			
 			<!-- Overlay info -->
 			<div 
-				class="absolute inset-0 flex items-center justify-center p-8 transition-all duration-300 text-gray-600"
+				class="absolute inset-0 flex items-center justify-center p-4 md:p-8 transition-all duration-300 text-gray-600"
 				class:opacity-0={!isHovered}
 				class:opacity-100={isHovered}
 				style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
@@ -102,7 +102,7 @@
 		</div>
 	{:else if displayMode === 'centered'}
 		<!-- Centered at 70% width -->
-		<div class="w-full h-full flex items-center justify-center px-8">
+		<div class="w-full h-full flex items-center justify-center px-4 md:px-8">
 			<div class="w-[70%] text-center text-gray-600">
 				<div class="relative aspect-[4/3] {shadowClass} mb-8 bg-white">
 					<img 

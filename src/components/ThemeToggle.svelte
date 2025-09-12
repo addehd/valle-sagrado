@@ -66,7 +66,7 @@
   
 </script>
 
-<div class="flex items-center space-x-2">
+<div class="flex items-center space-x-2 theme-toggle">
   <button
     onclick={toggleTheme}
     class={getButtonClasses(variant, size, clean)}

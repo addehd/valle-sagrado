@@ -12,9 +12,7 @@
 	// }
 </script>
 
-<!--<MetaTags />-->
-
-<div class="min-h-screen dark:bg-green-900 bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
+<div class="min-h-screen bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->
 	
 	<!-- <div class="fixed top-4 right-4 z-40">
@@ -25,3 +23,15 @@
 		{@render children()}
 	</main>
 </div>
+
+<style>
+	/* Hide the theme toggle from parent layout */
+	:global(.fixed.top-4.right-4.z-40) {
+		display: none !important;
+	}
+	
+	/* Alternative: target by theme toggle class if it has one */
+	:global([data-theme-toggle]) {
+		display: none !important;
+	}
+</style>

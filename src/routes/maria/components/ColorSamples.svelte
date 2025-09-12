@@ -8,6 +8,8 @@
     let img;
     let palettes = [];
     let iterations = 0;
+    let processedImage = ''; // Track which image we've already processed
+    let isProcessing = false; // Prevent multiple simultaneous processing
 
     function rgbToHsl(r, g, b) {
         r /= 255; g /= 255; b /= 255;
@@ -170,13 +172,21 @@
     }
 
     function processImage() {
-        if (!image || !img || !canvas) {
-            console.log('Missing elements:', { image: !!image, img: !!img, canvas: !!canvas });
+        // Prevent duplicate processing
+        if (!image || !img || !canvas || isProcessing || processedImage === image) {
+            console.log('Skipping processing:', { 
+                hasImage: !!image, 
+                hasImg: !!img, 
+                hasCanvas: !!canvas, 
+                isProcessing,
+                alreadyProcessed: processedImage === image 
+            });
             return;
         }
-
-        console.log('Processing image:', image);
         
+        isProcessing = true;
+        console.log('🎨 Processing image:', image);
+
         // Create a new image to avoid CORS issues
         const tempImg = new Image();
         tempImg.crossOrigin = 'anonymous';
@@ -255,23 +265,47 @@
             // buckets2 = split(buckets2, 'luma');
             // palettes.push({ name: 'Luma', swatches: getSwatches(buckets2), class: '' });
 
-            console.log('Generated palettes:', palettes);
+            // Convert RGB colors to hex array for database storage
+            if (palettes.length > 0) {
+                const hexColors = palettes[0].swatches.map(swatch => {
+                    const r = Math.round(swatch[0]).toString(16).padStart(2, '0');
+                    const g = Math.round(swatch[1]).toString(16).padStart(2, '0');
+                    const b = Math.round(swatch[2]).toString(16).padStart(2, '0');
+                    return `#${r}${g}${b}`.toUpperCase();
+                });
+                console.log('🎨 Colors array for database:', JSON.stringify(hexColors));
+                console.log('🎨 Copy this for your server data:', hexColors);
+            }
+            
+            // Mark as processed and reset processing flag
+            processedImage = image;
+            isProcessing = false;
         };
 
         tempImg.onerror = function() {
             console.error('Failed to load image:', image);
+            isProcessing = false; // Reset processing flag on error
         };
 
         tempImg.src = image;
     }
 
-    // Process when image changes
-    $: if (image && img && canvas) {
-        processImage();
+    // Process when image prop changes (but only once per image)
+    $: if (image && image !== processedImage && !isProcessing) {
+        // Wait for DOM elements to be ready
+        setTimeout(() => {
+            if (img && canvas) {
+                processImage();
+            }
+        }, 100);
     }
 
     onMount(() => {
         console.log('ColorSamples mounted');
+        // Process initial image if available
+        if (image && img && canvas) {
+            processImage();
+        }
     });
 </script>
 
