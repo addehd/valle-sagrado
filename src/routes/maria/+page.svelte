@@ -7,8 +7,31 @@
 	import FullscreenVideo from '../../components/FullscreenVideo.svelte';
 	import FullscreenSlideshow from '../../components/FullscreenSlideshow.svelte';
 	import ContactSection from '../../components/ContactSection.svelte';
+	import VideoSection from './components/VideoSection.svelte';
 	
     export let data: import('./$types').PageData;
+
+	// Create mixed content array with video in the middle
+	$: contentItems = [
+		...data.artPieces.slice(0, Math.floor(data.artPieces.length / 2)).map(artwork => ({
+			type: 'artwork' as const,
+			data: artwork
+		})),
+		{
+			type: 'component' as const,
+			component: VideoSection,
+			props: {
+				src: '/maria.mov',
+				controls: true,
+				muted: false,
+				loop: false
+			}
+		},
+		...data.artPieces.slice(Math.floor(data.artPieces.length / 2)).map(artwork => ({
+			type: 'artwork' as const,
+			data: artwork
+		}))
+	];
 
 	let scrollY = 0;
 	let innerHeight = 0;
@@ -160,26 +183,15 @@
 		</div>
 	</section>
 	
-	{#each data.artPieces as artwork, index (artwork.id)}
-		<div class="p-4" bind:this={sections[index]}>
-			<ArtworkSection 
-				{artwork} 
-				{index} 
-				{innerHeight} 
-				{displayMode}
-				shadow="lg" />
-		</div>
-	{/each}
-
-	<section class="w-full min-h-screen flex items-center justify-center relative">
-		<FullscreenVideo 
-			src="/maria.mov"
-			controls={true}
-			muted={false}
-			loop={false}>
-
-		</FullscreenVideo>
-	</section>
+	<!-- Test the enhanced ArtworkSection with mixed content -->
+	<div class="p-4" bind:this={sections[0]}>
+		<ArtworkSection 
+			{contentItems}
+			index={0}
+			{innerHeight} 
+			{displayMode}
+			shadow="lg" />
+	</div>
 
 
 
