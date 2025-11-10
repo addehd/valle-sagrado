@@ -95,22 +95,6 @@ const supabase: Handle = async ({ event, resolve }) => {
   })
 }
 
-const domainRewrite: Handle = async ({ event, resolve }) => {
-  const host = event.request.headers.get('host')
-  
-  // Rewrite URLs for mariaocampo.se to serve /maria content
-  if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
-    const pathname = event.url.pathname
-    
-    // If not already under /maria, rewrite the URL
-    if (!pathname.startsWith('/maria')) {
-      const newPath = pathname === '/' ? '/maria' : `/maria${pathname}`
-      event.url.pathname = newPath
-    }
-  }
-  
-  return resolve(event)
-}
 
 const authGuard: Handle = async ({ event, resolve }) => {
   const { session, user } = await event.locals.safeGetSession()
@@ -152,6 +136,17 @@ const authGuard: Handle = async ({ event, resolve }) => {
   //   redirect(303, '/hangaren/32')
   // }
 
+  return resolve(event)
+}
+
+const domainRewrite: Handle = async ({ event, resolve }) => {
+  const host = event.request.headers.get('host')
+  
+  // Store the domain info in locals for route access
+  if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
+    event.locals.domain = 'maria'
+  }
+  
   return resolve(event)
 }
 

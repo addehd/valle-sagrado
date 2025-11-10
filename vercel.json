@@ -12,10 +12,6 @@
         }
       ],
       "destination": "/freesbe/:path*"
-    },
-    {
-      "source": "/artist/mariaocampo/:path*",
-      "destination": "/artist/mariaocampo/:path*"
     }
   ]
 }

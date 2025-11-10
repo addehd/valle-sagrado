@@ -3,6 +3,9 @@
   import { browser } from '$app/environment'
   import '@maptiler/sdk/dist/maptiler-sdk.css'
   
+  // Import Maria components
+  import MariaPage from './maria/+page.svelte'
+  
   interface TeacherWithCoordinates {
     [key: string]: any;
     coordinates?: [number, number] | null;
@@ -187,6 +190,9 @@
   });
 </script>
 
+{#if data.isMariaDomain}
+  <MariaPage {data} />
+{:else}
 <div class="relative w-full h-[100vh] bg-amber-300">
   <div class="absolute w-full h-full" bind:this={mapContainer}></div>
   
@@ -222,6 +228,7 @@
     </div>
   </div>
 </div>
+{/if}
 
 <style>
   /* Line clamp utility for text truncation - fallback for older Tailwind versions */
