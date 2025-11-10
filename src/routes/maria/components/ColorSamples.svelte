@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
     
     export let image = '';
-    export let color = [0, 0, 0];
     
     let canvas;
     let img;

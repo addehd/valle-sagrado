@@ -213,15 +213,17 @@
 		{#if columns.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{#each columns as column}
-					<div 
-						class="bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 relative"
-						class:drag-over={draggedOverColumn === column.id}
-						class:loading={isMovingTask && draggedOverColumn === column.id}
-						ondragover={handleDragOver}
-						ondragenter={(e) => handleDragEnter(e, column.id)}
-						ondragleave={handleDragLeave}
-						ondrop={(e) => handleDrop(e, column.id)}
-					>
+				<div 
+					role="region"
+					aria-label="{column.title} column"
+					class="bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 relative"
+					class:drag-over={draggedOverColumn === column.id}
+					class:loading={isMovingTask && draggedOverColumn === column.id}
+					ondragover={handleDragOver}
+					ondragenter={(e) => handleDragEnter(e, column.id)}
+					ondragleave={handleDragLeave}
+					ondrop={(e) => handleDrop(e, column.id)}
+				>
 						<!-- Column Header -->
 						<div class="p-4 border-b border-gray-200">
 							<div class="flex items-center justify-between">
@@ -247,6 +249,7 @@
 									onclick={() => openNewTaskModal(column.id, board.id)}
 									class="text-gray-400 hover:text-gray-600 p-1 rounded"
 									title="Add task"
+									aria-label="Add task"
 								>
 									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -258,13 +261,16 @@
 						<!-- Tasks -->
 						<div class="p-4 space-y-3 min-h-[200px]">
 							{#each (column.flow_tasks || []).sort((a: any, b: any) => a.position - b.position) as task}
-								<div 
-									class="bg-gray-50 rounded-lg p-3 border border-gray-100 hover:shadow-sm transition-all duration-200 group cursor-move"
-									class:dragging={draggedTask?.id === task.id}
-									draggable="true"
-									ondragstart={(e) => handleDragStart(e, task)}
-									ondragend={handleDragEnd}
-								>
+							<div 
+								role="button"
+								tabindex="0"
+								aria-label="Task: {task.title}"
+								class="bg-gray-50 rounded-lg p-3 border border-gray-100 hover:shadow-sm transition-all duration-200 group cursor-move"
+								class:dragging={draggedTask?.id === task.id}
+								draggable="true"
+								ondragstart={(e) => handleDragStart(e, task)}
+								ondragend={handleDragEnd}
+							>
 									<div class="flex items-start justify-between gap-2">
 										<div class="flex-1 min-w-0">
 											<h4 class="font-medium text-gray-900 text-sm leading-tight">
@@ -286,11 +292,12 @@
 										
 										<!-- Task Actions -->
 										<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-											<button 
-												onclick={() => editTask(task)}
-												class="text-gray-400 hover:text-blue-600 p-1 rounded"
-												title="Edit task"
-											>
+										<button 
+											onclick={() => editTask(task)}
+											class="text-gray-400 hover:text-blue-600 p-1 rounded"
+											title="Edit task"
+											aria-label="Edit task"
+										>
 												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
 												</svg>
@@ -307,6 +314,7 @@
 													type="submit"
 													class="text-gray-400 hover:text-red-600 p-1 rounded"
 													title="Delete task"
+													aria-label="Delete task"
 													onclick={(e) => {
 														if (!confirm('Delete this task?')) {
 															e.preventDefault();

@@ -2,10 +2,11 @@
 	import FullscreenVideo from '../../../components/FullscreenVideo.svelte';
 	
 	// Standard props that ArtworkSection passes to all components (for external reference)
-	export let index: number; // eslint-disable-line @typescript-eslint/no-unused-vars
-	export let innerHeight: number; // eslint-disable-line @typescript-eslint/no-unused-vars
-	export let displayMode: 'side' | 'fullscreen' | 'centered'; // eslint-disable-line @typescript-eslint/no-unused-vars
-	export let shadow: 'sm' | 'md' | 'lg'; // eslint-disable-line @typescript-eslint/no-unused-vars
+	// These are not used internally but are part of the component API
+	export const index: number = 0;
+	export const innerHeight: number = 0;
+	export const displayMode: 'side' | 'fullscreen' | 'centered' = 'side';
+	export const shadow: 'sm' | 'md' | 'lg' = 'md';
 	
 	// Custom props for video
 	export let src: string = '/maria.mov';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let videoId = "CfzKCbxfGRo"
+  export const videoId = "CfzKCbxfGRo"
   export let rating = 5
   export let reviews = 8
   export let lessons = 498
@@ -13,7 +13,7 @@
 
 <div class="text-sm font-sans antialiased w-[420px] h-fit bg-white rounded-lg shadow-lg overflow-hidden leading-[1.43]">
   <div class="relative">
-    <button class="relative block w-full aspect-video cursor-pointer" tabindex="0" role="button">
+    <button class="relative block w-full aspect-video cursor-pointer" tabindex="0" aria-label="Play video">
       <iframe width="420" height="315" src="https://www.youtube.com/embed/xIxbKHQFTKM?si=qXvZELVj1HPWRnlM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </button>
   </div>

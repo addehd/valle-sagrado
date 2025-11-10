@@ -4,9 +4,9 @@
 	import MetaTags from '$components/MetaTags.svelte';
 	import type { Category } from '$lib/types';
 
-	let categories: Category[] = [];
-	let loading = true;
-	let error = '';
+	let categories = $state<Category[]>([]);
+	let loading = $state(true);
+	let error = $state('');
 
 	const projectSlug = $derived($page.params.project);
 	const currentUrl = $derived($page.url.href);
@@ -73,7 +73,7 @@
 					<h2 class="text-xl font-bold text-red-800 mb-2">Unable to Load Categories</h2>
 					<p class="text-red-600 mb-4">{error}</p>
 					<button 
-						on:click={() => window.location.reload()}
+						onclick={() => window.location.reload()}
 						class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
 					>
 						Try Again
@@ -201,7 +201,8 @@
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
-</style> 
+</style>

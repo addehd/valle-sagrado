@@ -26,7 +26,6 @@
 	// Props - support both old single artwork and new content array
 	export let artwork: ArtworkItem['data'] | undefined = undefined;
 	export let contentItems: ContentItem[] = [];
-	export let index: number;
 	export let innerHeight: number;
 	export let displayMode: 'side' | 'fullscreen' | 'centered' = 'side';
 	export let shadow: 'sm' | 'md' | 'lg' = 'md';

@@ -276,10 +276,11 @@
 								</p>
 							</div>
 							<div class="mt-4">
-								<label class="block text-sm font-medium text-gray-700 mb-2">
+								<label for="role-select" class="block text-sm font-medium text-gray-700 mb-2">
 									Select Role
 								</label>
 								<select 
+									id="role-select"
 									bind:value={newRole}
 									class="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
 								>

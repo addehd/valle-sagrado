@@ -262,8 +262,9 @@
 												
 												<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 													<div>
-														<label class="block text-sm font-medium text-gray-700">Name</label>
+														<label for="edit-name" class="block text-sm font-medium text-gray-700">Name</label>
 														<input
+															id="edit-name"
 															name="name"
 															type="text"
 															bind:value={editingConfig.name}
@@ -273,8 +274,9 @@
 													</div>
 
 													<div>
-														<label class="block text-sm font-medium text-gray-700">Latitude</label>
+														<label for="edit-latitude" class="block text-sm font-medium text-gray-700">Latitude</label>
 														<input
+															id="edit-latitude"
 															name="map_start_latitude"
 															type="number"
 															step="0.000001"
@@ -287,8 +289,9 @@
 													</div>
 
 													<div>
-														<label class="block text-sm font-medium text-gray-700">Longitude</label>
+														<label for="edit-longitude" class="block text-sm font-medium text-gray-700">Longitude</label>
 														<input
+															id="edit-longitude"
 															name="map_start_longitude"
 															type="number"
 															step="0.000001"
@@ -301,8 +304,9 @@
 													</div>
 
 													<div>
-														<label class="block text-sm font-medium text-gray-700">Zoom Level</label>
+														<label for="edit-zoom" class="block text-sm font-medium text-gray-700">Zoom Level</label>
 														<input
+															id="edit-zoom"
 															name="map_zoom_level"
 															type="number"
 															min="1"
@@ -314,8 +318,9 @@
 													</div>
 
 													<div>
-														<label class="block text-sm font-medium text-gray-700">Description</label>
+														<label for="edit-description" class="block text-sm font-medium text-gray-700">Description</label>
 														<input
+															id="edit-description"
 															name="description"
 															type="text"
 															bind:value={editingConfig.description}
