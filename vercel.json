@@ -14,16 +14,6 @@
       "destination": "/freesbe/:path*"
     },
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "mariaocampo.se"
-        }
-      ],
-      "destination": "/maria/:path*"
-    },
-    {
       "source": "/artist/mariaocampo/:path*",
       "destination": "/artist/mariaocampo/:path*"
     }
