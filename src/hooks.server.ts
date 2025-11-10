@@ -142,8 +142,17 @@ const authGuard: Handle = async ({ event, resolve }) => {
 const domainRewrite: Handle = async ({ event, resolve }) => {
   const host = event.request.headers.get('host')
   
-  // Store the domain info in locals for route access
   if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
+    const url = event.url
+    const pathname = url.pathname
+    
+    // If not already accessing /maria routes, rewrite to /maria/*
+    if (!pathname.startsWith('/maria')) {
+      // Rewrite the URL to point to maria routes
+      const newPath = pathname === '/' ? '/maria' : `/maria${pathname}`
+      url.pathname = newPath
+    }
+    
     event.locals.domain = 'maria'
   }
   
