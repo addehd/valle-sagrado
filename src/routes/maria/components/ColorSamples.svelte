@@ -314,9 +314,9 @@
 
     {#if palettes.length > 0}
         {#each palettes as palette}
-            <div class="mb-10 mr-l after:table after:clear-both after:content-[''] {palette.class === 'custom' ? 'custom-grid' : ''}">
+            <div class="mb-10 mr-l after:table after:clear-both after:content-[''] max-md:flex max-md:justify-center {palette.class === 'custom' ? 'custom-grid' : ''}">
                 {#each palette.swatches as swatch, index}
-                    <div class="w-8 h-6 float-left border border-white/20 {index === 0 ? 'rounded-l' : ''} {index === palette.swatches.length - 1 ? 'rounded-r' : ''}" style="background-color: rgba({Math.round(swatch[0])}, {Math.round(swatch[1])}, {Math.round(swatch[2])}, 1)" ></div>
+                    <div class="w-8 h-6 max-md:float-none float-left border border-white/20 {index === 0 ? 'rounded-l' : ''} {index === palette.swatches.length - 1 ? 'rounded-r' : ''}" style="background-color: rgba({Math.round(swatch[0])}, {Math.round(swatch[1])}, {Math.round(swatch[2])}, 1)" ></div>
                 {/each}
             </div>
         {/each}

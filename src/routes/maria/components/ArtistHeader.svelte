@@ -283,12 +283,12 @@
 
 <header 
   bind:this={headerElement}
-  class="fixed bottom-0 left-0 w-full z-[100] max-md:static max-md:text-center transition-colors duration-200 text-gray-600 transition-opacity duration-300"
+  class="fixed bottom-0 left-0 w-full z-[100] max-md:static transition-colors duration-200 text-gray-600 transition-opacity duration-300"
   class:opacity-0={shouldHideHeader}
   class:pointer-events-none={shouldHideHeader}>
   <div class="absolute inset-0 -z-10 border-[0.21px] border-white bg-opacity-70 backdrop-blur-sm"></div>
-  <div class="p-8 max-md:p-8 text-center">
-    <h1 class="text-4xl font-thin mb-11 mr-11 tracking-[2px] float-right max-md:text-3xl {titleColor}" 
+  <div class="p-8 max-md:p-4 max-md:text-center">
+    <h1 class="text-4xl font-thin mb-11 mr-11 tracking-[2px] float-right max-md:float-none max-md:mb-0 max-md:mr-0 max-md:text-3xl {titleColor}"
         class:drop-shadow-lg={titleColor === 'text-white'}
         class:drop-shadow-md={titleColor !== 'text-white'}
         style={titleColor === 'text-white' ? 'text-shadow: 1px 1px 2px rgba(0,0,0,0.2)' : ''}>
@@ -297,7 +297,7 @@
     
     <!-- Display mode controls -->
     {#if showFullscreenButton}
-      <div class="flex gap-2 mt-4 fixed bottom-11 left-11 transition-opacity duration-300">
+      <div class="flex gap-2 mt-4 fixed bottom-11 left-11 max-md:static max-md:justify-center max-md:mt-4 transition-opacity duration-300">
         <button 
           class="px-3 py-1 text-sm rounded transition-all duration-200 flex items-center gap-2"
           class:bg-gray-600={displayMode === 'fullscreen'}
