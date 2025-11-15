@@ -4,8 +4,8 @@
 			"command": "npx",
 			"args": ["-y", "--package=task-master-ai", "task-master-ai"],
 			"env": {
-				"ANTHROPIC_API_KEY": "your-anthropic-api-key-here",
-				"OPENAI_API_KEY": "your-openai-api-key-here"
+				"ANTHROPIC_API_KEY": "{{ANTHROPIC_API_KEY}}",
+				"OPENAI_API_KEY": "{{OPENAI_API_KEY}}"
 			}
 		},
 		"supabase": {
@@ -14,7 +14,7 @@
 				"-y",
 				"@supabase/mcp-server-supabase@latest",
 				"--access-token",
-				"your-supabase-token-here"
+				"{{SUPABASE_ACCESS_TOKEN}}"
 			]
 		}
 	}
