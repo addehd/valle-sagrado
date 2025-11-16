@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import Hero from '../components/Hero.svelte';
 
 	type Package = {
 		id: string;
@@ -194,36 +195,9 @@
 
 <div class="min-h-screen bg-white">
 	<!-- Hero Section -->
-	<section class="relative bg-black text-white py-24 px-6">
-		<div class="max-w-6xl mx-auto text-center">
-			<h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-				Danny
-			</h1>
-			<p class="text-xl md:text-2xl text-gray-300 mb-8">
-				Personlig Träning & Livsstilscoaching
-			</p>
-			<div class="inline-block bg-yellow-400 text-black px-8 py-3 font-semibold text-lg rounded-full">
-				Move Your Body, Still Your Mind
-			</div>
-			<div class="mt-8 flex flex-wrap gap-4 justify-center">
-				<a 
-					href="/danny/om-mig" 
-					class="inline-block bg-white text-black px-6 py-3 font-semibold hover:bg-gray-200 transition-colors">
-					Om Mig 🇸🇪
-				</a>
-				<a 
-					href="/danny/about-me" 
-					class="inline-block bg-white text-black px-6 py-3 font-semibold hover:bg-gray-200 transition-colors">
-					About Me 🇬🇧
-				</a>
-				<a 
-					href="/danny/min-filosofi" 
-					class="inline-block bg-yellow-400 text-black px-6 py-3 font-semibold hover:bg-yellow-300 transition-colors">
-					Min Filosofi →
-				</a>
-			</div>
-		</div>
-	</section>
+	<Hero 
+		subtitle="Personlig Träning & Livsstilscoaching"
+		badgeText="Move Your Body, Still Your Mind" />
 
 	<!-- Navigation Tabs -->
 	<section class="sticky top-0 z-50 bg-white border-b-2 border-black">

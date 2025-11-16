@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Hero from '../components/Hero.svelte';
+	
 	export let data;
 	const { page, alternatePages } = data;
 
@@ -53,27 +55,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-white">
-	{#if page.hero_image_url}
-		<section class="relative h-64 md:h-96 overflow-hidden">
-			<img 
-				src={page.hero_image_url} 
-				alt={page.title}
-				class="w-full h-full object-cover" />
-			<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-				<h1 class="text-4xl md:text-6xl font-bold text-white text-center px-6">
-					{page.title}
-				</h1>
-			</div>
-		</section>
-	{:else}
-		<section class="bg-black text-white py-16 px-6">
-			<div class="max-w-4xl mx-auto">
-				<h1 class="text-4xl md:text-6xl font-bold text-center">
-					{page.title}
-				</h1>
-			</div>
-		</section>
-	{/if}
+	<Hero title={page.title} />
 
 	<!-- Language Switcher -->
 	{#if alternatePages.length > 0}
