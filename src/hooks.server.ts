@@ -156,6 +156,20 @@ const domainRewrite: Handle = async ({ event, resolve }) => {
     event.locals.domain = 'maria'
   }
   
+  if (host === 'cranmer.se' || host === 'www.cranmer.se') {
+    const url = event.url
+    const pathname = url.pathname
+    
+    // If not already accessing /danny routes, rewrite to /danny/*
+    if (!pathname.startsWith('/danny')) {
+      // Rewrite the URL to point to danny routes
+      const newPath = pathname === '/' ? '/danny' : `/danny${pathname}`
+      url.pathname = newPath
+    }
+    
+    event.locals.domain = 'danny'
+  }
+  
   return resolve(event)
 }
 

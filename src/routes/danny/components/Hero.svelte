@@ -6,7 +6,7 @@
 	export let badgeText: string = '';
 </script>
 
-<section class="relative bg-black text-white py-24 px-6">
+<section class="relative bg-black text-white py-11 px-6">
 	<Menu />
 	<div class="max-w-6xl mx-auto text-center">
 		{#if title}
@@ -26,4 +26,3 @@
 		{/if}
 	</div>
 </section>
-

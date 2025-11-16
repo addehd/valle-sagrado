@@ -1,16 +1,16 @@
-<div class="mt-8 flex flex-wrap gap-8 md:gap-16 justify-center">
+<div class="mt-2 mb-11 flex flex-wrap gap-8 md:gap-16 justify-center">
     <a 
         href="/danny/om-mig" 
         class="text-white font-semibold menu-link">
         Om Mig 
     </a>
     <a 
-        href="/danny/about-me" 
+        href="/danny/coaching" 
         class="text-white font-semibold menu-link">
         About Me 
     </a>
     <a 
-        href="/danny/min-filosofi" 
+        href="/danny/boka" 
         class="text-white font-semibold menu-link">
         Min Filosofi →
     </a>

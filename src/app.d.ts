@@ -9,6 +9,7 @@ declare global {
 			supabase: SupabaseClient
 			safeGetSession(): Promise<{ session: Session | null; user: User | null }>
 			user: User | null
+			domain?: string
 		}
 		interface PageData {
 			session: Session | null
