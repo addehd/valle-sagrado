@@ -31,4 +31,3 @@ export const load = async ({ params, locals }) => {
 		alternatePages: alternatePages || []
 	};
 };
-
