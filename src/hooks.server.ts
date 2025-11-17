@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
-import { type Handle, redirect } from '@sveltejs/kit'
+import { type Handle, type Reroute, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
@@ -16,6 +16,48 @@ if (typeof console !== 'undefined') {
     }
     originalWarn.apply(console, args);
   };
+}
+
+/**
+ * Reroute hook - runs BEFORE route resolution
+ * This allows domain-based routing to work for ALL paths and subroutes
+ */
+export const reroute: Reroute = ({ url }) => {
+  const host = url.host;
+  const pathname = url.pathname;
+  
+  console.log('[reroute] host:', host, 'pathname:', pathname);
+  
+  // Maria's domain - mariaocampo.se
+  if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
+    // Only rewrite if not root and not already on /maria routes
+    if (pathname !== '/' && !pathname.startsWith('/maria')) {
+      console.log('[reroute] Rewriting to /maria' + pathname);
+      return `/maria${pathname}`;
+    }
+  }
+  
+  // Danny's domain - cranmer.se
+  if (host === 'cranmer.se' || host === 'www.cranmer.se') {
+    // Only rewrite if not root and not already on /danny routes
+    if (pathname !== '/' && !pathname.startsWith('/danny')) {
+      console.log('[reroute] Rewriting to /danny' + pathname);
+      return `/danny${pathname}`;
+    }
+  }
+  
+  // Rikuy domain - rikuy.one
+  if (host === 'rikuy.one' || host === 'www.rikuy.one') {
+    // Only rewrite if not root and not already on /rikuy routes
+    if (pathname !== '/' && !pathname.startsWith('/rikuy')) {
+      console.log('[reroute] Rewriting to /rikuy' + pathname);
+      return `/rikuy${pathname}`;
+    }
+  }
+  
+  console.log('[reroute] No rewrite, returning:', pathname);
+  // Return original pathname if no rewrite needed
+  return pathname;
 }
 
 const supabase: Handle = async ({ event, resolve }) => {
@@ -139,52 +181,33 @@ const authGuard: Handle = async ({ event, resolve }) => {
   return resolve(event)
 }
 
-const domainRewrite: Handle = async ({ event, resolve }) => {
+/**
+ * Domain detection hook - sets event.locals.domain based on host
+ * The actual route rewriting is done by the reroute hook above
+ */
+const domainDetection: Handle = async ({ event, resolve }) => {
   const host = event.request.headers.get('host')
+  console.log('--------------------------------');
+  console.log('[domainDetection] host:', host);
+  console.log('[domainDetection] pathname:', event.url.pathname);
   
+  // Set domain identifier for use in routes
   if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
-    const url = event.url
-    const pathname = url.pathname
-    
-    // Set domain for root route to handle
     event.locals.domain = 'maria'
-    
-    // Only rewrite sub-paths (not root) if not already on /maria routes
-    if (pathname !== '/' && !pathname.startsWith('/maria')) {
-      url.pathname = `/maria${pathname}`
-    }
-  }
-  
-  if (host === 'cranmer.se' || host === 'www.cranmer.se') {
-    const url = event.url
-    const pathname = url.pathname
-    
-    // Set domain for root route to handle
+  } else if (host === 'cranmer.se' || host === 'www.cranmer.se') {
     event.locals.domain = 'danny'
-    
-    // Only rewrite sub-paths (not root) if not already on /danny routes
-    if (pathname !== '/' && !pathname.startsWith('/danny')) {
-      const newPath = `/danny${pathname}`
-      console.log('[domainRewrite] Rewriting from', pathname, 'to', newPath)
-      url.pathname = newPath
-    }
-    
-  }
-  
-  if (host === 'rikuy.one' || host === 'www.rikuy.one') {
-    const url = event.url
-    const pathname = url.pathname
-    
-    // Set domain for root route to handle
+  } else if (host === 'rikuy.one' || host === 'www.rikuy.one') {
     event.locals.domain = 'rikuy'
-    
-    // Only rewrite sub-paths (not root) if not already on /rikuy routes
-    if (pathname !== '/' && !pathname.startsWith('/rikuy')) {
-      url.pathname = `/rikuy${pathname}`
-    }
   }
   
-  return resolve(event)
+  const response = await resolve(event)
+  
+  // Add debug headers (visible in browser DevTools Network tab)
+  response.headers.set('x-debug-host', host || 'unknown')
+  response.headers.set('x-debug-pathname', event.url.pathname)
+  response.headers.set('x-debug-domain', event.locals.domain || 'none')
+  
+  return response
 }
 
-export const handle: Handle = sequence(supabase, domainRewrite, authGuard)
+export const handle: Handle = sequence(supabase, domainDetection, authGuard)
