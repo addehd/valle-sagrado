@@ -157,6 +157,7 @@ const domainRewrite: Handle = async ({ event, resolve }) => {
   }
   
   if (host === 'cranmer.se' || host === 'www.cranmer.se') {
+    console.log('[domainRewrite] Matched cranmer.se, host:', host, 'pathname:', event.url.pathname)
     const url = event.url
     const pathname = url.pathname
     
@@ -164,10 +165,12 @@ const domainRewrite: Handle = async ({ event, resolve }) => {
     if (!pathname.startsWith('/danny')) {
       // Rewrite the URL to point to danny routes
       const newPath = pathname === '/' ? '/danny' : `/danny${pathname}`
+      console.log('[domainRewrite] Rewriting from', pathname, 'to', newPath)
       url.pathname = newPath
     }
     
     event.locals.domain = 'danny'
+    console.log('[domainRewrite] Set domain to danny, final pathname:', event.url.pathname)
   }
   
   return resolve(event)
