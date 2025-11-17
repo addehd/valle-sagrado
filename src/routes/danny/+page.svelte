@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CranmerLogo from './components/CranmerLogo.svelte';
-	import MetaTags from '$lib/components/MetaTags.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 	import type { PageData } from './$types';
 	
 	export let data: PageData;
