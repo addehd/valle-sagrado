@@ -1,7 +1,9 @@
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals: { supabase, domain } }) => {
-  // If this is the maria domain, load maria data instead
+export const load: PageServerLoad = async ({ request, url, locals: { domain, supabase } }) => {
+  const host = request.headers.get('host');
+  
+  // If this is the maria domain, load maria data
   if (domain === 'maria') {
     const artPieces = [
       {
@@ -58,36 +60,57 @@ export const load: PageServerLoad = async ({ locals: { supabase, domain } }) => 
 
     return {
       artPieces,
-      isMariaDomain: true
+      isMariaDomain: true,
+      isRikuyDomain: false
     };
   }
 
-  const { data: teachers, error } = await supabase
-    .from('projects_info')
-    .select('*');
+  // If this is the rikuy domain (vallesagrado), load teachers data
+  if (domain === 'rikuy') {
+    const { data: teachers, error } = await supabase
+      .from('projects_info')
+      .select('*');
 
-  if (error) {
-    console.error('Error loading teachers:', error);
-    return {
-      teachers: []
-    };
-  }
+    if (error) {
+      console.error('Error loading teachers:', error);
+      return {
+        teachers: [],
+        isMariaDomain: false,
+        isRikuyDomain: true
+      };
+    }
 
-  // optional: fetch ratings if needed
-  const { data: ratings, error: ratingsError } = await supabase
-    .from('teacher_ratings')
-    .select('*');
+    const { data: ratings, error: ratingsError } = await supabase
+      .from('teacher_ratings')
+      .select('*');
 
-  if (ratingsError) {
-    console.error('Error loading ratings:', ratingsError);
+    if (ratingsError) {
+      console.error('Error loading ratings:', ratingsError);
+      return {
+        teachers,
+        ratings: [],
+        isMariaDomain: false,
+        isRikuyDomain: true
+      }
+    }
+
     return {
       teachers,
-      ratings: []
-    }
+      ratings,
+      isMariaDomain: false,
+      isRikuyDomain: true
+    };
   }
 
+  // Default: Danny page
   return {
-    teachers,
-    ratings
+    debug: {
+      host,
+      pathname: url.pathname,
+      domain: domain || 'default',
+      timestamp: new Date().toISOString()
+    },
+    isMariaDomain: false,
+    isRikuyDomain: false
   };
 };

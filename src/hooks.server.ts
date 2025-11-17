@@ -146,31 +146,42 @@ const domainRewrite: Handle = async ({ event, resolve }) => {
     const url = event.url
     const pathname = url.pathname
     
-    // If not already accessing /maria routes, rewrite to /maria/*
-    if (!pathname.startsWith('/maria')) {
-      // Rewrite the URL to point to maria routes
-      const newPath = pathname === '/' ? '/maria' : `/maria${pathname}`
-      url.pathname = newPath
-    }
-    
+    // Set domain for root route to handle
     event.locals.domain = 'maria'
+    
+    // Only rewrite sub-paths (not root) if not already on /maria routes
+    if (pathname !== '/' && !pathname.startsWith('/maria')) {
+      url.pathname = `/maria${pathname}`
+    }
   }
   
   if (host === 'cranmer.se' || host === 'www.cranmer.se') {
-    console.log('[domainRewrite] Matched cranmer.se, host:', host, 'pathname:', event.url.pathname)
     const url = event.url
     const pathname = url.pathname
     
-    // If not already accessing /danny routes, rewrite to /danny/*
-    if (!pathname.startsWith('/danny')) {
-      // Rewrite the URL to point to danny routes
-      const newPath = pathname === '/' ? '/danny' : `/danny${pathname}`
+    // Set domain for root route to handle
+    event.locals.domain = 'danny'
+    
+    // Only rewrite sub-paths (not root) if not already on /danny routes
+    if (pathname !== '/' && !pathname.startsWith('/danny')) {
+      const newPath = `/danny${pathname}`
       console.log('[domainRewrite] Rewriting from', pathname, 'to', newPath)
       url.pathname = newPath
     }
     
-    event.locals.domain = 'danny'
-    console.log('[domainRewrite] Set domain to danny, final pathname:', event.url.pathname)
+  }
+  
+  if (host === 'rikuy.one' || host === 'www.rikuy.one') {
+    const url = event.url
+    const pathname = url.pathname
+    
+    // Set domain for root route to handle
+    event.locals.domain = 'rikuy'
+    
+    // Only rewrite sub-paths (not root) if not already on /rikuy routes
+    if (pathname !== '/' && !pathname.startsWith('/rikuy')) {
+      url.pathname = `/rikuy${pathname}`
+    }
   }
   
   return resolve(event)
