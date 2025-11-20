@@ -23,41 +23,44 @@ if (typeof console !== 'undefined') {
  * This allows domain-based routing to work for ALL paths and subroutes
  */
 export const reroute: Reroute = ({ url }) => {
-  const host = url.host;
+  const hostname = url.hostname;
   const pathname = url.pathname;
   
-  console.log('[reroute] host:', host, 'pathname:', pathname);
+  console.log('[reroute] hostname:', hostname, 'pathname:', pathname);
   
   // Maria's domain - mariaocampo.se
-  if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
+  if (hostname === 'mariaocampo.se' || hostname === 'www.mariaocampo.se') {
     // Only rewrite if not root and not already on /maria routes
     if (pathname !== '/' && !pathname.startsWith('/maria')) {
-      console.log('[reroute] Rewriting to /maria' + pathname);
-      return `/maria${pathname}`;
+      const newPath = `/maria${pathname}`;
+      console.log('[reroute] Maria - Rewriting to', newPath);
+      return newPath;
     }
   }
   
   // Danny's domain - cranmer.se
-  if (host === 'cranmer.se' || host === 'www.cranmer.se') {
+  if (hostname === 'cranmer.se' || hostname === 'www.cranmer.se') {
     // Only rewrite if not root and not already on /danny routes
     if (pathname !== '/' && !pathname.startsWith('/danny')) {
-      console.log('[reroute] Rewriting to /danny' + pathname);
-      return `/danny${pathname}`;
+      const newPath = `/danny${pathname}`;
+      console.log('[reroute] Danny - Rewriting to', newPath);
+      return newPath;
     }
   }
   
   // Rikuy domain - rikuy.one
-  if (host === 'rikuy.one' || host === 'www.rikuy.one') {
+  if (hostname === 'rikuy.one' || hostname === 'www.rikuy.one') {
     // Only rewrite if not root and not already on /rikuy routes
     if (pathname !== '/' && !pathname.startsWith('/rikuy')) {
-      console.log('[reroute] Rewriting to /rikuy' + pathname);
-      return `/rikuy${pathname}`;
+      const newPath = `/rikuy${pathname}`;
+      console.log('[reroute] Rikuy - Rewriting to', newPath);
+      return newPath;
     }
   }
   
-  console.log('[reroute] No rewrite, returning:', pathname);
-  // Return original pathname if no rewrite needed
-  return pathname;
+  console.log('[reroute] No rewrite needed, returning undefined');
+  // Return undefined to use default routing
+  return undefined;
 }
 
 const supabase: Handle = async ({ event, resolve }) => {

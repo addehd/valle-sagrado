@@ -2,6 +2,9 @@
 	import Hero from '../components/Hero.svelte';
 	
 	export let data;
+	
+	console.log('[danny/[slug]/+page.svelte] Rendering with data:', data);
+	
 	const { page, alternatePages } = data;
 
 	// Language flag emojis
@@ -58,7 +61,7 @@
 	<Hero title={page.title} />
 
 	<!-- Language Switcher -->
-	{#if alternatePages.length > 0}
+	<!-- {#if alternatePages.length > 0}
 		<div class="max-w-4xl mx-auto px-6 pt-8">
 			<div class="flex gap-2 items-center justify-end">
 				<span class="text-sm text-gray-600">Other languages:</span>
@@ -72,7 +75,7 @@
 				{/each}
 			</div>
 		</div>
-	{/if}
+	{/if} -->
 
 	<article class="max-w-4xl mx-auto px-6 py-16">
 		<div class="prose prose-lg max-w-none">

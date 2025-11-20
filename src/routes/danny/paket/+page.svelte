@@ -32,7 +32,7 @@
 			id: 'gym-01',
 			title: 'Paket 01',
 			subtitle: 'Introduktion & Hälsokonsultation',
-			emoji: '💥',
+			emoji: '',
 			purpose: 'För dig som vill börja på rätt sätt med struktur, fokus och motivation.',
 			content: [
 				'60 min session i gymmet',
@@ -47,7 +47,7 @@
 			id: 'gym-02',
 			title: 'Paket 02',
 			subtitle: 'Balans & Energi',
-			emoji: '💪',
+			emoji: '',
 			purpose: 'Kom igång och bygg upp en stabil grund av styrka och balans.',
 			content: [
 				'10 individuella träningspass på gymmet (60 min/pass)',
@@ -62,7 +62,7 @@
 			id: 'gym-03',
 			title: 'Paket 03',
 			subtitle: 'Helhetsförvandling',
-			emoji: '🧘',
+			emoji: '',
 			purpose: 'Skapa hållbara resultat och utveckla både kropp och sinne.',
 			content: [
 				'25 träningspass (60 min/pass)',
@@ -77,7 +77,7 @@
 			id: 'gym-04',
 			title: 'Paket 04',
 			subtitle: 'Lifestyle Coaching',
-			emoji: '🔥',
+			emoji: '',
 			purpose: 'För dig som vill ha helhetsutveckling med långsiktigt fokus.',
 			content: [
 				'50 träningspass (60 min/pass)',
@@ -96,7 +96,7 @@
 			id: 'home-01',
 			title: 'Paket 01',
 			subtitle: 'Introduktion & Hälsokonsultation',
-			emoji: '💥',
+			emoji: '',
 			purpose: 'Skapa en helhetsbild av mål, livsstil och behov.',
 			content: [
 				'90 min hembesök med analys av hälsa och mål',
@@ -110,7 +110,7 @@
 			id: 'home-02',
 			title: 'Paket 02',
 			subtitle: 'Balans & Energi',
-			emoji: '💪',
+			emoji: '',
 			purpose: 'Kom igång med en personlig helhetsrutin hemma.',
 			content: [
 				'2 träningspass/vecka (60 min) hemma hos dig',
@@ -125,7 +125,7 @@
 			id: 'home-03',
 			title: 'Paket 03',
 			subtitle: 'Helhetsförvandling',
-			emoji: '🧘',
+			emoji: '',
 			purpose: 'Fördjupa din utveckling med fokus på kropp, sinne och vanor.',
 			content: [
 				'2 hembesök/vecka',
@@ -140,7 +140,7 @@
 			id: 'home-04',
 			title: 'Paket 04',
 			subtitle: 'Lifestyle Coaching',
-			emoji: '🔥',
+			emoji: '',
 			purpose: 'Långsiktigt samarbete som personlig hälsopartner.',
 			content: [
 				'2–3 hembesök/vecka året runt',
@@ -159,7 +159,7 @@
 			id: 'sub-01',
 			title: 'Paket 01 – BALANS',
 			subtitle: '1x / vecka',
-			emoji: '🥉',
+			emoji: '',
 			schedule: 'För dig som vill ha kontinuitet och regelbunden motivation.',
 			pricePerSession: '700 kr',
 			pricePerMonth: '3 010 kr'
@@ -168,7 +168,7 @@
 			id: 'sub-02',
 			title: 'Paket 02 – FOKUS',
 			subtitle: '2x / vecka',
-			emoji: '🥈',
+			emoji: '',
 			schedule: 'För dig som vill skapa tydliga resultat och känna framsteg varje vecka.',
 			pricePerSession: '675 kr',
 			pricePerMonth: '5 805 kr'
@@ -177,7 +177,7 @@
 			id: 'sub-03',
 			title: 'Paket 03 – TRANSFORMATION',
 			subtitle: '3x / vecka',
-			emoji: '🥇',
+			emoji: '',
 			schedule: 'För dig som vill gå all in och skapa en hållbar livsstilsförändring.',
 			pricePerSession: '650 kr',
 			pricePerMonth: '8 385 kr',
@@ -210,7 +210,7 @@
 					class:text-black={activeSection === 'gym'}
 					class:border-transparent={activeSection !== 'gym'}
 					class:text-gray-400={activeSection !== 'gym'}>
-					🏋 Gym
+					Gym
 				</button>
 				<button
 					on:click={() => (activeSection = 'home')}
@@ -219,7 +219,7 @@
 					class:text-black={activeSection === 'home'}
 					class:border-transparent={activeSection !== 'home'}
 					class:text-gray-400={activeSection !== 'home'}>
-					🏠 Hemträning
+					Hemträning
 				</button>
 				<button
 					on:click={() => (activeSection = 'subscription')}
@@ -228,7 +228,7 @@
 					class:text-black={activeSection === 'subscription'}
 					class:border-transparent={activeSection !== 'subscription'}
 					class:text-gray-400={activeSection !== 'subscription'}>
-					🪷 Abonnemang
+					Abonnemang
 				</button>
 			</div>
 		</div>
@@ -239,7 +239,7 @@
 		<section class="py-16 px-6" transition:fade={{ duration: 300 }}>
 			<div class="max-w-6xl mx-auto">
 				<h2 class="text-4xl font-bold text-center mb-4">
-					🏋 Personlig Träning – Gym
+					Personlig Träning – Gym
 				</h2>
 				<p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
 					Träna smart, säkert och effektivt med personlig vägledning i gymmet
@@ -255,7 +255,6 @@
 									{pkg.badge}
 								</div>
 							{/if}
-							<div class="text-5xl mb-4">{pkg.emoji}</div>
 							<h3 class="text-2xl font-bold mb-2">{pkg.title}</h3>
 							<p class="text-lg font-semibold text-gray-700 mb-4">{pkg.subtitle}</p>
 							<p class="text-sm italic text-gray-600 mb-6 border-l-4 border-yellow-400 pl-4">
@@ -280,7 +279,7 @@
 								</div>
 								{#if pkg.installment}
 									<div class="mt-4 bg-yellow-400 text-black text-center py-2 font-semibold text-sm">
-										💳 Delbetalning finns
+										Delbetalning finns
 									</div>
 								{/if}
 							</div>
@@ -296,7 +295,7 @@
 		<section class="py-16 px-6" transition:fade={{ duration: 300 }}>
 			<div class="max-w-6xl mx-auto">
 				<h2 class="text-4xl font-bold text-center mb-4">
-					🏠 Personlig Träning i Hemmet
+					Personlig Träning i Hemmet
 				</h2>
 				<p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
 					Yoga, boxning, styrka & mindfulness – direkt i ditt hem
@@ -312,7 +311,6 @@
 									{pkg.badge}
 								</div>
 							{/if}
-							<div class="text-5xl mb-4">{pkg.emoji}</div>
 							<h3 class="text-2xl font-bold mb-2">{pkg.title}</h3>
 							<p class="text-lg font-semibold text-gray-700 mb-4">{pkg.subtitle}</p>
 							<p class="text-sm italic text-gray-600 mb-6 border-l-4 border-yellow-400 pl-4">
@@ -337,7 +335,7 @@
 								</div>
 								{#if pkg.installment}
 									<div class="mt-4 bg-yellow-400 text-black text-center py-2 font-semibold text-sm">
-										💳 Delbetalning finns
+										Delbetalning finns
 									</div>
 								{/if}
 							</div>
@@ -353,7 +351,7 @@
 		<section class="py-16 px-6" transition:fade={{ duration: 300 }}>
 			<div class="max-w-6xl mx-auto">
 				<h2 class="text-4xl font-bold text-center mb-4">
-					🪷 Abonnemangspaket – "Move Your Body, Still Your Mind"
+					Abonnemangspaket – "Move Your Body, Still Your Mind"
 				</h2>
 				<p class="text-center text-gray-600 mb-4 max-w-2xl mx-auto">
 					Löpande PT-upplägg – 12 månader
@@ -371,10 +369,9 @@
 							{#if sub.badge}
 								<div
 									class="absolute -top-4 -right-4 bg-yellow-400 text-black font-bold px-6 py-2 rotate-3 shadow-lg">
-									⭐ {sub.badge}
+									{sub.badge}
 								</div>
 							{/if}
-							<div class="text-5xl mb-4 text-center">{sub.emoji}</div>
 							<h3 class="text-2xl font-bold mb-2 text-center">{sub.title}</h3>
 							<p class="text-lg font-semibold text-center text-gray-700 mb-6">{sub.subtitle}</p>
 							<p class="text-sm text-gray-600 mb-8 border-l-4 border-yellow-400 pl-4">
@@ -405,7 +402,7 @@
 				Kontakta mig idag för en kostnadsfri konsultation
 			</p>
 			<a
-				href="mailto:danny@training.se"
+				href="mailto:danny@cranmer.se"
 				class="inline-block bg-yellow-400 text-black px-10 py-4 font-bold text-lg hover:bg-yellow-300 transition-colors duration-200 rounded-full">
 				Boka nu
 			</a>

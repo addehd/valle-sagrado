@@ -1,18 +1,22 @@
+<script>
+    import { base } from '$app/paths';
+</script>
+
 <div class="mt-2 mb-11 flex flex-wrap gap-8 md:gap-16 justify-center">
     <a 
-        href="/danny/om-mig" 
+        href="{base}/danny/om-mig" 
         class="text-white font-semibold menu-link">
         Om Mig 
     </a>
     <a 
-        href="/danny/coaching" 
+        href="{base}/danny/coaching" 
         class="text-white font-semibold menu-link">
-        About Me 
+        Coaching 
     </a>
     <a 
-        href="/danny/boka" 
+        href="{base}/danny/paket" 
         class="text-white font-semibold menu-link">
-        Min Filosofi →
+        Paket →
     </a>
 </div>
 
