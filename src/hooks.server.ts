@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
-import { type Handle, type Reroute, redirect } from '@sveltejs/kit'
+import { type Handle, redirect } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
@@ -16,51 +16,6 @@ if (typeof console !== 'undefined') {
     }
     originalWarn.apply(console, args);
   };
-}
-
-/**
- * Reroute hook - runs BEFORE route resolution
- * This allows domain-based routing to work for ALL paths and subroutes
- */
-export const reroute: Reroute = ({ url }) => {
-  const hostname = url.hostname;
-  const pathname = url.pathname;
-  
-  console.log('[reroute] hostname:', hostname, 'pathname:', pathname);
-  
-  // Maria's domain - mariaocampo.se
-  if (hostname === 'mariaocampo.se' || hostname === 'www.mariaocampo.se') {
-    // Only rewrite if not root and not already on /maria routes
-    if (pathname !== '/' && !pathname.startsWith('/maria')) {
-      const newPath = `/maria${pathname}`;
-      console.log('[reroute] Maria - Rewriting to', newPath);
-      return newPath;
-    }
-  }
-  
-  // Danny's domain - cranmer.se
-  if (hostname === 'cranmer.se' || hostname === 'www.cranmer.se') {
-    // Only rewrite if not root and not already on /danny routes
-    if (pathname !== '/' && !pathname.startsWith('/danny')) {
-      const newPath = `/danny${pathname}`;
-      console.log('[reroute] Danny - Rewriting to', newPath);
-      return newPath;
-    }
-  }
-  
-  // Rikuy domain - rikuy.one
-  if (hostname === 'rikuy.one' || hostname === 'www.rikuy.one') {
-    // Only rewrite if not root and not already on /rikuy routes
-    if (pathname !== '/' && !pathname.startsWith('/rikuy')) {
-      const newPath = `/rikuy${pathname}`;
-      console.log('[reroute] Rikuy - Rewriting to', newPath);
-      return newPath;
-    }
-  }
-  
-  console.log('[reroute] No rewrite needed, returning undefined');
-  // Return undefined to use default routing
-  return undefined;
 }
 
 const supabase: Handle = async ({ event, resolve }) => {
@@ -201,6 +156,9 @@ const domainDetection: Handle = async ({ event, resolve }) => {
     event.locals.domain = 'danny'
   } else if (host === 'rikuy.one' || host === 'www.rikuy.one') {
     event.locals.domain = 'rikuy'
+  } else if (host === 'valle-sagrado.test' || host === 'www.valle-sagrado.test') {
+    // Development domain defaults to Danny
+    event.locals.domain = 'danny'
   }
   
   const response = await resolve(event)

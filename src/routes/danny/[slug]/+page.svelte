@@ -1,20 +1,14 @@
 <script lang="ts">
 	import Hero from '../components/Hero.svelte';
+	import { page as pageStore } from '$app/stores';
 	
 	export let data;
 	
-	console.log('[danny/[slug]/+page.svelte] Rendering with data:', data);
+	// Force reactivity to URL changes
+	$: slug = $pageStore.params.slug;
 	
-	const { page, alternatePages } = data;
-
-	// Language flag emojis
-	const languageFlags: Record<string, string> = {
-		sv: '🇸🇪',
-		en: '🇬🇧',
-		es: '🇪🇸',
-		de: '🇩🇪',
-		fr: '🇫🇷'
-	};
+	// Make destructuring reactive to data changes
+	$: ({ page = {}, alternatePages = [] } = data || {});
 
 	// Simple markdown to HTML converter (or install marked: pnpm add marked)
 	function simpleMarkdown(md: string): string {
@@ -46,19 +40,30 @@
 			.replace(/\n/g, '<br />');
 	}
 
-	// Convert markdown to HTML
-	const htmlContent = simpleMarkdown(page.content);
+	// Convert markdown to HTML - with safety check (reactive)
+	$: htmlContent = page?.content ? simpleMarkdown(page.content) : '<p>No content available</p>';
+	$: pageTitle = page?.title || 'Loading...';
 </script>
 
 <svelte:head>
-	<title>{page.title} – Danny</title>
-	{#if page.meta_description}
+	<title>{pageTitle} – Danny</title>
+	{#if page?.meta_description}
 		<meta name="description" content={page.meta_description} />
 	{/if}
 </svelte:head>
 
+{#key slug}
+{#if !page}
+	<div class="min-h-screen bg-white flex items-center justify-center">
+		<div class="text-center">
+			<h1 class="text-4xl font-bold mb-4">Error</h1>
+			<p>No page data available</p>
+			<a href="/danny" class="mt-4 inline-block bg-black text-white px-6 py-3">← Back</a>
+		</div>
+	</div>
+{:else}
 <div class="min-h-screen bg-white">
-	<Hero title={page.title} />
+	<Hero title={pageTitle} />
 
 	<!-- Language Switcher -->
 	<!-- {#if alternatePages.length > 0}
@@ -91,6 +96,8 @@
 		</a>
 	</div>
 </div>
+{/if}
+{/key}
 
 <style>
 	/* Custom styling for markdown content */

@@ -1,15 +1,6 @@
 <script lang="ts">
 	import CranmerLogo from './components/CranmerLogo.svelte';
 	import MetaTags from '$components/MetaTags.svelte';
-	import { page } from '$app/stores';
-	import type { PageData } from './$types';
-	
-	export let data: PageData;
-	
-	console.log('[danny/+page.svelte] Debug data:', data.debug);
-	
-	// Only show the fixed background on the exact /danny route
-	$: isHomepage = $page.url.pathname === '/danny' || $page.url.pathname === '/danny/';
 </script>
 
 <MetaTags 
@@ -36,11 +27,13 @@
 
 	<!-- Navigation Links -->
 	<nav class="flex flex-col gap-8 text-right">
-		<a	data-sveltekit-reload href="/danny/om-mig" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans"> Om mig </a>
-		<a data-sveltekit-reload href="/danny/coaching" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans"> Coaching </a>
-		<a
-			href="/danny/paket"
-			class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
+		<a href="/om-mig" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
+			Om mig
+		</a>
+		<a href="/coaching" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
+			Coaching
+		</a>
+		<a href="/paket" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
 			Boka
 		</a>
 	</nav>
