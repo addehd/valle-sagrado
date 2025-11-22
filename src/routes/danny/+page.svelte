@@ -36,16 +36,8 @@
 
 	<!-- Navigation Links -->
 	<nav class="flex flex-col gap-8 text-right">
-		<a
-			href="/danny/om-mig"
-			class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
-			Om mig
-		</a>
-		<a
-			href="/danny/coaching"
-			class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
-			Coaching
-		</a>
+		<a	data-sveltekit-reload href="/danny/om-mig" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans"> Om mig </a>
+		<a data-sveltekit-reload href="/danny/coaching" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans"> Coaching </a>
 		<a
 			href="/danny/paket"
 			class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
