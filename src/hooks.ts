@@ -40,37 +40,37 @@ export const reroute: Reroute = ({ url }) => {
   
   // Development routing - valle-sagrado.test defaults to Danny's routes
   // You can still override with query params: valle-sagrado.test/paket?domain=maria
-  if (hostname === 'valle-sagrado.test' || hostname === 'www.valle-sagrado.test') {
-    console.log('[reroute] ✅ MATCHED valle-sagrado.test');
-    const domain = url.searchParams.get('domain');
-    console.log('[reroute] domain query param:', domain);
+  // if (hostname === 'valle-sagrado.test' || hostname === 'www.valle-sagrado.test') {
+  //   console.log('[reroute] ✅ MATCHED valle-sagrado.test');
+  //   const domain = url.searchParams.get('domain');
+  //   console.log('[reroute] domain query param:', domain);
     
-    // Allow overriding with query params
-    if (domain === 'maria' && pathname !== '/' && !pathname.startsWith('/maria')) {
-      const newPath = `/maria${pathname}`;
-      console.log('[reroute] Development (Maria override) - Rewriting to', newPath);
-      return newPath;
-    }
+  //   // Allow overriding with query params
+  //   if (domain === 'maria' && pathname !== '/' && !pathname.startsWith('/maria')) {
+  //     const newPath = `/maria${pathname}`;
+  //     console.log('[reroute] Development (Maria override) - Rewriting to', newPath);
+  //     return newPath;
+  //   }
     
-    if (domain === 'rikuy' && pathname !== '/' && !pathname.startsWith('/rikuy')) {
-      const newPath = `/rikuy${pathname}`;
-      console.log('[reroute] Development (Rikuy override) - Rewriting to', newPath);
-      return newPath;
-    }
+  //   if (domain === 'rikuy' && pathname !== '/' && !pathname.startsWith('/rikuy')) {
+  //     const newPath = `/rikuy${pathname}`;
+  //     console.log('[reroute] Development (Rikuy override) - Rewriting to', newPath);
+  //     return newPath;
+  //   }
     
-    // Default to Danny's routes (no query param needed!)
-    console.log('[reroute] Checking Danny default conditions...');
-    console.log('[reroute] pathname !== "/":', pathname !== '/');
-    console.log('[reroute] !pathname.startsWith("/danny"):', !pathname.startsWith('/danny'));
+  //   // Default to Danny's routes (no query param needed!)
+  //   console.log('[reroute] Checking Danny default conditions...');
+  //   console.log('[reroute] pathname !== "/":', pathname !== '/');
+  //   console.log('[reroute] !pathname.startsWith("/danny"):', !pathname.startsWith('/danny'));
     
-    if (pathname !== '/' && !pathname.startsWith('/danny')) {
-      const newPath = `/danny${pathname}`;
-      console.log('[reroute] ✅ REWRITING to:', newPath);
-      return newPath;
-    } else {
-      console.log('[reroute] ❌ NOT rewriting - conditions not met');
-    }
-  }
+  //   if (pathname !== '/' && !pathname.startsWith('/danny')) {
+  //     const newPath = `/danny${pathname}`;
+  //     console.log('[reroute] ✅ REWRITING to:', newPath);
+  //     return newPath;
+  //   } else {
+  //     console.log('[reroute] ❌ NOT rewriting - conditions not met');
+  //   }
+  // }
   
   // Other localhost/development domains still need query params
   if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) {

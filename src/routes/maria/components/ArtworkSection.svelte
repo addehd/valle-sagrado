@@ -6,9 +6,10 @@
 		type: 'artwork';
 		data: {
 			id: number;
-			artname: string;
+			artname?: string;
 			artist: string;
 			shortDescription: string;
+			shortDescriptionSv?: string;
 			artPieceImg: string;
 			primaryColor: string;
 			accentColor: string;
@@ -29,6 +30,7 @@
 	export let innerHeight: number;
 	export let displayMode: 'side' | 'fullscreen' | 'centered' = 'side';
 	export let shadow: 'sm' | 'md' | 'lg' = 'md';
+	export let currentLanguage: 'en' | 'sv' = 'en';
 
 	// Shadow variables
 	const shadowSm = 'shadow-lg shadow-black shadow-opacity-20';
@@ -40,6 +42,14 @@
 
 	// Backward compatibility: if artwork prop is provided, convert to contentItems format
 	$: items = artwork ? [{ type: 'artwork' as const, data: artwork }] : contentItems;
+
+	// Get description based on current language
+	function getDescription(item: ArtworkItem) {
+		if (currentLanguage === 'sv' && item.data.shortDescriptionSv) {
+			return item.data.shortDescriptionSv;
+		}
+		return item.data.shortDescription;
+	}
 </script>
 
 <!-- Render multiple content items -->
@@ -76,14 +86,8 @@
 					</div>
 					
 					<div class="py-8 xl:col-span-1" class:xl:order-1={itemIndex % 2 === 1}>
-						<!-- <div class="text-base opacity-70 font-light tracking-[2px] mb-4">
-							{String(itemIndex + 1).padStart(2, '0')}
-						</div>
-						 -->
-						<h2 class="text-5xl md:text-5xl max-md:text-3xl font-light mb-4 leading-tight tracking-wide">{item.data.artname}</h2>
-						
 						<p class="text-lg leading-relaxed opacity-90 mb-8 font-light">
-							{item.data.shortDescription}
+							{getDescription(item)}
 						</p>
 						
 						<ColorSamples image={item.data.artPieceImg} />
@@ -118,7 +122,7 @@
 					<h2 class="text-5xl md:text-5xl font-light mb-4 leading-tight tracking-wide">{item.data.artname}</h2>
 					
 					<p class="text-lg leading-relaxed opacity-90 mb-8 font-light max-w-2xl mx-auto">
-						{item.data.shortDescription}
+						{getDescription(item)}
 					</p>
 					
 					<ColorSamples image={item.data.artPieceImg} />

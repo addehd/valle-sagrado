@@ -15,7 +15,7 @@
 
 <MetaTags />
 
-<div class="min-h-screen dark:bg-gray-900 bg-white transition-colors duration-200">
+<div class="min-h-screen dark:bg-gray-900 bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->
 	
 	<!-- Fixed Theme Toggle in top right corner -->

@@ -11,6 +11,14 @@
 	
     export let data: import('./$types').PageData;
 
+	// Language state - default to English
+	let currentLanguage: 'en' | 'sv' = 'en';
+
+	// Toggle language
+	function toggleLanguage() {
+		currentLanguage = currentLanguage === 'en' ? 'sv' : 'en';
+	}
+
 	// Create mixed content array with video in the middle
 	$: contentItems = [
 		...data.artPieces.slice(0, Math.floor(data.artPieces.length / 2)).map(artwork => ({
@@ -163,6 +171,15 @@
 
 <svelte:window bind:scrollY bind:innerHeight />
 
+<!-- Fixed language toggle button -->
+<button 
+	on:click={toggleLanguage}
+	class="fixed top-6 right-6 z-50 text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer bg-white/80 backdrop-blur-sm rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
+	aria-label="Toggle language between English and Swedish"
+	title="{currentLanguage === 'en' ? 'Switch to Swedish' : 'Switch to English'}">
+	{currentLanguage === 'en' ? '🇬🇧' : '🇸🇪'}
+</button>
+
 <div class="relative w-full min-h-screen transition-all duration-100 ease-out overflow-hidden" style="background-color: {currentBackgroundColor}">
 	<ArtistHeader 
 		name="Maria Ocampo" 
@@ -190,6 +207,7 @@
 			index={0}
 			{innerHeight} 
 			{displayMode}
+			{currentLanguage}
 			shadow="lg" />
 	</div>
 
