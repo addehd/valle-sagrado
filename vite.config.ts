@@ -10,5 +10,8 @@ export default defineConfig({
     ],
     optimizeDeps: {
         include: ['@maptiler/sdk']
+    },
+    server: {
+        allowedHosts: ['valle-sagrado.test', '.test']
     }
 });
