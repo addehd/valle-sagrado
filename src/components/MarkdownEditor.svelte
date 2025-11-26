@@ -1,11 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { createClient } from '@supabase/supabase-js';
+  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 
   // props using runes
   let { value = '', onChange = () => {} }: { value?: string; onChange?: (value: string) => void } = $props();
 
   let textareaElement = $state<HTMLTextAreaElement>();
   let localValue = $state(value);
+  let fileInputElement = $state<HTMLInputElement>();
+  let isUploading = $state(false);
+  let uploadError = $state<string | null>(null);
+
+  const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
   function handleInput(event: Event) {
     const target = event.target as HTMLTextAreaElement;
@@ -91,6 +98,71 @@
   function insertCode() {
     insertAtCursor('`', '`');
   }
+
+  function triggerImageUpload() {
+    fileInputElement?.click();
+  }
+
+  async function handleImageUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      uploadError = 'Por favor selecciona un archivo de imagen válido';
+      setTimeout(() => uploadError = null, 3000);
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      uploadError = 'La imagen es demasiado grande. Máximo 5MB';
+      setTimeout(() => uploadError = null, 3000);
+      return;
+    }
+
+    isUploading = true;
+    uploadError = null;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `markdown-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `markdown-images/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: storageError } = await supabase.storage
+        .from('teacher')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (storageError) {
+        throw new Error(storageError.message);
+      }
+
+      // Get public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('teacher')
+        .getPublicUrl(filePath);
+
+      // Insert image markdown
+      const imageMarkdown = `![${file.name}](${publicUrlData.publicUrl})`;
+      insertAtCursor(imageMarkdown);
+
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      uploadError = error instanceof Error ? error.message : 'Error al subir la imagen';
+      setTimeout(() => uploadError = null, 5000);
+    } finally {
+      isUploading = false;
+      // Reset file input
+      if (target) target.value = '';
+    }
+  }
 </script>
 
 <div class="markdown-editor">
@@ -112,8 +184,37 @@
     </div>
     <div class="toolbar-group">
       <button type="button" class="toolbar-btn" title="Enlace" onclick={insertLink}>🔗 Enlace</button>
+      <button 
+        type="button" 
+        class="toolbar-btn" 
+        title="Subir imagen" 
+        onclick={triggerImageUpload}
+        disabled={isUploading}
+      >
+        {#if isUploading}
+          ⏳ Subiendo...
+        {:else}
+          🖼️ Imagen
+        {/if}
+      </button>
     </div>
   </div>
+  
+  <!-- Hidden file input for image upload -->
+  <input 
+    bind:this={fileInputElement}
+    type="file" 
+    accept="image/*"
+    onchange={handleImageUpload}
+    style="display: none;"
+  />
+  
+  <!-- Upload error message -->
+  {#if uploadError}
+    <div class="upload-error">
+      ⚠️ {uploadError}
+    </div>
+  {/if}
   <textarea 
     bind:this={textareaElement}
     bind:value={localValue}
@@ -174,6 +275,20 @@
   .toolbar-btn:active {
     transform: translateY(0);
     background-color: #d1d5db;
+  }
+
+  .toolbar-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .upload-error {
+    padding: 0.5rem 0.75rem;
+    background-color: #fee2e2;
+    border-bottom: 1px solid #fca5a5;
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 500;
   }
 
   .editor-content {

@@ -88,11 +88,16 @@
 		</div>
 	</article>
 
-	<div class="max-w-4xl mx-auto px-6 pb-16">
+	<div class="max-w-4xl mx-auto px-6 pb-16 flex gap-4">
 		<a 
 			href="/danny" 
 			class="inline-block bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors">
 			← Tillbaka
+		</a>
+		<a 
+			href="/danny/{slug}/edit" 
+			class="inline-block bg-yellow-400 text-black px-6 py-3 font-semibold hover:bg-yellow-500 transition-colors">
+			✏️ Editar
 		</a>
 	</div>
 </div>
