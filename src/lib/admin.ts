@@ -33,7 +33,7 @@ export function isSuperAdmin(user: User | null): boolean {
  * Require admin authentication for a route
  * Throws redirect if user is not authenticated or not an admin
  */
-export function requireAdmin(user: User | null, redirectTo: string = '/auth/login'): asserts user is AdminUser {
+export function requireAdmin(user: User | null, redirectTo: string = '/auth'): asserts user is AdminUser {
 	if (!user) {
 		throw redirect(303, `${redirectTo}?redirect=/admin`);
 	}
@@ -46,7 +46,7 @@ export function requireAdmin(user: User | null, redirectTo: string = '/auth/logi
 /**
  * Require super admin authentication for a route
  */
-export function requireSuperAdmin(user: User | null, redirectTo: string = '/auth/login'): asserts user is AdminUser {
+export function requireSuperAdmin(user: User | null, redirectTo: string = '/auth'): asserts user is AdminUser {
 	if (!user) {
 		throw redirect(303, `${redirectTo}?redirect=/admin`);
 	}

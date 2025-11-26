@@ -17,7 +17,7 @@
 
   {#if !data.session?.user}
     <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
-      <p>Please <a href="/login" class="underline font-medium">log in</a> to view your cart.</p>
+      <p>Please <a href="/auth" class="underline font-medium">log in</a> to view your cart.</p>
     </div>
   {:else if data.cartItems.length === 0}
     <div class="text-center py-12">

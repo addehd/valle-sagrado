@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, user, safeGetSe
 		
 		// Require admin authentication
 		if (!currentUser) {
-			throw redirect(302, '/login?redirect=/admin/csv-upload');
+			throw redirect(302, '/auth?redirect=/admin/csv-upload');
 		}
 		
 		requireAdmin(currentUser);

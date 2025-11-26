@@ -1,14 +1,47 @@
 <script lang="ts">
 	import Hero from '../components/Hero.svelte';
+	import MarkdownEditor from '$components/MarkdownEditor.svelte';
+	import LoginModal from '$components/LoginModal.svelte';
 	import { page as pageStore } from '$app/stores';
+	import { enhance } from '$app/forms';
 	
-	export let data;
+	let { data, form }: { data: any; form: any } = $props();
 	
 	// Force reactivity to URL changes
-	$: slug = $pageStore.params.slug;
+	let slug = $derived($pageStore.params.slug);
 	
 	// Make destructuring reactive to data changes
-	$: ({ page = {}, alternatePages = [] } = data || {});
+	let page = $derived(data?.page || {});
+	let alternatePages = $derived(data?.alternatePages || []);
+	
+	// Edit mode state
+	let isEditMode = $state(false);
+	let editContent = $state('');
+	let editTitle = $state('');
+	let isSaving = $state(false);
+	let showLoginModal = $state(false);
+	
+	// Check if user is authenticated
+	let isAuthenticated = $derived(data?.user != null);
+	
+	// Debug logging
+	$effect(() => {
+		console.log('[Danny Page] User:', data?.user);
+		console.log('[Danny Page] isAuthenticated:', isAuthenticated);
+	});
+	
+	// Initialize edit values when entering edit mode
+	function toggleEditMode() {
+		isEditMode = !isEditMode;
+		if (isEditMode) {
+			editContent = page?.content || '';
+			editTitle = page?.title || '';
+		}
+	}
+	
+	function handleContentChange(newContent: string) {
+		editContent = newContent;
+	}
 
 	// Simple markdown to HTML converter (or install marked: pnpm add marked)
 	function simpleMarkdown(md: string): string {
@@ -41,8 +74,8 @@
 	}
 
 	// Convert markdown to HTML - with safety check (reactive)
-	$: htmlContent = page?.content ? simpleMarkdown(page.content) : '<p>No content available</p>';
-	$: pageTitle = page?.title || 'Loading...';
+	let htmlContent = $derived(page?.content ? simpleMarkdown(page.content) : '<p>No content available</p>');
+	let pageTitle = $derived(page?.title || 'Loading...');
 </script>
 
 <svelte:head>
@@ -82,10 +115,91 @@
 		</div>
 	{/if} -->
 
-	<article class="max-w-4xl mx-auto px-6 py-16">
-		<div class="prose prose-lg max-w-none">
-			{@html htmlContent}
+	<!-- Success/Error messages -->
+	{#if form?.success}
+		<div class="max-w-4xl mx-auto px-6 pt-8">
+			<div class="p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+				<p class="font-medium">✓ {form.message || 'Página actualizada correctamente'}</p>
+			</div>
 		</div>
+	{/if}
+	
+	{#if form?.error}
+		<div class="max-w-4xl mx-auto px-6 pt-8">
+			<div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+				<p class="font-medium">✗ {form.message || 'Hubo un problema al actualizar la página'}</p>
+			</div>
+		</div>
+	{/if}
+
+	<article class="max-w-4xl mx-auto px-6 py-16">
+		{#if isEditMode}
+			<!-- Edit Mode -->
+			<form method="POST" action="?/updatePage" use:enhance={() => {
+				isSaving = true;
+				return async ({ result, update }) => {
+					isSaving = false;
+					if (result.type === 'success') {
+						isEditMode = false;
+					}
+					await update();
+				};
+			}} class="space-y-6">
+				<input type="hidden" name="page_id" value={page.id} />
+				
+				<!-- Title Edit -->
+				<div>
+					<label for="title" class="block mb-2 text-sm font-medium text-gray-900">
+						Título
+					</label>
+					<input 
+						type="text" 
+						id="title" 
+						name="title"
+						bind:value={editTitle}
+						class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-yellow-400 focus:border-yellow-400" 
+						required
+					/>
+				</div>
+				
+				<!-- Content Edit -->
+				<div>
+					<label class="block mb-2 text-sm font-medium text-gray-900">
+						Contenido
+					</label>
+					<MarkdownEditor 
+						value={editContent} 
+						onChange={handleContentChange} 
+					/>
+					<input type="hidden" name="content" bind:value={editContent} />
+				</div>
+				
+				<!-- Action Buttons -->
+				<div class="flex gap-4">
+					<button 
+						type="submit" 
+						disabled={isSaving}
+						class="px-6 py-3 text-sm font-semibold text-white bg-black hover:bg-gray-800 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{isSaving ? '💾 Guardando...' : '💾 Guardar'}
+					</button>
+					
+					<button 
+						type="button" 
+						onclick={toggleEditMode}
+						disabled={isSaving}
+						class="px-6 py-3 text-sm font-semibold text-black bg-white border-2 border-black hover:bg-gray-100 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						✕ Cancelar
+					</button>
+				</div>
+			</form>
+		{:else}
+			<!-- View Mode -->
+			<div class="prose prose-lg max-w-none">
+				{@html htmlContent}
+			</div>
+		{/if}
 	</article>
 
 	<div class="max-w-4xl mx-auto px-6 pb-16 flex gap-4">
@@ -94,12 +208,30 @@
 			class="inline-block bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors">
 			← Tillbaka
 		</a>
-		<a 
-			href="/danny/{slug}/edit" 
-			class="inline-block bg-yellow-400 text-black px-6 py-3 font-semibold hover:bg-yellow-500 transition-colors">
-			✏️ Editar
-		</a>
+		
+		{#if !isEditMode}
+			{#if isAuthenticated}
+				<!-- Edit button for authenticated users -->
+				<button 
+					type="button"
+					onclick={toggleEditMode}
+					class="bg-yellow-400 text-black px-6 py-3 font-semibold hover:bg-yellow-500 transition-colors rounded">
+					✏️ Editar
+				</button>
+			{:else}
+				<!-- Login button for non-authenticated users -->
+				<button 
+					type="button"
+					onclick={() => showLoginModal = true}
+					class="bg-gray-200 text-gray-700 px-6 py-3 font-semibold hover:bg-gray-300 transition-colors rounded">
+					🔒 Logga in för att redigera
+				</button>
+			{/if}
+		{/if}
 	</div>
+	
+	<!-- Login Modal -->
+	<LoginModal showModal={showLoginModal} onClose={() => showLoginModal = false} />
 </div>
 {/if}
 {/key}

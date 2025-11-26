@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const { session } = await safeGetSession();
 
 	if (!session) {
-		throw redirect(302, `/auth/login?redirect=/admin/products/create`);
+		throw redirect(302, `/auth?redirect=/admin/products/create`);
 	}
 
 	// Get all projects this user is admin of
@@ -38,7 +38,7 @@ export const actions: Actions = {
 		const { session } = await safeGetSession();
 
 		if (!session) {
-			throw redirect(302, `/auth/login?redirect=/admin/products/create`);
+			throw redirect(302, `/auth?redirect=/admin/products/create`);
 		}
 
 		const formData = await request.formData();

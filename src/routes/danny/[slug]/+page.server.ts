@@ -1,7 +1,8 @@
-import { error } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
+import type { Actions } from './$types';
 
 export const load = async ({ params, locals }) => {
-	const { supabase } = locals;
+	const { supabase, user } = locals;
 	const { slug } = params;
 
 	// Fetch the page from coach_pages table
@@ -41,6 +42,65 @@ export const load = async ({ params, locals }) => {
 
 	return {
 		page,
-		alternatePages: alternatePages || []
+		alternatePages: alternatePages || [],
+		user // Pass user to client for showing/hiding edit button
 	};
 };
+
+export const actions = {
+	updatePage: async ({ request, locals }) => {
+		const { supabase, user } = locals;
+		
+		// Check if user is authenticated
+		if (!user) {
+			return fail(401, {
+				error: true,
+				message: 'Debes iniciar sesión para editar páginas'
+			});
+		}
+		
+		const formData = await request.formData();
+
+		try {
+			// Get form data
+			const pageId = formData.get('page_id')?.toString();
+			const title = formData.get('title')?.toString();
+			const content = formData.get('content')?.toString();
+
+			// Validate required fields
+			if (!pageId || !title || !content) {
+				return fail(400, {
+					error: true,
+					message: 'El título y el contenido son obligatorios'
+				});
+			}
+
+			// Update the page in the database
+			const { error: updateError } = await supabase
+				.from('coach_pages')
+				.update({
+					title,
+					content,
+					updated_at: new Date().toISOString()
+				})
+				.eq('id', pageId);
+
+			if (updateError) {
+				console.error('Error updating page:', updateError);
+				throw updateError;
+			}
+
+			return {
+				success: true,
+				message: 'Página actualizada correctamente'
+			};
+
+		} catch (err) {
+			console.error('Error in updatePage action:', err);
+			return fail(500, {
+				error: true,
+				message: 'Error al actualizar la página. Por favor intenta de nuevo.'
+			});
+		}
+	}
+} satisfies Actions;

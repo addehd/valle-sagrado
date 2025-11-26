@@ -7,8 +7,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		const { session } = await safeGetSession();
 
 		if (!session?.user) {
-			// Redirect to login if not authenticated
-			throw redirect(302, '/login');
+			// Redirect to auth if not authenticated
+			throw redirect(302, '/auth');
 		}
 
 		const projectSlug = params.project;
