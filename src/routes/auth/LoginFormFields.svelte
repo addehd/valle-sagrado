@@ -67,7 +67,7 @@
 				<label for="remember" class="text-gray-500 dark:text-gray-300">Remember me</label>
 			</div>
 		</div>
-		<a href="/forgot-password" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</a>
+		<a href="/forgot-password" class="text-sm font-medium text-primary-600 hover:underline dark:text-white">Forgot password?</a>
 	</div>
 	<button 
 		type="submit" 

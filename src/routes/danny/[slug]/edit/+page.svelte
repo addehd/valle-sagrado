@@ -23,7 +23,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-white">
-	<Hero title="Editar Página" />
+	<Hero title="editar página" />
 	
 	<div class="max-w-4xl mx-auto px-6 py-16">
 		
@@ -85,10 +85,10 @@
 						(Formato Markdown con soporte para imágenes)
 					</span>
 				</label>
-				<MarkdownEditor 
-					value={content} 
-					onChange={handleContentChange} 
-				/>
+			<MarkdownEditor 
+				value={content} 
+				onChange={handlecontentchange} 
+			/>
 				<input type="hidden" name="content" bind:value={content} />
 			</div>
 			

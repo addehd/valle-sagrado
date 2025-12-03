@@ -104,6 +104,11 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   const isLoggedIn = session && user
 
+  // Redirect logged-in users away from auth page
+  if (isLoggedIn && event.url.pathname === '/auth') {
+    redirect(303, '/')
+  }
+
   // Log admin route access for debugging curl commands
   if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
     const cookies = event.cookies.getAll();
