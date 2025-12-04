@@ -46,6 +46,7 @@ export const reroute: Reroute = ({ url }) => {
   
   // Development routing - valle-sagrado.test defaults to Danny's routes
   if (hostname === 'valle-sagrado.test' || hostname === 'www.valle-sagrado.test') {
+    return
     const domain = url.searchParams.get('domain');
     
     // Allow overriding with query params
