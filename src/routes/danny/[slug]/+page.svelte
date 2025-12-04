@@ -28,6 +28,8 @@
 	$effect(() => {
 		console.log('[Danny Page] User:', data?.user);
 		console.log('[Danny Page] isAuthenticated:', isAuthenticated);
+		console.log('[Danny Page] Full data:', data);
+		console.log('[Danny Page] Browser cookies:', document.cookie);
 	});
 	
 	// Initialize edit values when entering edit mode
@@ -201,6 +203,16 @@
 			</div>
 		{/if}
 	</article>
+
+	<!-- Debug Info -->
+	<div class="max-w-4xl mx-auto px-6 py-4 bg-gray-100 rounded-lg mb-4">
+		<h3 class="font-bold mb-2">🐛 Debug Info:</h3>
+		<div class="text-sm space-y-1">
+			<p><strong>isAuthenticated:</strong> {isAuthenticated}</p>
+			<p><strong>User:</strong> {data?.user ? JSON.stringify(data.user) : 'null'}</p>
+			<p><strong>Session:</strong> {data?.session ? 'exists' : 'null'}</p>
+		</div>
+	</div>
 
 	<div class="max-w-4xl mx-auto px-6 pb-16 flex gap-4">
 		<a 

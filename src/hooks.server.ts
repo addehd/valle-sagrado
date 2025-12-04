@@ -36,8 +36,22 @@ const supabase: Handle = async ({ event, resolve }) => {
        * standard behavior.
        */
       setAll: (cookiesToSet) => {
+        console.log('[Supabase setAll] Setting cookies:', cookiesToSet.map(c => c.name).join(', '))
+        
         cookiesToSet.forEach(({ name, value, options }) => {
-          event.cookies.set(name, value, { ...options, path: '/' })
+          // Don't set domain explicitly - let browser handle it
+          // This fixes issues with .test TLD in local development
+          const cookieOptions = { 
+            ...options, 
+            path: '/',
+            secure: false, // Allow non-HTTPS for .test domain
+            sameSite: 'lax' as const,
+            httpOnly: true,
+          }
+          // Remove domain if set - let SvelteKit handle it
+          delete (cookieOptions as any).domain
+          console.log('[Supabase setAll] Cookie:', name)
+          event.cookies.set(name, value, cookieOptions)
         })
       },
     },
@@ -118,6 +132,8 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
   const isLoggedIn = session && user
   console.log('[authGuard] path=', event.url.pathname, 'isLoggedIn=', Boolean(isLoggedIn), 'user=', user?.email)
+  console.log('[authGuard] session=', session ? 'exists' : 'null')
+  console.log('[authGuard] cookies=', event.cookies.getAll().map(c => c.name).join(', '))
 
   // Redirect logged-in users away from auth page
   if (isLoggedIn && event.url.pathname === '/auth') {

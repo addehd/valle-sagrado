@@ -4,6 +4,9 @@ import type { Actions } from './$types';
 export const load = async ({ params, locals }) => {
 	const { supabase, user } = locals;
 	const { slug } = params;
+	
+	console.log('[Danny Slug Page Server] slug:', slug);
+	console.log('[Danny Slug Page Server] user from locals:', user);
 
 	// Fetch the page from coach_pages table
 	// Try by user_id first, then by project_id if that fails
