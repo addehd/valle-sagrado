@@ -24,6 +24,9 @@ const supabase: Handle = async ({ event, resolve }) => {
    *
    * The Supabase client gets the Auth token from the request cookies.
    */
+  const cookies = event.cookies.getAll();
+  console.log('[supabase] Available cookies:', cookies.map(c => c.name).join(', '));
+  
   event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {
       getAll: () => event.cookies.getAll(),
@@ -52,10 +55,16 @@ const supabase: Handle = async ({ event, resolve }) => {
       error: userError,
     } = await event.locals.supabase.auth.getUser()
     
-    if (userError || !user) {
+    if (userError) {
+      console.log('[safeGetSession] getUser error:', userError.message)
+    }
+    if (!user) {
+      console.log('[safeGetSession] No user found from getUser()')
       // JWT validation has failed
       return { session: null, user: null }
     }
+
+    console.log('[safeGetSession] User found:', user.email)
 
     // Now call getSession() after getUser() to suppress warnings
     const {
@@ -63,10 +72,15 @@ const supabase: Handle = async ({ event, resolve }) => {
       error: sessionError,
     } = await event.locals.supabase.auth.getSession()
     
+    if (sessionError) {
+      console.log('[safeGetSession] getSession error:', sessionError.message)
+    }
     if (!session) {
+      console.log('[safeGetSession] No session found')
       return { session: null, user: null }
     }
 
+    console.log('[safeGetSession] Session found for:', session.user?.email)
     // Return the original session but with validated user
     return { 
       session: { ...session, user }, 
@@ -103,9 +117,11 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.user = user
 
   const isLoggedIn = session && user
+  console.log('[authGuard] path=', event.url.pathname, 'isLoggedIn=', Boolean(isLoggedIn), 'user=', user?.email)
 
   // Redirect logged-in users away from auth page
   if (isLoggedIn && event.url.pathname === '/auth') {
+    console.log('[authGuard] redirect /auth -> / for logged-in user')
     redirect(303, '/')
   }
 

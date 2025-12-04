@@ -10,19 +10,24 @@
 		class="space-y-4 md:space-y-6" 
 		method="post" 
 		action="/auth?/login"
+		onsubmit={() => console.log('[LoginForm] Form onsubmit fired')}
 	use:enhance={() => {
 		isSubmitting = true;
+		console.log('[LoginForm] Submitting login form');
 		return async ({ result, update }) => {
 			isSubmitting = false;
+			console.log('[LoginForm] Form submission result:', result.type);
 			
 			// If we're in a modal and login was successful
 			if (isModal && (result.type === 'redirect' || result.type === 'success')) {
+				console.log('[LoginForm] Modal success - closing modal');
 				// Trigger the success callback which will close modal and reload
 				onSuccess();
 				return; // Don't do the default redirect
 			}
 			
 			// For full page, allow normal redirect
+			console.log('[LoginForm] Full page redirect');
 			await update();
 		};
 	}}
@@ -72,6 +77,7 @@
 	<button 
 		type="submit" 
 		disabled={isSubmitting}
+		onclick={() => console.log('[LoginForm] Button clicked')}
 		class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
 	>
 		{isSubmitting ? 'Loggar in...' : 'Fortsätt'}
