@@ -1,18 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { createClient } from '@supabase/supabase-js';
-  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 
-  // props using runes
-  let { value = '', onChange = () => {} }: { value?: string; onChange?: (value: string) => void } = $props();
+  // props using runes - uploadEndpoint allows passing a custom upload API URL
+  let { value = '', onChange = () => {}, uploadEndpoint = '/api/upload-markdown-image' }: { value?: string; onChange?: (value: string) => void; uploadEndpoint?: string } = $props();
 
   let textareaElement = $state<HTMLTextAreaElement>();
   let localValue = $state(value);
   let fileInputElement = $state<HTMLInputElement>();
   let isUploading = $state(false);
   let uploadError = $state<string | null>(null);
-
-  const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
   function handleInput(event: Event) {
     const target = event.target as HTMLTextAreaElement;
@@ -128,29 +124,45 @@
     uploadError = null;
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `markdown-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-      const filePath = `markdown-images/${fileName}`;
+      // #region agent log
+      const logStart = {location:'MarkdownEditor.svelte:handleImageUpload',message:'Starting server-side upload',data:{fileName:file.name,fileSize:file.size,uploadEndpoint},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
+      console.log('[DEBUG-UPLOAD-START]', JSON.stringify(logStart));
+      // #endregion
 
-      // Upload to Supabase Storage
-      const { error: storageError } = await supabase.storage
-        .from('teacher')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Use API endpoint for upload (has proper auth context)
+      const formData = new FormData();
+      formData.append('file', file);
 
-      if (storageError) {
-        throw new Error(storageError.message);
+      const response = await fetch(uploadEndpoint, {
+        method: 'POST',
+        body: formData
+      });
+
+      // #region agent log
+      const logResponse = {location:'MarkdownEditor.svelte:afterFetch',message:'Server response received',data:{status:response.status,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
+      console.log('[DEBUG-UPLOAD-RESPONSE]', JSON.stringify(logResponse));
+      // #endregion
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Error ${response.status}`);
       }
 
-      // Get public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('teacher')
-        .getPublicUrl(filePath);
+      const result = await response.json();
+      
+      // #region agent log
+      const logResult = {location:'MarkdownEditor.svelte:parsedResult',message:'Parsed server result',data:{success:result.success,hasUrl:!!result.url,error:result.message||null},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
+      console.log('[DEBUG-UPLOAD-RESULT]', JSON.stringify(logResult));
+      // #endregion
 
-      // Insert image markdown
-      const imageMarkdown = `![${file.name}](${publicUrlData.publicUrl})`;
+      if (!result.success) {
+        throw new Error(result.message || 'Error al subir la imagen');
+      }
+
+      // Insert image markdown with the URL from server
+      const imageUrl = result.url;
+      const imageName = result.fileName || file.name;
+      const imageMarkdown = `![${imageName}](${imageUrl})`;
       insertAtCursor(imageMarkdown);
 
     } catch (error) {

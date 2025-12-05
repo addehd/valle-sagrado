@@ -85,10 +85,9 @@
 						(Formato Markdown con soporte para imágenes)
 					</span>
 				</label>
-			<MarkdownEditor 
-				value={content} 
-				onChange={handlecontentchange} 
-			/>
+		<MarkdownEditor 
+			value={content} 
+			onChange={handleContentChange} />
 				<input type="hidden" name="content" bind:value={content} />
 			</div>
 			

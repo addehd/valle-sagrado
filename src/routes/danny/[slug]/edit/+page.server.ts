@@ -23,6 +23,62 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 };
 
 export const actions = {
+	uploadImage: async ({ request, locals }) => {
+		const { supabase } = locals;
+		const formData = await request.formData();
+
+		try {
+			const file = formData.get('file') as File;
+			
+			if (!file || file.size === 0) {
+				return fail(400, { error: true, message: 'No se proporcionó ningún archivo' });
+			}
+
+			// Validate file type
+			if (!file.type.startsWith('image/')) {
+				return fail(400, { error: true, message: 'Por favor selecciona un archivo de imagen válido' });
+			}
+
+			// Validate file size (5MB max)
+			const MAX_SIZE = 5 * 1024 * 1024;
+			if (file.size > MAX_SIZE) {
+				return fail(400, { error: true, message: 'La imagen es demasiado grande. Máximo 5MB' });
+			}
+
+			const fileExt = file.name.split('.').pop();
+			const fileName = `markdown-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+			const filePath = `markdown-images/${fileName}`;
+
+			// Upload to Supabase Storage using server-side client (has auth)
+			const { error: storageError } = await supabase.storage
+				.from('teacher')
+				.upload(filePath, file, {
+					cacheControl: '3600',
+					upsert: false
+				});
+
+			if (storageError) {
+				console.error('Storage upload error:', storageError);
+				return fail(500, { error: true, message: `Error al subir: ${storageError.message}` });
+			}
+
+			// Get public URL
+			const { data: publicUrlData } = supabase.storage
+				.from('teacher')
+				.getPublicUrl(filePath);
+
+			return {
+				success: true,
+				url: publicUrlData.publicUrl,
+				fileName: file.name
+			};
+
+		} catch (err) {
+			console.error('Error in uploadImage action:', err);
+			return fail(500, { error: true, message: 'Error al subir la imagen' });
+		}
+	},
+
 	updatePage: async ({ request, locals }) => {
 		const { supabase } = locals;
 		const formData = await request.formData();
