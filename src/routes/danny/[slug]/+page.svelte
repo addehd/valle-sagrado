@@ -164,7 +164,8 @@
 				<MarkdownEditor 
 					value={editContent} 
 					onChange={handleContentChange}
-					uploadEndpoint="?/uploadImage" 
+					uploadEndpoint="/api/upload-markdown-image"
+					pageId={page.id} 
 				/>
 					<input type="hidden" name="content" bind:value={editContent} />
 				</div>

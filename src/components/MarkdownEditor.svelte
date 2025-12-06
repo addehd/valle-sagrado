@@ -2,23 +2,84 @@
   import { onMount } from 'svelte';
 
   // props using runes - uploadEndpoint allows passing a custom upload action URL
-  let { value = '', onChange = () => {}, uploadEndpoint = '?/uploadImage' }: { value?: string; onChange?: (value: string) => void; uploadEndpoint?: string } = $props();
+  let {
+    value = '',
+    onChange = () => {},
+    uploadEndpoint = '/api/upload-markdown-image',
+    pageId = ''
+  }: { value?: string; onChange?: (value: string) => void; uploadEndpoint?: string; pageId?: string } = $props();
 
   let textareaElement = $state<HTMLTextAreaElement>();
   let localValue = $state(value);
   let fileInputElement = $state<HTMLInputElement>();
   let isUploading = $state(false);
   let uploadError = $state<string | null>(null);
+  type HistoryEntry = { value: string; selectionStart: number; selectionEnd: number };
+  let history = $state<HistoryEntry[]>([
+    { value, selectionStart: value.length, selectionEnd: value.length }
+  ]);
+  let historyIndex = $state(0);
+
+  function pushHistory(nextValue: string, selectionStart?: number, selectionEnd?: number) {
+    const start = selectionStart ?? textareaElement?.selectionStart ?? nextValue.length;
+    const end = selectionEnd ?? textareaElement?.selectionEnd ?? start;
+    const current = history[historyIndex];
+
+    if (current && current.value === nextValue && current.selectionStart === start && current.selectionEnd === end) {
+      return;
+    }
+
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ value: nextValue, selectionStart: start, selectionEnd: end });
+    history = newHistory;
+    historyIndex = newHistory.length - 1;
+  }
+
+  function applyHistory(entry: HistoryEntry) {
+    localValue = entry.value;
+    onChange(entry.value);
+
+    setTimeout(() => {
+      if (!textareaElement) return;
+      textareaElement.focus();
+      textareaElement.setSelectionRange(entry.selectionStart, entry.selectionEnd);
+    }, 0);
+  }
+
+  function handleUndoRedo(event: KeyboardEvent) {
+    const key = event.key.toLowerCase();
+    const isMetaOrCtrl = event.metaKey || event.ctrlKey;
+    const isUndo = isMetaOrCtrl && !event.shiftKey && key === 'z';
+    const isRedo = isMetaOrCtrl && ((event.shiftKey && key === 'z') || key === 'y');
+
+    if (isUndo) {
+      if (historyIndex > 0) {
+        event.preventDefault();
+        historyIndex -= 1;
+        applyHistory(history[historyIndex]);
+      }
+    } else if (isRedo) {
+      if (historyIndex < history.length - 1) {
+        event.preventDefault();
+        historyIndex += 1;
+        applyHistory(history[historyIndex]);
+      }
+    }
+  }
 
   function handleInput(event: Event) {
     const target = event.target as HTMLTextAreaElement;
     localValue = target.value;
     onChange(target.value);
+    pushHistory(target.value, target.selectionStart, target.selectionEnd);
   }
 
   // sync local value with prop changes
   $effect(() => {
-    localValue = value;
+    if (value !== history[historyIndex]?.value) {
+      localValue = value;
+      pushHistory(value, value.length, value.length);
+    }
   });
 
   onMount(() => {
@@ -39,6 +100,7 @@
     
     localValue = newText;
     onChange(newText);
+    pushHistory(newText, start + before.length + selected.length + after.length);
     
     // Set cursor position after the inserted text
     const newCursorPos = start + before.length + selected.length + after.length;
@@ -129,12 +191,32 @@
       // Use form action (same approach as regular form)
       const formData = new FormData();
       formData.append('file', file);
+      if (pageId) {
+        formData.append('pageId', pageId);
+      }
 
       console.log('📤 Sending to form action:', uploadEndpoint);
 
-      const response = await fetch(uploadEndpoint, {
+      // Resolve endpoint/action: if caller passed `?/action`, post to current page with that action
+      let endpoint = uploadEndpoint;
+      let actionName = 'uploadImage';
+
+      if (uploadEndpoint?.startsWith('?/')) {
+        actionName = uploadEndpoint.slice(2) || 'uploadImage';
+        endpoint = typeof window !== 'undefined' ? window.location.pathname : '';
+      } else if (!uploadEndpoint) {
+        endpoint = typeof window !== 'undefined' ? window.location.pathname : '';
+      }
+
+      const response = await fetch(endpoint, {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Ensure SvelteKit routes this request to the named form action
+        headers: {
+          'accept': 'application/json',
+          'x-sveltekit-action': actionName
+        },
+        credentials: 'include'
       });
 
       console.log('📥 Response status:', response.status);
@@ -183,32 +265,81 @@
   }
 </script>
 
-<div class="markdown-editor">
-  <div class="toolbar">
-    <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Encabezado 1" onclick={() => insertHeader(1)}>H1</button>
-      <button type="button" class="toolbar-btn" title="Encabezado 2" onclick={() => insertHeader(2)}>H2</button>
-      <button type="button" class="toolbar-btn" title="Encabezado 3" onclick={() => insertHeader(3)}>H3</button>
+<div class="w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
+  <div class="flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50 p-2 sm:p-3">
+    <div class="flex gap-1 border-r border-gray-300 pr-2 last:border-r-0">
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Encabezado 1"
+        onclick={() => insertHeader(1)}>
+        H1
+      </button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Encabezado 2"
+        onclick={() => insertHeader(2)}>
+        H2
+      </button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Encabezado 3"
+        onclick={() => insertHeader(3)}>
+        H3
+      </button>
     </div>
-    <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Negrita" onclick={insertBold}><strong>B</strong></button>
-      <button type="button" class="toolbar-btn" title="Cursiva" onclick={insertItalic}><em>I</em></button>
-      <button type="button" class="toolbar-btn" title="Código" onclick={insertCode}>{"<>"}</button>
+    <div class="flex gap-1 border-r border-gray-300 pr-2 last:border-r-0">
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Negrita"
+        onclick={insertBold}>
+        <strong>B</strong>
+      </button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Cursiva"
+        onclick={insertItalic}>
+        <em>I</em>
+      </button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Código"
+        onclick={insertCode}>{"<>"}</button>
     </div>
-    <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Lista" onclick={insertList}>• Lista</button>
-      <button type="button" class="toolbar-btn" title="Lista numerada" onclick={insertNumberedList}>1. Lista</button>
-      <button type="button" class="toolbar-btn" title="Cita" onclick={insertQuote}>❝ Cita</button>
+    <div class="flex gap-1 border-r border-gray-300 pr-2 last:border-r-0">
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Lista"
+        onclick={insertList}>• Lista</button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Lista numerada"
+        onclick={insertNumberedList}>1. Lista</button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Cita"
+        onclick={insertQuote}>❝ Cita</button>
     </div>
-    <div class="toolbar-group">
-      <button type="button" class="toolbar-btn" title="Enlace" onclick={insertLink}>🔗 Enlace</button>
-      <button 
-        type="button" 
-        class="toolbar-btn" 
-        title="Subir imagen" 
+    <div class="flex gap-1 border-r border-gray-300 pr-2 last:border-r-0">
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Enlace"
+        onclick={insertLink}>🔗 Enlace</button>
+      <button
+        type="button"
+        class="whitespace-nowrap rounded-md border border-transparent bg-white px-2 py-1 text-xs font-medium text-gray-700 transition-all duration-200 ease-in-out hover:-translate-y-px hover:border-gray-300 hover:bg-gray-200 active:translate-y-0 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60 sm:px-3 sm:py-1.5 sm:text-sm"
+        title="Subir imagen"
         onclick={triggerImageUpload}
-        disabled={isUploading}
-      >
+        disabled={isUploading}>
         {#if isUploading}
           ⏳ Subiendo...
         {:else}
@@ -217,133 +348,24 @@
       </button>
     </div>
   </div>
-  
-  <!-- Hidden file input for image upload -->
-  <input 
+
+  <input
     bind:this={fileInputElement}
-    type="file" 
+    type="file"
     accept="image/*"
     onchange={handleImageUpload}
-    style="display: none;"
-  />
-  
-  <!-- Upload error message -->
+    class="hidden" />
+
   {#if uploadError}
-    <div class="upload-error">
+    <div class="border-b border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-600">
       ⚠️ {uploadError}
     </div>
   {/if}
-  <textarea 
+  <textarea
     bind:this={textareaElement}
     bind:value={localValue}
     oninput={handleInput}
-    class="editor-content"
-    placeholder="Escribe la información del proyecto en formato markdown..."
-  ></textarea>
+    onkeydown={handleUndoRedo}
+    class="w-full min-h-[200px] resize-y border-none bg-white p-3 font-sans text-sm leading-relaxed outline-none placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-blue-500 sm:min-h-[60vh] sm:p-4"
+    placeholder="Escribe la información del proyecto en formato markdown..."></textarea>
 </div>
-
-<style>
-  .markdown-editor {
-    width: 100%;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background-color: white;
-    overflow: hidden;
-  }
-
-  .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-    background-color: #f9fafb;
-  }
-
-  .toolbar-group {
-    display: flex;
-    gap: 0.25rem;
-    padding-right: 0.5rem;
-    border-right: 1px solid #d1d5db;
-  }
-
-  .toolbar-group:last-child {
-    border-right: none;
-  }
-
-  .toolbar-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    border-radius: 0.375rem;
-    border: 1px solid transparent;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    color: #374151;
-    font-weight: 500;
-  }
-
-  .toolbar-btn:hover {
-    background-color: #e5e7eb;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-  }
-
-  .toolbar-btn:active {
-    transform: translateY(0);
-    background-color: #d1d5db;
-  }
-
-  .toolbar-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .upload-error {
-    padding: 0.5rem 0.75rem;
-    background-color: #fee2e2;
-    border-bottom: 1px solid #fca5a5;
-    color: #dc2626;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .editor-content {
-    width: 100%;
-    min-height: 250px;
-    padding: 1rem;
-    border: none;
-    outline: none;
-    resize: vertical;
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    background-color: white;
-  }
-
-  .editor-content::placeholder {
-    color: #9ca3af;
-  }
-
-  .editor-content:focus {
-    box-shadow: inset 0 0 0 1px #3b82f6;
-  }
-
-  /* Responsive design */
-  @media (max-width: 640px) {
-    .toolbar {
-      padding: 0.5rem;
-    }
-    
-    .toolbar-btn {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-    }
-    
-    .editor-content {
-      min-height: 200px;
-      padding: 0.75rem;
-    }
-  }
-</style> 
