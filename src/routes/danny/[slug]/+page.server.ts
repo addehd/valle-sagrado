@@ -4,9 +4,6 @@ import type { Actions } from './$types';
 export const load = async ({ params, locals }) => {
 	const { supabase, user } = locals;
 	const { slug } = params;
-	
-	console.log('[Danny Slug Page Server] slug:', slug);
-	console.log('[Danny Slug Page Server] user from locals:', user);
 
 	// Fetch the page from coach_pages table
 	// Try by user_id first, then by project_id if that fails
@@ -89,7 +86,6 @@ export const actions = {
 				.eq('id', pageId);
 
 			if (updateError) {
-				console.error('Error updating page:', updateError);
 				throw updateError;
 			}
 
@@ -99,10 +95,79 @@ export const actions = {
 			};
 
 		} catch (err) {
-			console.error('Error in updatePage action:', err);
 			return fail(500, {
 				error: true,
 				message: 'Error al actualizar la página. Por favor intenta de nuevo.'
+			});
+		}
+	},
+
+	uploadImage: async ({ request, locals }) => {
+		console.log('🎯 uploadImage action called!');
+		
+		try {
+			console.log('📦 Getting form data...');
+			const formData = await request.formData();
+			
+			console.log('📄 Getting file from form data...');
+			const file = formData.get('file') as File;
+			
+			console.log('🔍 File:', file ? file.name : 'NO FILE');
+
+			if (!file || file.size === 0) {
+				console.log('❌ No file or empty file');
+				return fail(400, {
+					error: true,
+					message: 'No file provided'
+				});
+			}
+
+			// Validate file type
+			if (!file.type.startsWith('image/')) {
+				console.log('❌ Invalid file type:', file.type);
+				return fail(400, {
+					error: true,
+					message: 'Invalid file type'
+				});
+			}
+
+			// Validate file size (5MB max)
+			const MAX_SIZE = 5 * 1024 * 1024;
+			if (file.size > MAX_SIZE) {
+				console.log('❌ File too large:', file.size);
+				return fail(400, {
+					error: true,
+					message: 'File too large'
+				});
+			}
+
+			// Log image details to console
+			console.log('=============================================');
+			console.log('📸 IMAGE RECEIVED IN FORM ACTION');
+			console.log('=============================================');
+			console.log('File name:', file.name);
+			console.log('File type:', file.type);
+			console.log('File size:', `${(file.size / 1024).toFixed(2)} KB`);
+			console.log('Timestamp:', new Date().toISOString());
+			console.log('=============================================');
+
+			// Return mock URL
+			const mockUrl = `https://placehold.co/600x400/09f/fff?text=${encodeURIComponent(file.name)}`;
+			
+			console.log('✅ Returning success with mock URL');
+
+			return {
+				success: true,
+				url: mockUrl,
+				fileName: file.name
+			};
+
+		} catch (err) {
+			console.error('💥 ERROR in uploadImage action:', err);
+			console.error('Error stack:', err instanceof Error ? err.stack : 'No stack');
+			return fail(500, {
+				error: true,
+				message: err instanceof Error ? err.message : 'Error uploading image'
 			});
 		}
 	}

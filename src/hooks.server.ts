@@ -125,6 +125,9 @@ const supabase: Handle = async ({ event, resolve }) => {
 
 
 const authGuard: Handle = async ({ event, resolve }) => {
+  // Log all requests for debugging file uploads
+  console.log('[authGuard] Request:', event.request.method, event.url.pathname);
+  
   const { session, user } = await event.locals.safeGetSession()
   // Don't pass session to locals to avoid serialization warnings
   // event.locals.session = session  

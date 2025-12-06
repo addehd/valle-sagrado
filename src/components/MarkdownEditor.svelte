@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  // props using runes - uploadEndpoint allows passing a custom upload API URL
-  let { value = '', onChange = () => {}, uploadEndpoint = '/api/upload-markdown-image' }: { value?: string; onChange?: (value: string) => void; uploadEndpoint?: string } = $props();
+  // props using runes - uploadEndpoint allows passing a custom upload action URL
+  let { value = '', onChange = () => {}, uploadEndpoint = '?/uploadImage' }: { value?: string; onChange?: (value: string) => void; uploadEndpoint?: string } = $props();
 
   let textareaElement = $state<HTMLTextAreaElement>();
   let localValue = $state(value);
@@ -124,44 +124,50 @@
     uploadError = null;
 
     try {
-      // #region agent log
-      const logStart = {location:'MarkdownEditor.svelte:handleImageUpload',message:'Starting server-side upload',data:{fileName:file.name,fileSize:file.size,uploadEndpoint},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
-      console.log('[DEBUG-UPLOAD-START]', JSON.stringify(logStart));
-      // #endregion
+      console.log('📸 Image selected:', file.name, file.size, file.type);
 
-      // Use API endpoint for upload (has proper auth context)
+      // Use form action (same approach as regular form)
       const formData = new FormData();
       formData.append('file', file);
+
+      console.log('📤 Sending to form action:', uploadEndpoint);
 
       const response = await fetch(uploadEndpoint, {
         method: 'POST',
         body: formData
       });
 
-      // #region agent log
-      const logResponse = {location:'MarkdownEditor.svelte:afterFetch',message:'Server response received',data:{status:response.status,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
-      console.log('[DEBUG-UPLOAD-RESPONSE]', JSON.stringify(logResponse));
-      // #endregion
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Content-Type:', response.headers.get('content-type'));
+
+      const text = await response.text();
+      console.log('📥 Raw response (first 300 chars):', text.substring(0, 300));
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Error ${response.status}`);
+        console.error('❌ Server returned error status:', response.status);
+        throw new Error(`Server error: ${response.status}`);
       }
 
-      const result = await response.json();
-      
-      // #region agent log
-      const logResult = {location:'MarkdownEditor.svelte:parsedResult',message:'Parsed server result',data:{success:result.success,hasUrl:!!result.url,error:result.message||null},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix'};
-      console.log('[DEBUG-UPLOAD-RESULT]', JSON.stringify(logResult));
-      // #endregion
+      let result;
+      try {
+        result = JSON.parse(text);
+        console.log('📦 Parsed response:', result);
+      } catch (parseError) {
+        console.error('❌ Failed to parse JSON:', parseError);
+        console.error('Response was:', text);
+        throw new Error('Invalid response from server');
+      }
 
-      if (!result.success) {
-        throw new Error(result.message || 'Error al subir la imagen');
+      // Handle SvelteKit form action response format
+      const data = result.type === 'success' ? result.data : result;
+
+      if (!data.success) {
+        throw new Error(data.message || 'Error al subir la imagen');
       }
 
       // Insert image markdown with the URL from server
-      const imageUrl = result.url;
-      const imageName = result.fileName || file.name;
+      const imageUrl = data.url;
+      const imageName = data.fileName || file.name;
       const imageMarkdown = `![${imageName}](${imageUrl})`;
       insertAtCursor(imageMarkdown);
 
