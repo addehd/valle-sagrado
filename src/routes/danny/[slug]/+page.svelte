@@ -20,10 +20,22 @@
 	let editTitle = $state('');
 	let isSaving = $state(false);
 	let showLoginModal = $state(false);
+	let showActions = $state(false);
 	
-	// Check if user is authenticated
+    // Show actions on keydown 'e'
 	let isAuthenticated = $derived(data?.user != null);
 	
+	$effect(() => {
+		const handleKeydown = (event: KeyboardEvent) => {
+			if (event.key.toLowerCase() === 'e') {
+				showActions = true;
+			}
+		};
+
+		window.addEventListener('keydown', handleKeydown);
+		return () => window.removeEventListener('keydown', handleKeydown);
+	});
+
 	// Initialize edit values when entering edit mode
 	function toggleEditMode() {
 		isEditMode = !isEditMode;
@@ -205,7 +217,7 @@
 			← Tillbaka
 		</a>
 		
-		{#if !isEditMode}
+		{#if showActions && !isEditMode}
 			{#if isAuthenticated}
 				<!-- Edit button for authenticated users -->
 				<button 
