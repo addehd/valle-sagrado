@@ -6,8 +6,7 @@
 <MetaTags 
 	title="Cranmer - Executive Coaching"
 	description="Professional executive coaching and leadership development with Danny Cranmer."
-	siteName="Cranmer"
-/>
+	siteName="Cranmer" />
 
 <style>
 	.hero-bg {
@@ -27,14 +26,14 @@
 
 	<!-- Navigation Links -->
 	<nav class="flex flex-col gap-8 text-right">
-		<a href="/om-mig" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
-			Om mig
+		<a href="/pt-i-malmo" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
+			About me
 		</a>
 		<a href="/coaching" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
 			Coaching
 		</a>
 		<a href="/paket" class="text-6xl md:text-7xl lg:text-8xl font-bold text-white hover:text-[#fcea0d] transition-colors duration-300 font-sans">
-			Boka
+			Book
 		</a>
 	</nav>
 	</div>

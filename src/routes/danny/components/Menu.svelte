@@ -1,5 +1,5 @@
 <div class="mt-2 mb-11 flex flex-wrap gap-8 md:gap-16 justify-center">
-    <a href="/om-mig" class="text-white font-semibold menu-link"> Om Mig </a>
+    <a href="/pt-i-malmo" class="text-white font-semibold menu-link"> Om Mig </a>
     <a href="/coaching" class="text-white font-semibold menu-link"> Coaching </a>
     <a href="/paket" class="text-white font-semibold menu-link"> Paket → </a>
 </div>

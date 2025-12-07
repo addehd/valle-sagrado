@@ -31,18 +31,18 @@ export const actions = {
 			const file = formData.get('file') as File;
 			
 			if (!file || file.size === 0) {
-				return fail(400, { error: true, message: 'No se proporcionó ningún archivo' });
+				return fail(400, { error: true, message: 'No file provided' });
 			}
 
 			// Validate file type
 			if (!file.type.startsWith('image/')) {
-				return fail(400, { error: true, message: 'Por favor selecciona un archivo de imagen válido' });
+				return fail(400, { error: true, message: 'Please select a valid image file' });
 			}
 
 			// Validate file size (5MB max)
 			const MAX_SIZE = 5 * 1024 * 1024;
 			if (file.size > MAX_SIZE) {
-				return fail(400, { error: true, message: 'La imagen es demasiado grande. Máximo 5MB' });
+				return fail(400, { error: true, message: 'Image is too large. Maximum 5MB' });
 			}
 
 			const fileExt = file.name.split('.').pop();
@@ -59,7 +59,7 @@ export const actions = {
 
 			if (storageError) {
 				console.error('Storage upload error:', storageError);
-				return fail(500, { error: true, message: `Error al subir: ${storageError.message}` });
+				return fail(500, { error: true, message: `Upload error: ${storageError.message}` });
 			}
 
 			// Get public URL
@@ -75,7 +75,7 @@ export const actions = {
 
 		} catch (err) {
 			console.error('Error in uploadImage action:', err);
-			return fail(500, { error: true, message: 'Error al subir la imagen' });
+			return fail(500, { error: true, message: 'Error uploading the image' });
 		}
 	},
 
@@ -95,7 +95,7 @@ export const actions = {
 			if (!pageId || !title || !content) {
 				return fail(400, {
 					error: true,
-					message: 'El título y el contenido son obligatorios'
+				message: 'Title and content are required'
 				});
 			}
 
@@ -118,14 +118,14 @@ export const actions = {
 
 			return {
 				success: true,
-				message: 'Página actualizada correctamente'
+			message: 'Page updated successfully'
 			};
 
 		} catch (err) {
 			console.error('Error in updatePage action:', err);
 			return fail(500, {
 				error: true,
-				message: 'Error al actualizar la página. Por favor intenta de nuevo.'
+			message: 'Error updating the page. Please try again.'
 			});
 		}
 	}

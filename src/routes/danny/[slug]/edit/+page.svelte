@@ -19,26 +19,26 @@
 </script>
 
 <svelte:head>
-	<title>Editar: {page.title || 'Página'} – Danny</title>
+	<title>Edit: {page.title || 'Page'} – Danny</title>
 </svelte:head>
 
 <div class="min-h-screen bg-white">
-	<Hero title="editar página" />
+	<Hero title="Edit page" />
 	
 	<div class="max-w-4xl mx-auto px-6 py-16">
 		
 		<!-- Success/Error messages -->
 		{#if form?.success}
 			<div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-				<p class="font-medium">¡Éxito!</p>
-				<p>{form.message || 'Página actualizada correctamente'}</p>
+				<p class="font-medium">Success!</p>
+				<p>{form.message || 'Page updated successfully'}</p>
 			</div>
 		{/if}
 		
 		{#if form?.error}
 			<div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
 				<p class="font-medium">Error</p>
-				<p>{form.message || 'Hubo un problema al actualizar la página'}</p>
+				<p>{form.message || 'There was a problem updating the page'}</p>
 			</div>
 		{/if}
 		
@@ -50,7 +50,7 @@
 			<!-- Title -->
 			<div>
 				<label for="title" class="block mb-2 text-sm font-medium text-gray-900">
-					Título de la página
+					Page title
 				</label>
 				<input 
 					type="text" 
@@ -65,7 +65,7 @@
 			<!-- Meta Description -->
 			<div>
 				<label for="meta_description" class="block mb-2 text-sm font-medium text-gray-900">
-					Meta descripción (SEO)
+					Meta description (SEO)
 				</label>
 				<textarea 
 					id="meta_description" 
@@ -73,16 +73,16 @@
 					bind:value={metaDescription}
 					rows="2"
 					class="block w-full p-3 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-yellow-400 focus:border-yellow-400"
-					placeholder="Breve descripción para motores de búsqueda"
+					placeholder="Short description for search engines"
 				></textarea>
 			</div>
 			
 			<!-- Content with Markdown Editor -->
 			<div>
 				<label for="content" class="block mb-2 text-sm font-medium text-gray-900">
-					Contenido
+					Content
 					<span class="text-xs text-gray-500 font-normal ml-2">
-						(Formato Markdown con soporte para imágenes)
+						(Markdown format with image support)
 					</span>
 				</label>
 		<MarkdownEditor 
@@ -101,7 +101,7 @@
 					class="w-4 h-4 text-yellow-400 bg-gray-100 border-gray-300 rounded focus:ring-yellow-400"
 				/>
 				<label for="is_active" class="ml-2 text-sm font-medium text-gray-900">
-					Página activa (visible en el sitio)
+					Active page (visible on the site)
 				</label>
 			</div>
 			
@@ -111,14 +111,14 @@
 					type="submit" 
 					class="px-6 py-3 text-sm font-semibold text-white bg-black hover:bg-gray-800 transition-colors rounded"
 				>
-					Guardar Cambios
+					Save changes
 				</button>
 				
 				<a 
 					href="/danny/{page.slug}" 
 					class="px-6 py-3 text-sm font-semibold text-black bg-white border-2 border-black hover:bg-gray-100 transition-colors rounded"
 				>
-					Cancelar
+					Cancel
 				</a>
 			</div>
 		</form>

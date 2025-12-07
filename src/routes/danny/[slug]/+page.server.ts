@@ -55,7 +55,7 @@ export const actions = {
 		if (!user) {
 			return fail(401, {
 				error: true,
-				message: 'Debes iniciar sesión para editar páginas'
+				message: 'You must be logged in to edit pages'
 			});
 		}
 		
@@ -71,7 +71,7 @@ export const actions = {
 			if (!pageId || !title || !content) {
 				return fail(400, {
 					error: true,
-					message: 'El título y el contenido son obligatorios'
+				message: 'Title and content are required'
 				});
 			}
 
@@ -91,13 +91,13 @@ export const actions = {
 
 			return {
 				success: true,
-				message: 'Página actualizada correctamente'
+			message: 'Page updated successfully'
 			};
 
 		} catch (err) {
 			return fail(500, {
 				error: true,
-				message: 'Error al actualizar la página. Por favor intenta de nuevo.'
+			message: 'Error updating the page. Please try again.'
 			});
 		}
 	},

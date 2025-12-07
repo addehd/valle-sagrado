@@ -22,7 +22,6 @@
 	let showLoginModal = $state(false);
 	let showActions = $state(false);
 	
-    // Show actions on keydown 'e'
 	let isAuthenticated = $derived(data?.user != null);
 	
 	$effect(() => {
@@ -125,7 +124,7 @@
 	{#if form?.success}
 		<div class="max-w-4xl mx-auto px-6 pt-8">
 			<div class="p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-				<p class="font-medium">✓ {form.message || 'Página actualizada correctamente'}</p>
+				<p class="font-medium">✓ {form.message || 'Page updated successfully'}</p>
 			</div>
 		</div>
 	{/if}
@@ -133,7 +132,7 @@
 	{#if form?.error}
 		<div class="max-w-4xl mx-auto px-6 pt-8">
 			<div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-				<p class="font-medium">✗ {form.message || 'Hubo un problema al actualizar la página'}</p>
+				<p class="font-medium">✗ {form.message || 'There was a problem updating the page'}</p>
 			</div>
 		</div>
 	{/if}
@@ -156,7 +155,7 @@
 				<!-- Title Edit -->
 				<div>
 					<label for="title" class="block mb-2 text-sm font-medium text-gray-900">
-						Título
+						Title
 					</label>
 					<input 
 						type="text" 
@@ -171,7 +170,7 @@
 				<!-- Content Edit -->
 				<div>
 					<label class="block mb-2 text-sm font-medium text-gray-900">
-						Contenido
+						Content
 					</label>
 				<MarkdownEditor 
 					value={editContent} 
@@ -189,7 +188,7 @@
 						disabled={isSaving}
 						class="px-6 py-3 text-sm font-semibold text-white bg-black hover:bg-gray-800 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						{isSaving ? '💾 Guardando...' : '💾 Guardar'}
+						{isSaving ? '💾 Saving...' : '💾 Save'}
 					</button>
 					
 					<button 
@@ -198,7 +197,7 @@
 						disabled={isSaving}
 						class="px-6 py-3 text-sm font-semibold text-black bg-white border-2 border-black hover:bg-gray-100 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						✕ Cancelar
+						✕ Cancel
 					</button>
 				</div>
 			</form>
@@ -214,7 +213,7 @@
 		<a 
 			href="/danny" 
 			class="inline-block bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors">
-			← Tillbaka
+			← Back
 		</a>
 		
 		{#if showActions && !isEditMode}
@@ -224,7 +223,7 @@
 					type="button"
 					onclick={toggleEditMode}
 					class="bg-yellow-400 text-black px-6 py-3 font-semibold hover:bg-yellow-500 transition-colors rounded">
-					✏️ Editar
+					✏️ Edit
 				</button>
 			{:else}
 				<!-- Login button for non-authenticated users -->
@@ -232,7 +231,7 @@
 					type="button"
 					onclick={() => showLoginModal = true}
 					class="bg-gray-200 text-gray-700 px-6 py-3 font-semibold hover:bg-gray-300 transition-colors rounded">
-					🔒 Logga in för att redigera
+					🔒 Log in to edit
 				</button>
 			{/if}
 		{/if}

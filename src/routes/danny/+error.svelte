@@ -13,7 +13,7 @@
 		<a 
 			href="/danny" 
 			class="inline-block bg-yellow-400 text-black px-8 py-3 font-bold hover:bg-yellow-300 transition-colors">
-			← Tillbaka hem
+			← Back home
 		</a>
 		
 		<!-- Debug info -->
