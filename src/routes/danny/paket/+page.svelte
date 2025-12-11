@@ -393,21 +393,6 @@
 			</div>
 		</section>
 	{/if}
-
-	<!-- Footer CTA -->
-	<section class="bg-black text-white py-16 px-6">
-		<div class="max-w-4xl mx-auto text-center">
-			<h2 class="text-3xl md:text-4xl font-bold mb-6">Redo att börja din resa?</h2>
-			<p class="text-lg text-gray-300 mb-8">
-				Kontakta mig idag för en kostnadsfri konsultation
-			</p>
-			<a
-				href="mailto:danny@cranmer.se"
-				class="inline-block bg-yellow-400 text-black px-10 py-4 font-bold text-lg hover:bg-yellow-300 transition-colors duration-200 rounded-full">
-				Boka nu
-			</a>
-		</div>
-	</section>
 </div>
 
 <style>
