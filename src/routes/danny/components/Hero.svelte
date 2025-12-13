@@ -10,7 +10,7 @@
 	<Menu />
 	<div class="max-w-6xl mx-auto text-center">
 		{#if title}
-			<h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+			<h1 class="text-2xl md:text-4xl font-bold mb-6 tracking-tight">
 				{title}
 			</h1>
 		{/if}
