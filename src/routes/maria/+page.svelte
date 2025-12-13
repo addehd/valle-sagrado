@@ -173,8 +173,8 @@
 
 <!-- Fixed language toggle button -->
 <button 
-	on:click={toggleLanguage}
-	class="fixed top-6 right-6 z-50 text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer bg-white/80 backdrop-blur-sm rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
+	onclick={toggleLanguage}
+	class="fixed top-4 right-4 z-50 text-base hover:scale-105 transition-transform duration-200 cursor-pointer rounded w-7 h-7 flex items-center justify-center"
 	aria-label="Toggle language between English and Swedish"
 	title="{currentLanguage === 'en' ? 'Switch to Swedish' : 'Switch to English'}">
 	{currentLanguage === 'en' ? '🇬🇧' : '🇸🇪'}
