@@ -1,15 +1,15 @@
 {
   "en": {
-    "breadcrumb": "Freesbe",
+    "breadcrumb": "Tryckbart",
     "title": "Print on Demand Services",
-    "subtitle": "Custom printing solutions for your business, events, and personal needs. High-quality prints on frisbees, sweatshirts, coffee cups, and more.",
+    "subtitle": "Custom printing solutions for your business, events, and personal needs. High-quality prints on Tryckbart, sweatshirts, coffee cups, and more.",
     "viewAllServices": "View All Services",
     "getQuoteAllServices": "Get Quote for All Services",
     "requestQuoteSelected": "Request Quote for Selected",
     "services": [
       {
         "title": "Custom Frisbee Printing",
-        "description": "High-quality UV-resistant prints on durable frisbees. Perfect for events, promotions, and gifts.",
+        "description": "High-quality UV-resistant prints on durable Tryckbart. Perfect for events, promotions, and gifts.",
         "price": "From $8.99"
       },
       {
@@ -72,16 +72,16 @@
     }
   },
   "sv": {
-    "breadcrumb": "Freesbe",
+    "breadcrumb": "Tryckbart",
     "title": "Print on Demand-tjänster",
-    "subtitle": "Anpassade trycklösningar för ditt företag, evenemang och personliga behov. Högkvalitativa tryck på frisbees, sweatshirts, kaffemuggar och mycket mer.",
+    "subtitle": "Anpassade trycklösningar för ditt företag, evenemang och personliga behov. Högkvalitativa tryck på Tryckbart, sweatshirts, kaffemuggar och mycket mer.",
     "viewAllServices": "Visa alla tjänster",
     "getQuoteAllServices": "Få offert för alla tjänster",
     "requestQuoteSelected": "Begär offert för valda",
     "services": [
       {
-        "title": "Specialtryck på Frisbees",
-        "description": "Högkvalitativa UV-beständiga tryck på slitstarka frisbees. Perfekt för evenemang, kampanjer och gåvor.",
+        "title": "Specialtryck på Tryckbart",
+        "description": "Högkvalitativa UV-beständiga tryck på slitstarka Tryckbart. Perfekt för evenemang, kampanjer och gåvor.",
         "price": "Från 8,99 USD"
       },
       {
