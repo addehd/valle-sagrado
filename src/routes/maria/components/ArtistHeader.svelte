@@ -5,9 +5,11 @@
     name: string;
     displayMode?: 'fullscreen' | 'side' | 'centered';
     onDisplayModeChange?: (mode: 'fullscreen' | 'side') => void;
+    currentLanguage?: 'en' | 'sv';
+    onLanguageToggle?: () => void;
   }
   
-  let { name, displayMode = 'side', onDisplayModeChange }: Props = $props();
+  let { name, displayMode = 'side', onDisplayModeChange, currentLanguage = 'en', onLanguageToggle }: Props = $props();
   
   let headerElement: HTMLElement;
   let titleColor = $state('text-gray-600'); // default color for title only
@@ -298,6 +300,16 @@
     <!-- Display mode controls -->
     {#if showFullscreenButton}
       <div class="flex gap-2 mt-4 fixed bottom-11 left-11 max-md:static max-md:justify-center max-md:mt-4 transition-opacity duration-300">
+        <!-- Language toggle button -->
+        <button 
+          class="px-3 py-1 text-sm rounded transition-all duration-200 flex items-center gap-2 bg-white bg-opacity-20 hover:bg-opacity-40"
+          onclick={onLanguageToggle}
+          aria-label="Toggle language between English and Swedish"
+          title={currentLanguage === 'en' ? 'Switch to Swedish' : 'Switch to English'}>
+          <span class="text-base">{currentLanguage === 'en' ? '🇬🇧' : '🇸🇪'}</span>
+        </button>
+        
+        <!-- Fullscreen toggle button -->
         <button 
           class="px-3 py-1 text-sm rounded transition-all duration-200 flex items-center gap-2"
           class:bg-gray-600={displayMode === 'fullscreen'}

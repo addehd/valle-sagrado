@@ -171,20 +171,13 @@
 
 <svelte:window bind:scrollY bind:innerHeight />
 
-<!-- Fixed language toggle button -->
-<button 
-	onclick={toggleLanguage}
-	class="fixed top-4 right-4 z-50 text-base hover:scale-105 transition-transform duration-200 cursor-pointer rounded w-7 h-7 flex items-center justify-center"
-	aria-label="Toggle language between English and Swedish"
-	title="{currentLanguage === 'en' ? 'Switch to Swedish' : 'Switch to English'}">
-	{currentLanguage === 'en' ? '🇬🇧' : '🇸🇪'}
-</button>
-
 <div class="relative w-full min-h-screen transition-all duration-100 ease-out overflow-hidden" style="background-color: {currentBackgroundColor}">
 	<ArtistHeader 
 		name="Maria Ocampo" 
 		displayMode={displayMode} 
-		onDisplayModeChange={handleDisplayModeChange} />
+		onDisplayModeChange={handleDisplayModeChange}
+		{currentLanguage}
+		onLanguageToggle={toggleLanguage} />
 	
 	<!-- Fullscreen hero section with fading images -->
 	<section class="w-full h-screen flex items-center justify-center relative bg-white">
