@@ -96,7 +96,7 @@
 		<div class="text-center">
 			<h1 class="text-4xl font-bold mb-4">Error</h1>
 			<p>No page data available</p>
-			<a href="/danny" class="mt-4 inline-block bg-black text-white px-6 py-3">← Back</a>
+			<a href="/" class="mt-4 inline-block bg-black text-white px-6 py-3">← Back</a>
 		</div>
 	</div>
 {:else}

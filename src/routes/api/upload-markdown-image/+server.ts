@@ -1,6 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
+// Vercel-specific config for file uploads
+export const config = {
+  maxDuration: 30
+};
+
 console.log('✅ /api/upload-markdown-image endpoint loaded at', new Date().toISOString());
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -32,10 +37,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       return json({ success: false, message: 'Invalid file type' }, { status: 400 });
     }
 
-    const MAX_SIZE = 5 * 1024 * 1024;
+    const MAX_SIZE = 4.5 * 1024 * 1024; // Vercel's default limit
     if (file.size > MAX_SIZE) {
       console.log('❌ File too large:', file.size);
-      return json({ success: false, message: 'File too large' }, { status: 400 });
+      return json({ success: false, message: 'File too large (max 4.5MB)' }, { status: 400 });
     }
 
     console.log('=============================================');

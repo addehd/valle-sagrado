@@ -87,7 +87,8 @@
 				</label>
 		<MarkdownEditor 
 			value={content} 
-			onChange={handleContentChange} />
+			onChange={handleContentChange}
+			uploadEndpoint="/danny/{page.slug}" />
 				<input type="hidden" name="content" bind:value={content} />
 			</div>
 			

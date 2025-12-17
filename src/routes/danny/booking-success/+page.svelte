@@ -86,13 +86,13 @@
 				</div>
 			</div>
 
-			<!-- Action Buttons -->
-			<div class="flex flex-col sm:flex-row gap-4">
-				<a
-					href="/danny"
-					class="flex-1 text-center bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors rounded-lg">
-					← Tillbaka till startsidan
-				</a>
+		<!-- Action Buttons -->
+		<div class="flex flex-col sm:flex-row gap-4">
+			<a
+				href="/"
+				class="flex-1 text-center bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors rounded-lg">
+				← Tillbaka till startsidan
+			</a>
 				<a
 					href="/danny/paket"
 					class="flex-1 text-center bg-white border-2 border-black text-black px-6 py-3 font-semibold hover:bg-gray-50 transition-colors rounded-lg">
