@@ -1,10 +1,16 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-console.log('✅ +server.ts module loaded at', new Date().toISOString());
+console.log('✅ /danny/[slug]/+server.ts module loaded at', new Date().toISOString());
 
-export const POST: RequestHandler = async ({ request, locals }) => {
-	console.log('🚀 POST endpoint called');
+export const POST: RequestHandler = async ({ request, locals, params }) => {
+	console.log('=============================================');
+	console.log('🚀 DANNY ROUTE POST ENDPOINT CALLED');
+	console.log('=============================================');
+	console.log('📍 Route: /danny/[slug]/+server.ts');
+	console.log('📍 Slug param:', params.slug);
+	console.log('📍 Timestamp:', new Date().toISOString());
+	console.log('📍 Request URL:', request.url);
 	
 	try {
 		const { supabase } = locals;
@@ -66,12 +72,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.from('teacher')
 			.getPublicUrl(filePath);
 		
-		console.log('✅ Uploaded to Supabase Storage:', publicUrlData.publicUrl);
-		return json({
-			success: true,
-			url: publicUrlData.publicUrl,
-			fileName: file.name
-		});
+	console.log('✅ Image uploaded successfully to Supabase Storage');
+	console.log('✅ Public URL:', publicUrlData.publicUrl);
+	console.log('=============================================');
+	console.log('✅ DANNY ROUTE UPLOAD COMPLETE');
+	console.log('=============================================');
+	return json({
+		success: true,
+		url: publicUrlData.publicUrl,
+		fileName: file.name
+	});
 
 	} catch (err) {
 		console.error('💥 ERROR in POST handler:', err);

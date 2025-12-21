@@ -186,7 +186,12 @@
     uploadError = null;
 
     try {
+      console.log('=============================================');
+      console.log('📸 MARKDOWN EDITOR: Image Upload Started');
+      console.log('=============================================');
       console.log('📸 Image selected:', file.name, file.size, file.type);
+      console.log('📋 uploadEndpoint prop:', uploadEndpoint);
+      console.log('📋 pageId prop:', pageId);
 
       // Use form action (same approach as regular form)
       const formData = new FormData();
@@ -195,7 +200,7 @@
         formData.append('pageId', pageId);
       }
 
-      console.log('📤 Sending to form action:', uploadEndpoint);
+      console.log('📤 uploadEndpoint value:', uploadEndpoint);
 
       // Resolve endpoint/action: if caller passed `?/action`, post to current page with that action
       let endpoint = uploadEndpoint;
@@ -208,6 +213,12 @@
         endpoint = typeof window !== 'undefined' ? window.location.pathname : '';
       }
 
+      console.log('=============================================');
+      console.log('🚀 SENDING REQUEST TO:', endpoint);
+      console.log('📍 Full URL:', typeof window !== 'undefined' ? new URL(endpoint, window.location.origin).href : endpoint);
+      console.log('📍 Action name:', actionName);
+      console.log('=============================================');
+
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
@@ -219,6 +230,9 @@
         credentials: 'include'
       });
 
+      console.log('=============================================');
+      console.log('📥 RESPONSE RECEIVED');
+      console.log('=============================================');
       console.log('📥 Response status:', response.status);
       console.log('📥 Content-Type:', response.headers.get('content-type'));
 
