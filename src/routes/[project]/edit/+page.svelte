@@ -214,7 +214,8 @@
           <label for="project_info" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Información del Proyecto</label>
           <MarkdownEditor 
             value={teacherInfo} 
-            onChange={handleTeacherInfoChange} 
+            onChange={handleTeacherInfoChange}
+            uploadEndpoint="?/uploadImage"
           />
           <input type="hidden" name="project_info" bind:value={teacherInfo} />
         </div>

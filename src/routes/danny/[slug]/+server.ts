@@ -3,10 +3,12 @@ import type { RequestHandler } from './$types';
 
 console.log('✅ +server.ts module loaded at', new Date().toISOString());
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	console.log('🚀 POST endpoint called');
 	
 	try {
+		const { supabase } = locals;
+		
 		console.log('📦 Parsing form data...');
 		const formData = await request.formData();
 		const file = formData.get('file') as File;
@@ -41,13 +43,33 @@ export const POST: RequestHandler = async ({ request }) => {
 		console.log('Timestamp:', new Date().toISOString());
 		console.log('=============================================');
 
-		// Return mock response
-		const mockUrl = `https://placehold.co/600x400/09f/fff?text=${encodeURIComponent(file.name)}`;
+		// Generate unique filename
+		const fileExt = file.name.split('.').pop();
+		const fileName = `markdown-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+		const filePath = `markdown-images/${fileName}`;
+
+		// Upload to Supabase Storage
+		const { error: storageError } = await supabase.storage
+			.from('teacher')
+			.upload(filePath, file, {
+				cacheControl: '3600',
+				upsert: false
+			});
+
+		if (storageError) {
+			console.error('❌ Storage upload error:', storageError);
+			return json({ success: false, message: `Upload error: ${storageError.message}` }, { status: 500 });
+		}
+
+		// Get public URL
+		const { data: publicUrlData } = supabase.storage
+			.from('teacher')
+			.getPublicUrl(filePath);
 		
-		console.log('✅ Returning success with mock URL');
+		console.log('✅ Uploaded to Supabase Storage:', publicUrlData.publicUrl);
 		return json({
 			success: true,
-			url: mockUrl,
+			url: publicUrlData.publicUrl,
 			fileName: file.name
 		});
 

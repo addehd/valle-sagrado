@@ -2,6 +2,62 @@ import { fail } from '@sveltejs/kit'
 import type { Actions } from './$types'
 
 export const actions = {
+  uploadImage: async ({ request, locals }) => {
+    const { user, supabase } = locals;
+    if (!user) {
+      return fail(401, { success: false, message: 'Unauthorized' });
+    }
+
+    try {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const pageId = formData.get('pageId')?.toString();
+
+      if (!file || file.size === 0) {
+        return fail(400, { success: false, message: 'File is required' });
+      }
+
+      if (!file.type.startsWith('image/')) {
+        return fail(400, { success: false, message: 'Invalid file type' });
+      }
+
+      const MAX_SIZE = 4.5 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        return fail(400, { success: false, message: 'File too large (max 4.5MB)' });
+      }
+
+      // Upload to storage
+      const objectPath = `markdown-images/${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(objectPath, file, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Failed to upload image:', uploadError);
+        return fail(500, { success: false, message: 'Error uploading image' });
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('projects')
+        .getPublicUrl(objectPath);
+
+      return {
+        success: true,
+        url: publicUrl,
+        fileName: file.name
+      };
+    } catch (err) {
+      console.error('Error in uploadImage:', err);
+      return fail(500, {
+        success: false,
+        message: err instanceof Error ? err.message : 'Error uploading image'
+      });
+    }
+  },
+
   createProfile: async ({ request, locals: { supabase } }) => {
     const formData = await request.formData()
     
