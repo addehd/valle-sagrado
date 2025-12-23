@@ -277,11 +277,11 @@
 							in:fly={{ y: 50, duration: 400, delay: i * 100, easing: quintOut }}
 							class="relative bg-white border-4 border-black p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
 							<!-- Payment Button -->
-							<!-- <button
+							<button
 								onclick={() => openPaymentModal(pkg)}
 								class="absolute top-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-semibold px-3 py-1.5 rounded-full transition-colors duration-200">
 								Betala online
-							</button> -->
+							</button>
 							
 							{#if pkg.badge}
 								<div
@@ -480,9 +480,14 @@
 				<!-- Customer Information Form -->
 				<form method="POST" action="?/createCheckout" use:enhance={() => {
 					isSubmitting = true;
-					return async ({ update }) => {
-						await update();
-						isSubmitting = false;
+					return async ({ result, update }) => {
+						if (result.type === 'success' && result.data?.checkoutUrl) {
+							// Redirect to Stripe checkout
+							window.location.href = result.data.checkoutUrl;
+						} else {
+							await update();
+							isSubmitting = false;
+						}
 					};
 				}} class="space-y-4">
 					<!-- Hidden fields for package data -->
