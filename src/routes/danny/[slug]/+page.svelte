@@ -172,12 +172,12 @@
 					<label class="block mb-2 text-sm font-medium text-gray-900">
 						Content
 					</label>
-				<MarkdownEditor 
-					value={editContent} 
-					onChange={handleContentChange}
-					uploadEndpoint={`/danny/${page.slug}`}
-					pageId={page.id} 
-				/>
+			<MarkdownEditor 
+				value={editContent} 
+				onChange={handleContentChange}
+				uploadEndpoint="?/uploadImage"
+				pageId={page.id} 
+			/>
 					<input type="hidden" name="content" bind:value={editContent} />
 				</div>
 				
