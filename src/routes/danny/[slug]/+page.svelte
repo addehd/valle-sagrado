@@ -211,7 +211,7 @@
 
 	<div class="max-w-4xl mx-auto px-6 pb-16 flex gap-4 position: sticky; bottom: 50px;">
 		<a 
-			href="/danny" 
+			href="/" 
 			class="inline-block bg-black text-white px-6 py-3 font-semibold hover:bg-gray-800 transition-colors">
 			← Back
 		</a>
