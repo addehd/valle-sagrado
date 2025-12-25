@@ -1,8 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-console.log('✅ /danny/[slug]/+server.ts module loaded at', new Date().toISOString());
-
 export const POST: RequestHandler = async ({ request, locals, params }) => {
 	console.log('=============================================');
 	console.log('🚀 DANNY ROUTE POST ENDPOINT CALLED');
@@ -38,16 +36,6 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 			console.log('❌ File too large:', file.size);
 			return json({ success: false, message: 'File too large' }, { status: 400 });
 		}
-
-		// Log image details
-		console.log('=============================================');
-		console.log('📸 IMAGE RECEIVED ON SERVER');
-		console.log('=============================================');
-		console.log('File name:', file.name);
-		console.log('File type:', file.type);
-		console.log('File size:', `${(file.size / 1024).toFixed(2)} KB`);
-		console.log('Timestamp:', new Date().toISOString());
-		console.log('=============================================');
 
 		// Generate unique filename
 		const fileExt = file.name.split('.').pop();

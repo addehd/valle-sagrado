@@ -5,33 +5,20 @@ export const load = async ({ params, locals }) => {
 	const { supabase, user } = locals;
 	const { slug } = params;
 
-	// Fetch the page from coach_pages table
-	// Try by user_id first, then by project_id if that fails
-	let { data: page, error: pageError } = await supabase
+	// Optimized: Single query instead of sequential fallback queries
+	// Query by slug + is_active (slug should be unique, making this the fastest path)
+	const { data: page, error: pageError } = await supabase
 		.from('coach_pages')
 		.select('*')
 		.eq('slug', slug)
-		.eq('user_id', 'aff48303-4d2e-4899-8a48-39b05dab17d3')
 		.eq('is_active', true)
-		.single();
-
-	// If not found by user_id, try by project_id
-	if (pageError || !page) {
-		const result = await supabase
-			.from('coach_pages')
-			.select('*')
-			.eq('slug', slug)
-			.eq('is_active', true)
-			.single();
-		page = result.data;
-		pageError = result.error;
-	}
+		.maybeSingle();
 
 	if (pageError || !page) {
 		throw error(404, `Page "${slug}" not found`);
 	}
 
-	// Check if there are other language versions of this page
+	// Fetch alternate pages (depends on page data, so can't parallelize)
 	const { data: alternatePages } = await supabase
 		.from('coach_pages')
 		.select('slug, language, title')
