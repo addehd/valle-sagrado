@@ -21,7 +21,10 @@
     <img 
       src={project?.hero_img || project?.profile_image_url || "/images/valle.jpg"}
       alt={project?.name} 
+      width="1200"
+      height="600"
       class="w-full h-64 md:h-96 object-cover shadow-lg" 
+      loading="eager"
     />
   </div>
 
@@ -30,6 +33,8 @@
       <img 
         src={project?.profile_image_url} 
         alt={project?.name} 
+        width="80"
+        height="80"
         class="w-20 h-20 mr-2 rounded-full" 
       />
       <div class="flex flex-col justify-start ml-2 text-shadow-lg">
