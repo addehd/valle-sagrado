@@ -20,3 +20,8 @@ I will host multiple side CRUD on web.
 
 [] UX
 [] social media?
+
+
+/rikuy 
+[] project page 404
+[] ecommerce?
