@@ -1,6 +1,13 @@
 import { redirect, type RequestEvent } from '@sveltejs/kit'
 
-import type { Actions } from './$types'
+import type { Actions, PageServerLoad } from './$types'
+
+export const load: PageServerLoad = async ({ url }) => {
+	const passwordReset = url.searchParams.get('password_reset');
+	return {
+		passwordResetSuccess: passwordReset === 'success'
+	};
+};
 
 export const actions: Actions = {
   signup: async ({ request, locals: { supabase } }) => {

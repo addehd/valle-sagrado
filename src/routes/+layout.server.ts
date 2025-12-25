@@ -13,11 +13,18 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
   if (isLocalhost) {
     const devDomainPreference = cookies.get('dev-domain-preference');
     
-    // Root routes that should never be rewritten
-    const rootRoutes = ['/auth', '/create'];
-    const isRootRoute = rootRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+    // Root routes that should never be rewritten - including root path for route selection
+    const rootRoutes = ['/auth', '/create', '/api', '/admin'];
+    const normalizedPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
+    const isRootRoute = rootRoutes.some(route => 
+      normalizedPath === route || normalizedPath.startsWith(route + '/')
+    );
+    const isRootPath = pathname === '/' || pathname === '';
 
-    if (devDomainPreference && !isRootRoute) {
+    // Never redirect root path or root routes - allow them to show as-is
+    if (isRootPath || isRootRoute) {
+      // Don't redirect - let the route show normally
+    } else if (devDomainPreference) {
       const domainPrefix = `/${devDomainPreference}`;
       
       // Strip any existing domain prefix to get the base path

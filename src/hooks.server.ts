@@ -166,16 +166,6 @@ const authGuard: Handle = async ({ event, resolve }) => {
     redirect(303, '/')
   }
 
-  // // /
-  // if (isLoggedIn && event.url.pathname === '/') {
-  //   redirect(303, '/arkiv')
-  // }
-
-  // // /hangaren/32
-  // if (!isLoggedIn && event.url.pathname === '/') {
-  //   redirect(303, '/hangaren/32')
-  // }
-
   return resolve(event)
 }
 
@@ -185,9 +175,28 @@ const authGuard: Handle = async ({ event, resolve }) => {
  */
 const domainDetection: Handle = async ({ event, resolve }) => {
   const host = event.request.headers.get('host')
-  console.log('--------------------------------');
-  console.log('[domainDetection] host:', host);
-  console.log('[domainDetection] pathname:', event.url.pathname);
+  const pathname = event.url.pathname
+  
+  // Never set domain for root routes - they exist at root level
+  // This ensures root routes are never affected by domain detection
+  const rootRoutes = ['/auth', '/create', '/api', '/admin'];
+  const normalizedPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
+  const isRootRoute = rootRoutes.some(route => 
+    normalizedPath === route || normalizedPath.startsWith(route + '/')
+  );
+  
+  // Also never set domain for root path on localhost (allows cookie selection)
+  const isLocalhost = host === 'localhost' || host?.startsWith('127.0.0.1');
+  const isRootPath = pathname === '/';
+  
+  if (isRootRoute || (isLocalhost && isRootPath)) {
+    console.log('[domainDetection] Skipping domain detection for root route:', pathname);
+    const response = await resolve(event)
+    response.headers.set('x-debug-host', host || 'unknown')
+    response.headers.set('x-debug-pathname', pathname)
+    response.headers.set('x-debug-domain', 'none (root route)')
+    return response
+  }
   
   // Set domain identifier for use in routes
   if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
@@ -199,13 +208,20 @@ const domainDetection: Handle = async ({ event, resolve }) => {
   } else if (host === 'valle-sagrado.test' || host === 'www.valle-sagrado.test') {
     // Development domain defaults to Danny
     event.locals.domain = 'danny'
+  } else if (isLocalhost) {
+    // On localhost, check cookie preference for domain detection
+    const domainCookie = event.cookies.get('dev-domain-preference');
+    if (domainCookie && ['danny', 'maria', 'rikuy'].includes(domainCookie)) {
+      event.locals.domain = domainCookie;
+      console.log('[domainDetection] Using cookie preference:', domainCookie);
+    }
   }
   
   const response = await resolve(event)
   
   // Add debug headers (visible in browser DevTools Network tab)
   response.headers.set('x-debug-host', host || 'unknown')
-  response.headers.set('x-debug-pathname', event.url.pathname)
+  response.headers.set('x-debug-pathname', pathname)
   response.headers.set('x-debug-domain', event.locals.domain || 'none')
   
   return response

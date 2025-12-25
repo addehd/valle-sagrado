@@ -1,5 +1,7 @@
 <script lang="ts">
 	import LoginFormFields from './LoginFormFields.svelte';
+	
+	let { data }: { data?: { passwordResetSuccess?: boolean } } = $props();
 </script>
 
 <section class="bg-[url('/images/valle.jpg')] bg-no-repeat bg-cover bg-center bg-gray-900/70 bg-blend-multiply">
@@ -12,6 +14,13 @@
               <h1 class="text-xl font-bold leading-tight tracking-tight text-center text-gray-900 md:text-2xl dark:text-white">
                 Logga in
               </h1>
+              
+              {#if data?.passwordResetSuccess}
+                <div class="p-4 mb-4 text-sm text-green-800 bg-green-50 rounded-lg dark:bg-green-900/50 dark:text-green-400" role="alert">
+                  Lösenordet har återställts! Du kan nu logga in med ditt nya lösenord.
+                </div>
+              {/if}
+              
               <LoginFormFields />
           </div>
       </div>
