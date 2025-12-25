@@ -199,22 +199,31 @@ const domainDetection: Handle = async ({ event, resolve }) => {
   }
   
   // Set domain identifier for use in routes
-  if (host === 'mariaocampo.se' || host === 'www.mariaocampo.se') {
-    event.locals.domain = 'maria'
-  } else if (host === 'cranmer.se' || host === 'www.cranmer.se') {
-    event.locals.domain = 'danny'
-  } else if (host === 'rikuy.one' || host === 'www.rikuy.one') {
-    event.locals.domain = 'rikuy'
-  } else if (host === 'valle-sagrado.test' || host === 'www.valle-sagrado.test') {
-    // Development domain defaults to Danny
-    event.locals.domain = 'danny'
-  } else if (isLocalhost) {
-    // On localhost, check cookie preference for domain detection
-    const domainCookie = event.cookies.get('dev-domain-preference');
-    if (domainCookie && ['danny', 'maria', 'rikuy'].includes(domainCookie)) {
-      event.locals.domain = domainCookie;
-      console.log('[domainDetection] Using cookie preference:', domainCookie);
-    }
+  // Normalize host by removing 'www.' prefix for cleaner switch
+  const normalizedHost = host?.replace(/^www\./, '') || '';
+  
+  switch (normalizedHost) {
+    case 'mariaocampo.se':
+      event.locals.domain = 'maria'
+      break
+    case 'cranmer.se':
+    case 'valle-sagrado.test':
+      // Development domain defaults to Danny
+      event.locals.domain = 'danny'
+      break
+    case 'rikuy.one':
+      event.locals.domain = 'rikuy'
+      break
+    default:
+      if (isLocalhost) {
+        // On localhost, check cookie preference for domain detection
+        const domainCookie = event.cookies.get('dev-domain-preference');
+        if (domainCookie && ['danny', 'maria', 'rikuy'].includes(domainCookie)) {
+          event.locals.domain = domainCookie;
+          console.log('[domainDetection] Using cookie preference:', domainCookie);
+        }
+      }
+      break
   }
   
   const response = await resolve(event)
