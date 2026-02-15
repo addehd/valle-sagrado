@@ -26,7 +26,7 @@
     // update innerhtml to use the random background color
     el.innerHTML = `
       <div class="${randomBgColor} border-white border-[0.5px] p-2 px-4 flex flex-row items-center justify-center rounded-full shadow-lg">
-        <a href="/${teacher.url}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
+        <a href="/rikuy/${teacher.url}" class="text-white text-xs font-bold">${teacher.name || 'T'}</a>
         <img src="/images/astro-icon.svg" class="ml-2 w-6 h-6 filter brightness-0 invert" />
       </div>
     `;

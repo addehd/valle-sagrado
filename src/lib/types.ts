@@ -23,6 +23,8 @@ export interface Product {
 	price: number;
 	compare_at_price?: number;
 	sale_price?: number;
+	sale_start?: string;
+	sale_end?: string;
 	cost_price?: number;
 	currency: string;
 	images: string[] | any; // Allow both string array and JSONB

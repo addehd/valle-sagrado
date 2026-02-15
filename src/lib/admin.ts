@@ -35,9 +35,9 @@ export function isSuperAdmin(user: User | null): boolean {
  */
 export function requireAdmin(user: User | null, redirectTo: string = '/auth'): asserts user is AdminUser {
 	if (!user) {
-		throw redirect(303, `${redirectTo}?redirect=/admin`);
+		throw redirect(303, redirectTo);
 	}
-	
+
 	if (!isAdmin(user)) {
 		throw redirect(303, '/auth/unauthorized');
 	}
@@ -48,9 +48,9 @@ export function requireAdmin(user: User | null, redirectTo: string = '/auth'): a
  */
 export function requireSuperAdmin(user: User | null, redirectTo: string = '/auth'): asserts user is AdminUser {
 	if (!user) {
-		throw redirect(303, `${redirectTo}?redirect=/admin`);
+		throw redirect(303, redirectTo);
 	}
-	
+
 	if (!isSuperAdmin(user)) {
 		throw redirect(303, '/auth/unauthorized');
 	}

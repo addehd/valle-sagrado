@@ -19,7 +19,7 @@ export const reroute: Reroute = ({ url }) => {
   
   // Never rewrite these routes - they exist at root level
   // This check MUST happen first, before any domain-based routing logic
-  const rootRoutes = ['/auth', '/create', '/api', '/admin'];
+  const rootRoutes = ['/auth', '/create', '/api'];
   // Normalize pathname (remove trailing slash for exact match check)
   const normalizedPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
   const isRootRoute = rootRoutes.some(route => 

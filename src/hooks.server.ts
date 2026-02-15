@@ -145,7 +145,10 @@ const authGuard: Handle = async ({ event, resolve }) => {
   }
 
   // Log admin route access for debugging curl commands
-  if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
+  // Handle both old /admin and new /rikuy/[project]/admin paths
+  const isAdminRoute = event.url.pathname.startsWith('/api/admin') ||
+    event.url.pathname.match(/^\/rikuy\/[^/]+\/admin/);
+  if (isAdminRoute) {
     const cookies = event.cookies.getAll();
     const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
     
@@ -179,7 +182,7 @@ const domainDetection: Handle = async ({ event, resolve }) => {
   
   // Never set domain for root routes - they exist at root level
   // This ensures root routes are never affected by domain detection
-  const rootRoutes = ['/auth', '/create', '/api', '/admin'];
+  const rootRoutes = ['/auth', '/create', '/api'];
   const normalizedPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
   const isRootRoute = rootRoutes.some(route => 
     normalizedPath === route || normalizedPath.startsWith(route + '/')

@@ -14,7 +14,7 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
     const devDomainPreference = cookies.get('dev-domain-preference');
     
     // Root routes that should never be rewritten - including root path for route selection
-    const rootRoutes = ['/auth', '/create', '/api', '/admin'];
+    const rootRoutes = ['/auth', '/create', '/api'];
     const normalizedPath = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
     const isRootRoute = rootRoutes.some(route => 
       normalizedPath === route || normalizedPath.startsWith(route + '/')
