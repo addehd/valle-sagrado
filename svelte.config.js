@@ -25,12 +25,7 @@ const config = {
   // Enable Svelte Inspector via the built-in vite-plugin-svelte integration
   // https://github.com/sveltejs/vite-plugin-svelte/blob/main/docs/inspector.md
   vitePlugin: {
-    inspector: {
-      toggleKeyCombo: 'meta-shift',
-      holdMode: false,
-      showToggleButton: 'active',
-      toggleButtonPos: 'top-right'
-    }
+    inspector: false
   }
 };
 
