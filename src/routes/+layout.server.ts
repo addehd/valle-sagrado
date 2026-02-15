@@ -29,7 +29,7 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
       
       // Strip any existing domain prefix to get the base path
       let basePath = pathname;
-      const domainPrefixes = ['/danny', '/maria', '/rikuy'];
+      const domainPrefixes = ['/danny', '/maria', '/rikuy', '/tryckbart'];
       for (const prefix of domainPrefixes) {
         if (pathname.startsWith(prefix)) {
           basePath = pathname.slice(prefix.length) || '/';

@@ -11,7 +11,7 @@ I will host multiple side CRUD on web.
 /danny
 [] check speed
 
-[] Implement admin portal for users.
+y[] Implement admin portal for users. Users can login and see payments from stripe. 
     [] See payments
 [] admin partal
     [] journal users

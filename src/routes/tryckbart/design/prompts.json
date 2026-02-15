@@ -1,0 +1,10 @@
+{
+	"predefinedOptions": {
+		"red-flowers": "single bold flower silhouette",
+		"minimalist-icon": "simple geometric icon",
+		"vintage-badge": "basic circular badge outline",
+		"geometric-pattern": "simple repeating shapes",
+		"nature-inspired": "single leaf silhouette"
+	},
+	"promptTemplate": "Screen print ready design: {{prompt}}. MUST be extremely simple with bold shapes, thick clean outlines, single solid black color only, no gradients, no shading, no fine details, no texture, no text, pure white background, suitable for 1-color screen printing stencil."
+}

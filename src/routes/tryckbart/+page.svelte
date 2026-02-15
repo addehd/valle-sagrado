@@ -1,21 +1,22 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import translationsData from './translations.json';
 	import QuoteModal from '../../components/QuoteModal.svelte';
-	
+	import InstagramFeed from '../../components/InstagramFeed.svelte';
+	import translationsData from './translations.json';
+	import type { PageData } from './$types';
+
 	interface Service {
 		id: number;
 		popular: boolean;
 		selected: boolean;
 	}
-	
+
 	type Language = 'en' | 'sv';
-	
-	let currentLanguage: Language = 'sv';
-	let translations = translationsData[currentLanguage];
-	let showQuoteModal = false;
-	
-	let services: Service[] = [
+
+	let { data } = $props<{ data: PageData }>();
+
+	let currentLanguage = $state<Language>('sv');
+	let showQuoteModal = $state(false);
+	let services = $state<Service[]>([
 		{
 			id: 1,
 			popular: false,
@@ -33,40 +34,40 @@
 		},
 		{
 			id: 4,
-			popular: true, 
+			popular: true,
 			selected: true
 		}
-	];
-	
-	$: selectedCount = services.filter(service => service.selected).length;
-	$: translations = translationsData[currentLanguage];
-	$: selectedServices = services.filter(service => service.selected);
-	
+	]);
+
+	const translations = $derived(translationsData[currentLanguage]);
+	const selectedCount = $derived(services.filter(service => service.selected).length);
+	const selectedServices = $derived(services.filter(service => service.selected));
+	const instagramPosts = $derived(data.instagramPosts ?? []);
+
 	function toggleLanguage() {
 		currentLanguage = currentLanguage === 'en' ? 'sv' : 'en';
 	}
-	
+
 	function toggleService(id: number) {
-		services = services.map(service => 
+		services = services.map(service =>
 			service.id === id ? { ...service, selected: !service.selected } : service
 		);
 	}
-	
+
 	function requestQuote() {
 		if (selectedCount > 0) {
 			showQuoteModal = true;
 		}
 	}
-	
+
 	function handleModalClose() {
 		showQuoteModal = false;
 	}
-	
+
 	function handleQuoteSuccess(event: CustomEvent) {
 		console.log('Quote request successful:', event.detail);
-		// You can add success notification logic here
 	}
-	
+
 	function viewAllServices() {
 		console.log('Viewing all services');
 	}
@@ -80,8 +81,8 @@
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-[5]">
 		<!-- Language Toggle -->
 		<div class="flex justify-end mb-4">
-			<button 
-				on:click={toggleLanguage}
+			<button
+				onclick={toggleLanguage}
 				class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200">
 				<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
@@ -108,17 +109,15 @@
 			</p>
 			
 			<div class="flex flex-wrap gap-4">
-				<button 
-					on:click={viewAllServices}
-					class="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors"
-				>
+				<button
+					onclick={viewAllServices}
+					class="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors">
 					{translations.viewAllServices}
 				</button>
 				
-				<button 
-					on:click={requestQuote}
-					class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50 transition-colors flex items-center gap-2"
-				>
+				<button
+					onclick={requestQuote}
+					class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-50 transition-colors flex items-center gap-2">
 					<span>{translations.getQuoteAllServices}</span>
 					<div class="bg-gray-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
 						4
@@ -153,14 +152,13 @@
 						<div class="flex items-center gap-3">
 							<!-- Checkmark button -->
 							<button 
-								on:click={() => toggleService(service.id)}
+								onclick={() => toggleService(service.id)}
 								class="w-8 h-8 rounded-full border-2 transition-all duration-200 flex items-center justify-center
 									{service.selected 
 										? 'bg-orange-500 border-orange-500 text-white' 
 										: 'border-gray-300 hover:border-gray-400'
 									}"
-								aria-label="Select {translations.services[i].title}"
-							>
+								aria-label="Select {translations.services[i].title}">
 								{#if service.selected}
 									<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
 										<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -171,8 +169,7 @@
 							<!-- Quote button -->
 							<button 
 								aria-label="Get quote for {translations.services[i].title}"
-								class="w-8 h-8 text-gray-400 hover:text-orange-500 transition-colors"
-							>
+								class="w-8 h-8 text-gray-400 hover:text-orange-500 transition-colors">
 								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
 								</svg>
@@ -187,9 +184,8 @@
 		{#if selectedCount > 0}
 			<div class="flex justify-start">
 				<button 
-					on:click={requestQuote}
-					class="bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium"
-				>
+					onclick={requestQuote}
+					class="bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium">
 					<span>{translations.requestQuoteSelected} ({selectedCount})</span>
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -243,6 +239,8 @@
 				</div>
 			</div>
 		</div>
+
+		<InstagramFeed posts={instagramPosts} />
 		
 		<!-- Decorative element (stylized sun rays) -->
 		<div class="fixed left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 opacity-5 pointer-events-none z-[1]">
@@ -269,6 +267,6 @@
 	isOpen={showQuoteModal}
 	{selectedServices}
 	{translations}
-	on:close={handleModalClose}
-	on:success={handleQuoteSuccess}
+	onclose={handleModalClose}
+	onsuccess={handleQuoteSuccess}
 />

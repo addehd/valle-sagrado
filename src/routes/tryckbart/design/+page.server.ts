@@ -2,7 +2,11 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '$env/static/private';
+
 import { downloadAndUploadImage } from '$lib/image';
+import promptConfig from './prompts.json';
+
+
 
 // Server-side cache for generated designs
 interface ServerCacheEntry {
@@ -24,6 +28,12 @@ const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 
 // Function to get OpenAI client with lazy initialization
 function getOpenAIClient() {
+	// Debug: Log key info (masked)
+	const keyLength = OPENAI_API_KEY?.length || 0;
+	const keyPrefix = OPENAI_API_KEY?.substring(0, 7) || 'MISSING';
+	const keySuffix = OPENAI_API_KEY?.substring(keyLength - 4) || '';
+	console.log(`🔑 OpenAI API Key: ${keyPrefix}...${keySuffix} (length: ${keyLength})`);
+	
 	return new OpenAI({
 		apiKey: OPENAI_API_KEY
 	});
@@ -181,15 +191,8 @@ export const actions: Actions = {
 		let finalPrompt = '';
 		
 		if (predefinedOption) {
-			const predefinedPrompts = {
-				'red-flowers': 'Create a red logo with beautiful flowers',
-				'minimalist-icon': 'Design a clean, minimalist icon',
-				'vintage-badge': 'Create a vintage-style badge design',
-				'geometric-pattern': 'Design a modern geometric pattern',
-				'nature-inspired': 'Create a nature-inspired organic design'
-			};
-			
-			finalPrompt = predefinedPrompts[predefinedOption as keyof typeof predefinedPrompts] || predefinedOption;
+			const predefinedPrompts = promptConfig.predefinedOptions as Record<string, string>;
+			finalPrompt = predefinedPrompts[predefinedOption] || predefinedOption;
 		} else {
 			finalPrompt = customPrompt;
 		}
@@ -207,19 +210,11 @@ export const actions: Actions = {
 			};
 		}
 
-		// Enhanced prompt template for t-shirt design
-		const aiPrompt = `Create a t-shirt design: ${finalPrompt}
-
-Design specifications:
-- Use maximum ${colorCount} color${colorCount > 1 ? 's' : ''} 
-- Simple, bold, and high-contrast design
-- Suitable for screen printing or vinyl cutting
-- Clean vector-style artwork
-- No text overlays or complex backgrounds
-- Focus on the main graphic element
-- Centered composition that works well on fabric
-
-Style: Modern, professional, suitable for apparel printing`;
+		// Build AI prompt from configurable template
+		const aiPrompt = promptConfig.promptTemplate
+			.replace('{{prompt}}', finalPrompt)
+			.replace('{{colorCount}}', colorCount.toString())
+			.replace('{{colorPlural}}', colorCount > 1 ? 's' : '');
 
 		console.log('AI Prompt:', aiPrompt);
 		console.log('Client IP:', clientIP);
@@ -265,7 +260,8 @@ Style: Modern, professional, suitable for apparel printing`;
 				generatedImage.url,
 				DESIGN_STORAGE_BUCKET,
 				DESIGN_STORAGE_FOLDER,
-				fileName
+				fileName,
+				locals.supabase // Pass authenticated client to bypass RLS
 			);
 
 			if (!uploadResult.success || !uploadResult.url) {
@@ -359,7 +355,13 @@ Style: Modern, professional, suitable for apparel printing`;
 			};
 
 		} catch (error) {
-			console.error('Design generation error:', error);
+			console.error('❌ Design generation error:', error);
+			console.error('❌ Error type:', typeof error);
+			console.error('❌ Error name:', (error as any)?.name);
+			console.error('❌ Error message:', (error as any)?.message);
+			console.error('❌ Error status:', (error as any)?.status);
+			console.error('❌ Error code:', (error as any)?.code);
+			console.error('❌ Full error JSON:', JSON.stringify(error, null, 2));
 			
 			// Handle specific OpenAI errors
 			if (error instanceof Error) {
@@ -375,10 +377,15 @@ Style: Modern, professional, suitable for apparel printing`;
 				if (error.message.includes('rate_limit')) {
 					return fail(429, { error: 'AI service rate limit exceeded. Please wait a moment and try again.' });
 				}
+				
+				if (error.message.includes('invalid_api_key')) {
+					return fail(401, { error: 'Invalid API key. Please check your OpenAI API key configuration.' });
+				}
 			}
 
-			// Generic error fallback
-			return fail(500, { error: 'Failed to generate design. Please try again.' });
+			// Generic error fallback - include actual message for debugging
+			const errorMsg = (error as any)?.message || 'Unknown error';
+			return fail(500, { error: `Failed to generate design: ${errorMsg}` });
 		}
 	},
 	

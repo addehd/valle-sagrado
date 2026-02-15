@@ -232,14 +232,14 @@
 					<h1 class="text-2xl font-bold text-red-800 mb-2">Category Not Found</h1>
 					<p class="text-red-600 mb-4">{error}</p>
 					<div class="space-y-2">
-						<a 
-							href="/{projectSlug}/categories" 
+						<a
+							href="/{projectSlug}/categories"
 							class="block bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
 						>
 							Browse All Categories
 						</a>
-						<a 
-							href="/{projectSlug}/product" 
+						<a
+							href="/{projectSlug}/products"
 							class="block bg-gray-200 text-gray-900 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
 						>
 							View All Products

@@ -263,14 +263,24 @@ export function generateImageSizes(): string {
 /**
  * Download an image from a URL and upload it to Supabase Storage
  * Used for saving AI-generated images to permanent storage
+ * @param imageUrl - The URL of the image to download
+ * @param bucketName - The Supabase storage bucket name
+ * @param folderPath - The folder path within the bucket
+ * @param fileName - The name for the uploaded file
+ * @param supabaseClient - Optional authenticated Supabase client (uses anon client if not provided)
  */
 export async function downloadAndUploadImage(
 	imageUrl: string,
 	bucketName: string,
 	folderPath: string,
-	fileName: string
+	fileName: string,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	supabaseClient?: any
 ): Promise<ImageUploadResult> {
 	try {
+		// Use provided client or fall back to default anon client
+		const client = supabaseClient || supabase;
+		
 		// Download the image from the URL
 		const response = await fetch(imageUrl);
 		if (!response.ok) {
@@ -288,7 +298,7 @@ export async function downloadAndUploadImage(
 		const filePath = `${folderPath}/${fileName}`;
 
 		// Upload to Supabase Storage
-		const { data, error } = await supabase.storage
+		const { data, error } = await client.storage
 			.from(bucketName)
 			.upload(filePath, imageFile, {
 				cacheControl: '31536000', // 1 year cache
@@ -302,7 +312,7 @@ export async function downloadAndUploadImage(
 		}
 
 		// Get public URL
-		const { data: urlData } = supabase.storage
+		const { data: urlData } = client.storage
 			.from(bucketName)
 			.getPublicUrl(filePath);
 

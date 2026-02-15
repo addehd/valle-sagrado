@@ -45,6 +45,13 @@ export const reroute: Reroute = ({ url }) => {
     }
   }
   
+  // Tryckbart's domain - tryckbart.se
+  if (hostname === 'tryckbart.se' || hostname === 'www.tryckbart.se') {
+    if (!pathname.startsWith('/tryckbart')) {
+      return buildReroute('/tryckbart');
+    }
+  }
+  
   // Danny's domain - cranmer.se
   if (hostname === 'cranmer.se' || hostname === 'www.cranmer.se') {
     if (!pathname.startsWith('/danny')) {
@@ -95,6 +102,10 @@ export const reroute: Reroute = ({ url }) => {
     // AND it's not the root path (checked above)
     if (domain === 'danny' && !pathname.startsWith('/danny')) {
       return buildReroute('/danny');
+    }
+    
+    if (domain === 'tryckbart' && !pathname.startsWith('/tryckbart')) {
+      return buildReroute('/tryckbart');
     }
     
     if (domain === 'maria' && !pathname.startsWith('/maria')) {

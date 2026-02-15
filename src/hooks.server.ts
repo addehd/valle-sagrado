@@ -206,6 +206,9 @@ const domainDetection: Handle = async ({ event, resolve }) => {
     case 'mariaocampo.se':
       event.locals.domain = 'maria'
       break
+    case 'tryckbart.se':
+      event.locals.domain = 'tryckbart'
+      break
     case 'cranmer.se':
     case 'valle-sagrado.test':
       // Development domain defaults to Danny
@@ -218,7 +221,7 @@ const domainDetection: Handle = async ({ event, resolve }) => {
       if (isLocalhost) {
         // On localhost, check cookie preference for domain detection
         const domainCookie = event.cookies.get('dev-domain-preference');
-        if (domainCookie && ['danny', 'maria', 'rikuy'].includes(domainCookie)) {
+        if (domainCookie && ['danny', 'maria', 'rikuy', 'tryckbart'].includes(domainCookie)) {
           event.locals.domain = domainCookie;
           console.log('[domainDetection] Using cookie preference:', domainCookie);
         }

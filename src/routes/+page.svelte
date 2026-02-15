@@ -6,7 +6,8 @@
   const projects = [
     { name: 'Rikuy', path: '/rikuy', domain: 'rikuy.one', key: 'rikuy' },
     { name: 'Maria Ocampo', path: '/maria', domain: 'mariaocampo.se', key: 'maria' },
-    { name: 'Danny Cranmer', path: '/danny', domain: 'cranmer.se', key: 'danny' }
+    { name: 'Danny Cranmer', path: '/danny', domain: 'cranmer.se', key: 'danny' },
+    { name: 'Tryckbart', path: '/tryckbart', domain: 'tryckbart.se', key: 'tryckbart' }
   ];
 
   let activeDomain = $state<string | null>(null);
@@ -93,6 +94,6 @@
   </div>
   
   <p class="mt-8 text-sm text-zinc-500">
-    Or use <code class="bg-zinc-800 px-1 rounded">?domain=rikuy|maria|danny</code> to simulate domain routing
+    Or use <code class="bg-zinc-800 px-1 rounded">?domain=rikuy|maria|danny|tryckbart</code> to simulate domain routing
   </p>
 </div>
