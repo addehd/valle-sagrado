@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { LayoutData } from './$types';
   import ProjectHero from '$components/ProjectHero.svelte';
-  import MetaTags from '../components/MetaTags.svelte';
+  import MetaTags from '$components/MetaTags.svelte';
   import { page } from '$app/stores';
 
   let { data, children }: { data: LayoutData, children: any } = $props();

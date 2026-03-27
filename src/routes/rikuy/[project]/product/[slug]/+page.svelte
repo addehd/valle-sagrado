@@ -1,7 +1,7 @@
 <script lang="ts">
   import AddToCart from '../../../components/AddToCart.svelte';
   import CartHeader from '../../../components/CartHeader.svelte';
-  import MetaTags from '../../../components/MetaTags.svelte';
+  import MetaTags from '$components/MetaTags.svelte';
   import { page } from '$app/stores';
 
   let { data } = $props();

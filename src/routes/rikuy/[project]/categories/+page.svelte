@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import MetaTags from '../components/MetaTags.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 	import type { Category } from '$lib/types';
 
 	let categories = $state<Category[]>([]);

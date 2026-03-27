@@ -5,7 +5,7 @@
 	import type { Product, Category, ProductsResponse } from '$lib/types';
 	import ProductGrid from '$components/ProductGrid.svelte';
 	import SearchAndFilter from '$components/SearchAndFilter.svelte';
-	import MetaTags from '../../components/MetaTags.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 
 	let categorySlug = '';
 	let projectSlug = '';

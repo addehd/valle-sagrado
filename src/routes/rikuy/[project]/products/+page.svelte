@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Products from '$components/Products.svelte';
-	import MetaTags from '../components/MetaTags.svelte';
+	import MetaTags from '$components/MetaTags.svelte';
 	import { page } from '$app/stores';
 
 	interface Props {
