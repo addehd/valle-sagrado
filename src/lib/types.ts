@@ -342,4 +342,19 @@ export interface CustomDesign {
 	};
 	created_at: string;
 	updated_at: string;
-} 
+}
+
+export interface Subscription {
+	id: string;
+	stripe_subscription_id: string;
+	stripe_customer_id: string;
+	customer_email: string | null;
+	customer_name: string | null;
+	service: string | null;
+	status: 'active' | 'past_due' | 'canceled' | 'paused' | 'incomplete';
+	cancel_at_period_end: boolean;
+	current_period_end: string | null;
+	last_payment_at: string | null;
+	created_at: string;
+	updated_at: string;
+}

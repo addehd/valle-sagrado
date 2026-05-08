@@ -1,181 +1,144 @@
-// import { json, error } from '@sveltejs/kit';
-// import type { RequestHandler } from './$types';
-// import Stripe from 'stripe';
-// import { env } from '$env/dynamic/private';
-// import { createClient } from '@supabase/supabase-js';
+import { json, error } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import Stripe from 'stripe';
+import { env } from '$env/dynamic/private';
+import { createClient } from '@supabase/supabase-js';
 
-// // Initialize Stripe
-// let stripe: Stripe | null = null;
+let stripe: Stripe | null = null;
 
-// if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY !== 'sk_test_your_secret_key_here') {
-//   stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-//     apiVersion: '2025-05-28.basil',
-//   });
-// }
+if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY !== 'sk_test_your_secret_key_here') {
+	stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+		apiVersion: '2025-05-28.basil',
+	});
+}
 
-// // Initialize Supabase with service role
-// const supabase = createClient(
-//   env.PUBLIC_SUPABASE_URL || '',
-//   env.SUPABASE_SERVICE_ROLE_KEY || ''
-// );
+const supabase = createClient(
+	env.PUBLIC_SUPABASE_URL || '',
+	env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
-// export const POST: RequestHandler = async ({ request }) => {
-//   if (!stripe) {
-//     console.log('Webhook called but Stripe not configured - ignoring');
-//     return json({ received: true });
-//   }
+export const POST: RequestHandler = async ({ request }) => {
+	if (!stripe) {
+		console.log('Webhook received but Stripe not configured — ignoring');
+		return json({ received: true });
+	}
 
-//   const sig = request.headers.get('stripe-signature');
-//   const endpointSecret = env.STRIPE_WEBHOOK_SECRET;
+	const sig = request.headers.get('stripe-signature');
+	const body = await request.text();
 
-//   let event: Stripe.Event;
+	let event: Stripe.Event;
 
-//   // Skip webhook verification for development/testing
-//   if (!sig || !endpointSecret) {
-//     console.log('Webhook signature verification skipped - using raw body');
-//     try {
-//       const body = await request.json();
-//       event = body as Stripe.Event;
-//     } catch (err) {
-//       console.error('Failed to parse webhook body:', err);
-//       throw error(400, 'Invalid webhook body');
-//     }
-//   } else {
-//     // Use proper webhook verification when secret is available
-//     try {
-//       const body = await request.text();
-//       event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
-//     } catch (err) {
-//       console.error('Webhook signature verification failed:', err);
-//       throw error(400, 'Invalid signature');
-//     }
-//   }
+	if (sig && env.STRIPE_WEBHOOK_SECRET) {
+		try {
+			event = stripe.webhooks.constructEvent(body, sig, env.STRIPE_WEBHOOK_SECRET);
+		} catch (err) {
+			console.error('Webhook signature verification failed:', err);
+			throw error(400, 'Invalid signature');
+		}
+	} else {
+		// Allow unsigned events in dev when no webhook secret is set
+		try {
+			event = JSON.parse(body) as Stripe.Event;
+		} catch {
+			throw error(400, 'Invalid webhook body');
+		}
+	}
 
-//   console.log('Received webhook event:', event.type);
+	console.log('Stripe webhook:', event.type);
 
-//   // Handle the event
-//   switch (event.type) {
-//     case 'payment_intent.succeeded':
-//       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-//       await handlePaymentSuccess(paymentIntent);
-//       break;
-    
-//     case 'payment_intent.payment_failed':
-//       const failedPayment = event.data.object as Stripe.PaymentIntent;
-//       await handlePaymentFailure(failedPayment);
-//       break;
-    
-//     default:
-//       console.log(`Unhandled event type: ${event.type}`);
-//   }
+	switch (event.type) {
+		case 'checkout.session.completed': {
+			const session = event.data.object as Stripe.Checkout.Session;
+			if (session.mode === 'subscription') {
+				await upsertSubscription({
+					stripe_subscription_id: session.subscription as string,
+					stripe_customer_id: session.customer as string,
+					customer_email: session.customer_email ?? session.customer_details?.email ?? null,
+					customer_name: session.metadata?.customer_name ?? null,
+					service: session.metadata?.service ?? null,
+					status: 'active',
+				});
+			}
+			break;
+		}
 
-//   return json({ received: true });
-// };
+		case 'customer.subscription.updated': {
+			const sub = event.data.object as Stripe.Subscription;
+			await upsertSubscription({
+				stripe_subscription_id: sub.id,
+				stripe_customer_id: sub.customer as string,
+				status: mapStripeStatus(sub.status),
+				cancel_at_period_end: sub.cancel_at_period_end,
+				current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+			});
+			break;
+		}
 
-// async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
-//   try {
-//     console.log('Payment succeeded:', paymentIntent.id);
+		case 'customer.subscription.deleted': {
+			const sub = event.data.object as Stripe.Subscription;
+			await upsertSubscription({
+				stripe_subscription_id: sub.id,
+				stripe_customer_id: sub.customer as string,
+				status: 'canceled',
+			});
+			break;
+		}
 
-//     // Update order status
-//     const { data: order, error: orderError } = await supabase
-//       .from('orders')
-//       .update({
-//         payment_status: 'paid',
-//         status: 'processing',
-//         updated_at: new Date().toISOString()
-//       })
-//       .eq('stripe_payment_intent_id', paymentIntent.id)
-//       .select()
-//       .single();
+		case 'invoice.payment_succeeded': {
+			const invoice = event.data.object as Stripe.Invoice;
+			if (invoice.subscription) {
+				await upsertSubscription({
+					stripe_subscription_id: invoice.subscription as string,
+					stripe_customer_id: invoice.customer as string,
+					status: 'active',
+					last_payment_at: new Date().toISOString(),
+				});
+			}
+			break;
+		}
 
-//     if (orderError) {
-//       console.error('Failed to update order:', orderError);
-//       return;
-//     }
+		case 'invoice.payment_failed': {
+			const invoice = event.data.object as Stripe.Invoice;
+			if (invoice.subscription) {
+				await upsertSubscription({
+					stripe_subscription_id: invoice.subscription as string,
+					stripe_customer_id: invoice.customer as string,
+					status: 'past_due',
+				});
+			}
+			break;
+		}
 
-//     if (!order) {
-//       console.error('No order found for payment intent:', paymentIntent.id);
-//       return;
-//     }
+		default:
+			console.log(`Unhandled Stripe event: ${event.type}`);
+	}
 
-//     console.log('Order updated successfully:', order.order_number);
+	return json({ received: true });
+};
 
-//     // Clear cart items for this user and project
-//     if (paymentIntent.metadata.user_id && paymentIntent.metadata.project_id) {
-//       // Get cart items for this user that belong to this project
-//       const { data: cartItems, error: cartError } = await supabase
-//         .from('cart')
-//         .select('id, product_sku')
-//         .eq('user_id', paymentIntent.metadata.user_id);
+function mapStripeStatus(status: Stripe.Subscription.Status): string {
+	const map: Record<Stripe.Subscription.Status, string> = {
+		active: 'active',
+		past_due: 'past_due',
+		unpaid: 'past_due',
+		canceled: 'canceled',
+		incomplete: 'incomplete',
+		incomplete_expired: 'canceled',
+		trialing: 'active',
+		paused: 'paused',
+	};
+	return map[status] ?? status;
+}
 
-//       if (!cartError && cartItems) {
-//         // Get products for this project
-//         const { data: projectProducts, error: productsError } = await supabase
-//           .from('products')
-//           .select('sku')
-//           .eq('project_id', paymentIntent.metadata.project_id);
+async function upsertSubscription(data: Record<string, unknown>) {
+	const { error: dbError } = await supabase
+		.from('subscriptions')
+		.upsert(
+			{ ...data, updated_at: new Date().toISOString() },
+			{ onConflict: 'stripe_subscription_id' }
+		);
 
-//         if (!productsError && projectProducts) {
-//           const projectSkus = projectProducts.map(p => p.sku);
-//           const itemsToDelete = cartItems.filter(item => 
-//             projectSkus.includes(item.product_sku)
-//           ).map(item => item.id);
-
-//           if (itemsToDelete.length > 0) {
-//             const { error: deleteError } = await supabase
-//               .from('cart')
-//               .delete()
-//               .in('id', itemsToDelete);
-
-//             if (deleteError) {
-//               console.error('Failed to clear cart:', deleteError);
-//             } else {
-//               console.log('Cart cleared for order:', order.order_number);
-//             }
-//           }
-//         }
-//       }
-//     }
-
-//     // TODO: Send confirmation email to customer
-//     // TODO: Send notification to admin
-
-//   } catch (err) {
-//     console.error('Error handling payment success:', err);
-//   }
-// }
-
-// async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
-//   try {
-//     console.log('Payment failed:', paymentIntent.id);
-
-//     // Update order status
-//     const { data: order, error: orderError } = await supabase
-//       .from('orders')
-//       .update({
-//         payment_status: 'failed',
-//         status: 'cancelled',
-//         updated_at: new Date().toISOString()
-//       })
-//       .eq('stripe_payment_intent_id', paymentIntent.id)
-//       .select()
-//       .single();
-
-//     if (orderError) {
-//       console.error('Failed to update failed order:', orderError);
-//       return;
-//     }
-
-//     if (!order) {
-//       console.error('No order found for failed payment:', paymentIntent.id);
-//       return;
-//     }
-
-//     console.log('Order marked as failed:', order.order_number);
-
-//     // TODO: Send failure notification to customer
-
-//   } catch (err) {
-//     console.error('Error handling payment failure:', err);
-//   }
-// } 
+	if (dbError) {
+		console.error('Failed to upsert subscription:', dbError.message);
+	}
+}
