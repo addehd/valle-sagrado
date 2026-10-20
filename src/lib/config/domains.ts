@@ -58,6 +58,12 @@ export function normalizePath(pathname: string): string {
 	return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 }
 
+/** Internal pathname for SvelteKit `reroute`. Must not include search or hash. */
+export function prefixedPath(pathname: string, prefix: string): string {
+	if (pathname === '/' || pathname === '') return prefix;
+	return `${prefix}${pathname}`;
+}
+
 export function shouldBypass(pathname: string): boolean {
 	const normalized = normalizePath(pathname);
 	return rootRoutes.some(route => normalized === route || normalized.startsWith(`${route}/`));

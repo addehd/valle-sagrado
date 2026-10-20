@@ -57,7 +57,12 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
   }
 
   const brandData = brand || [];
-  const isMariaSite = domain === 'maria' || pathname.startsWith('/maria');
+  const host = hostname.replace(/^www\./, '');
+  const isMariaSite =
+    domain === 'maria' ||
+    pathname === '/maria' ||
+    pathname.startsWith('/maria/') ||
+    host === 'mariaocampo.se';
 
   return {
     session,
