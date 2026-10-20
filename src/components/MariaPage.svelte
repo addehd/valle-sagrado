@@ -155,7 +155,7 @@
 <svelte:window bind:scrollY bind:innerHeight />
 
 <MetaTags
-  title={maria?.meta.title ?? 'Maria Ocampo – Atelje'}
+  title={maria?.meta.title ?? 'Maria Ocampo'}
   description={maria?.meta.description ?? 'Oil paintings and atmospheric landscapes by Maria Ocampo.'}
   image="https://mariaocampo.se/2025/1.webp"
   url="https://mariaocampo.se/"
