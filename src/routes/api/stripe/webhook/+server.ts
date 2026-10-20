@@ -2,7 +2,8 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
-import { createClient } from '@supabase/supabase-js';
+import { env as publicEnv } from '$env/dynamic/public';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 let stripe: Stripe | null = null;
 
@@ -12,10 +13,20 @@ if (env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY !== 'sk_test_your_secret_key_
 	});
 }
 
-const supabase = createClient(
-	env.PUBLIC_SUPABASE_URL || '',
-	env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+let supabase: SupabaseClient | null = null;
+
+function getSupabase() {
+	if (supabase) return supabase;
+
+	const url = publicEnv.PUBLIC_SUPABASE_URL;
+	const key = env.SUPABASE_SERVICE_ROLE_KEY;
+	if (!url || !key) {
+		throw new Error('Supabase env is not configured');
+	}
+
+	supabase = createClient(url, key);
+	return supabase;
+}
 
 export const POST: RequestHandler = async ({ request }) => {
 	if (!stripe) {
@@ -131,7 +142,7 @@ function mapStripeStatus(status: Stripe.Subscription.Status): string {
 }
 
 async function upsertSubscription(data: Record<string, unknown>) {
-	const { error: dbError } = await supabase
+	const { error: dbError } = await getSupabase()
 		.from('subscriptions')
 		.upsert(
 			{ ...data, updated_at: new Date().toISOString() },
