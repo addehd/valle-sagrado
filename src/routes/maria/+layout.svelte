@@ -1,16 +1,22 @@
 <script lang="ts">
-	//import { browser } from '$app/environment';
-	//import { themeStore } from '$lib/stores/theme'
-	//import Header from '../components/Header.svelte'
-	//import ThemeToggle from '../components/ThemeToggle.svelte'
-	//import MetaTags from '../components/MetaTags.svelte'
+	import MetaTags from '$components/MetaTags.svelte';
+	import { getProjectConfig } from '$lib/config/projects';
+
 	let { children } = $props();
-  // let { logo_url, colors, name, website_url, description } = data.brand;
-    
-	// if (browser) {
-	// 	themeStore.init();
-	// }
+	const maria = getProjectConfig('maria');
 </script>
+
+<MetaTags
+	title={maria?.meta.title ?? 'Maria Ocampo – Atelje'}
+	description={maria?.meta.description ?? 'Oil paintings and atmospheric landscapes by Maria Ocampo.'}
+	image="https://mariaocampo.se/2025/1.webp"
+	url="https://mariaocampo.se/"
+	canonical="https://mariaocampo.se/"
+	siteName="Maria Ocampo"
+	author="Maria Ocampo"
+	keywords="Maria Ocampo, painting, oil painting, landscape, atelje, Malmö, art"
+	twitterSite=""
+	twitterCreator="" />
 
 <div class="min-h-screen bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->

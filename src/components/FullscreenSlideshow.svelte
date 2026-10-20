@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	export let images: string[] = [];
+	export let alts: string[] = [];
 	export let autoplay: boolean = true;
 	export let interval: number = 4000; // 4 seconds
 	export let showControls: boolean = true;
@@ -95,7 +96,7 @@
 				class:opacity-0={index !== currentIndex}>
 				<img 
 					src={image} 
-					alt="Slideshow image {index + 1}"
+					alt={alts[index] || `Slideshow image ${index + 1}`}
 					class="w-full h-full object-cover" />
 			</div>
 		{/each}

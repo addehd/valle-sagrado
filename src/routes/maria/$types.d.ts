@@ -1,8 +1,10 @@
 export type ArtPiece = {
 	id: number;
-	artname: string;
+	artname?: string;
 	artist: string;
 	shortDescription: string;
+	shortDescriptionSv?: string;
+	alt: string;
 	artPieceImg: string;
 	primaryColor: string;
 	accentColor: string;

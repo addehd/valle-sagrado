@@ -223,6 +223,12 @@
 			'/images/show/leonard-2.jpg',
 			'/images/show/leonard-3.jpg'
 		]}
+		alts={[
+			'Maria Ocampo paintings displayed on a snow-covered outdoor wall in Kirseberg',
+			'Wide autumn landscape mural by Maria Ocampo on a snow-covered outdoor wall',
+			'Four abstract landscape murals by Maria Ocampo on a courtyard building',
+			'Abstract seascape mural by Maria Ocampo on a snow-covered outdoor wall'
+		]}
 		autoplay={true}
 		interval={5000}
 		showControls={true}
