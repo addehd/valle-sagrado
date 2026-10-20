@@ -47,8 +47,8 @@ export const projectConfigs: Record<string, ProjectConfig> = {
     domain: 'mariaocampo.se',
     path: '/maria',
     meta: {
-      title: 'Maria Ocampo - Art & Design',
-      description: 'Explore unique artworks and handcrafted designs',
+      title: 'Maria Ocampo – Atelje',
+      description: 'Oil paintings and atmospheric landscapes by Maria Ocampo. Visit the atelje at Rolfsgatan 16, Sofielunds Folketshus in Malmö.',
       favicon: '/favicons/maria.svg'
     },
     branding: {

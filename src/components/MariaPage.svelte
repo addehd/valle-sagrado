@@ -6,8 +6,11 @@
   import FullscreenSlideshow from './FullscreenSlideshow.svelte';
   import ContactSection from './ContactSection.svelte';
   import VideoSection from '../routes/maria/components/VideoSection.svelte';
-  
+  import MetaTags from './MetaTags.svelte';
+  import { getProjectConfig } from '$lib/config/projects';
+
   export let data: any;
+  const maria = getProjectConfig('maria');
 
   // Create mixed content array with video in the middle
   $: contentItems = [
@@ -151,6 +154,18 @@
 
 <svelte:window bind:scrollY bind:innerHeight />
 
+<MetaTags
+  title={maria?.meta.title ?? 'Maria Ocampo – Atelje'}
+  description={maria?.meta.description ?? 'Oil paintings and atmospheric landscapes by Maria Ocampo.'}
+  image="https://mariaocampo.se/2025/1.webp"
+  url="https://mariaocampo.se/"
+  canonical="https://mariaocampo.se/"
+  siteName="Maria Ocampo"
+  author="Maria Ocampo"
+  keywords="Maria Ocampo, painting, oil painting, landscape, atelje, Malmö, art"
+  twitterSite=""
+  twitterCreator="" />
+
 <div class="relative w-full min-h-screen transition-all duration-100 ease-out overflow-hidden" style="background-color: {currentBackgroundColor}">
   <ArtistHeader 
     name="Maria Ocampo" 
@@ -196,6 +211,12 @@
       '/images/show/leonard-1.jpg',
       '/images/show/leonard-2.jpg',
       '/images/show/leonard-3.jpg'
+    ]}
+    alts={[
+      'Maria Ocampo paintings displayed on a snow-covered outdoor wall in Kirseberg',
+      'Wide autumn landscape mural by Maria Ocampo on a snow-covered outdoor wall',
+      'Four abstract landscape murals by Maria Ocampo on a courtyard building',
+      'Abstract seascape mural by Maria Ocampo on a snow-covered outdoor wall'
     ]}
     autoplay={true}
     interval={5000}

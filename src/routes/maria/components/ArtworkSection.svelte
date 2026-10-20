@@ -10,6 +10,7 @@
 			artist: string;
 			shortDescription: string;
 			shortDescriptionSv?: string;
+			alt?: string;
 			artPieceImg: string;
 			primaryColor: string;
 			accentColor: string;
@@ -50,6 +51,10 @@
 		}
 		return item.data.shortDescription;
 	}
+
+	function getAlt(item: ArtworkItem) {
+		return item.data.alt || item.data.shortDescription || item.data.artname || 'Painting by Maria Ocampo';
+	}
 </script>
 
 <!-- Render multiple content items -->
@@ -58,7 +63,7 @@
 		class="flex items-center justify-center relative" 
 		style="min-height: {innerHeight}px;"
 		role={item.type === 'artwork' ? 'img' : 'region'}
-		aria-label={item.type === 'artwork' ? `Artwork: ${item.data.artname}` : `Custom component ${itemIndex + 1}`}>
+		aria-label={item.type === 'artwork' ? getAlt(item) : `Custom component ${itemIndex + 1}`}>
 		
 		{#if item.type === 'component'}
 			<!-- Custom component with same container styling as artwork -->
@@ -80,7 +85,7 @@
 					<div class="relative aspect-[4/3] {shadowClass} xl:col-span-2 bg-white" class:xl:order-2={itemIndex % 2 === 1}>
 						<img 
 							src={item.data.artPieceImg} 
-							alt={item.data.artname}
+							alt={getAlt(item)}
 							loading="lazy"
 							class="w-full h-full object-cover" />
 					</div>
@@ -99,7 +104,7 @@
 			<div class="relative w-full h-full bg-white">
 				<img 
 					src={item.data.artPieceImg} 
-					alt={item.data.artname}
+					alt={getAlt(item)}
 					loading="lazy"
 					class="w-full h-full object-cover" />
 			</div>
@@ -110,7 +115,7 @@
 					<div class="relative aspect-[4/3] {shadowClass} mb-8 bg-white">
 						<img 
 							src={item.data.artPieceImg} 
-							alt={item.data.artname}
+							alt={getAlt(item)}
 							loading="lazy"
 							class="w-full h-full object-cover" />
 					</div>

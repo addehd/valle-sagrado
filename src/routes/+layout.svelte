@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	
 	let { data, children } = $props();
+	const isMariaSite = $derived(Boolean(data.isMariaSite));
   // let { logo_url, colors, name, website_url, description } = data.brand;
     
 	if (browser) {
@@ -34,7 +35,9 @@
 	});
 </script>
 
-<MetaTags />
+{#if !isMariaSite}
+	<MetaTags />
+{/if}
 
 <div class="min-h-screen dark:bg-gray-900 bg-white transition-colors duration-200" data-sveltekit-preload-data="hover">
 	<!-- <Header /> -->

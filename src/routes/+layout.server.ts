@@ -2,7 +2,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSession }, url, cookies }) => {
+export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSession, domain }, url, cookies }) => {
   const { session, user } = await safeGetSession();
 
   // Handle cookie-based domain routing for localhost development
@@ -57,10 +57,12 @@ export const load: LayoutServerLoad = async ({ locals: { supabase, safeGetSessio
   }
 
   const brandData = brand || [];
+  const isMariaSite = domain === 'maria' || pathname.startsWith('/maria');
 
   return {
     session,
     brand: brandData[0],
-    user
+    user,
+    isMariaSite
   };
 };
