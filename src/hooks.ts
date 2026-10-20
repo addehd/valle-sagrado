@@ -6,6 +6,7 @@ import {
 	domains,
 	matchDomain,
 	prefixForKey,
+	prefixedPath,
 	shouldBypass
 } from '$lib/config/domains'
 
@@ -20,11 +21,7 @@ export const reroute: Reroute = ({ url }) => {
 	const isLocalhost = hostname === 'localhost' || hostname.startsWith('127.0.0.1');
 	const isRootPath = pathname === '/' || pathname === '';
 
-	const buildReroute = (prefix: string): string => {
-		const search = url.search;
-		const hash = url.hash;
-		return `${prefix}${pathname}${search}${hash}`;
-	};
+	const buildReroute = (prefix: string): string => prefixedPath(pathname, prefix);
 
 	if (isLocalhost && isRootPath) {
 		return undefined;

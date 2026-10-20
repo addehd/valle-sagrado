@@ -5,10 +5,12 @@
 	import Header from '../components/Header.svelte'
 	import ThemeToggle from '../components/ThemeToggle.svelte'
 	import MetaTags from '../components/MetaTags.svelte'
+	import { getProjectConfig } from '$lib/config/projects';
 	import { onMount } from 'svelte';
 	
 	let { data, children } = $props();
 	const isMariaSite = $derived(Boolean(data.isMariaSite));
+	const maria = getProjectConfig('maria');
   // let { logo_url, colors, name, website_url, description } = data.brand;
     
 	if (browser) {
@@ -35,7 +37,19 @@
 	});
 </script>
 
-{#if !isMariaSite}
+{#if isMariaSite}
+	<MetaTags
+		title={maria?.meta.title ?? 'Maria Ocampo'}
+		description={maria?.meta.description ?? 'Oil paintings and atmospheric landscapes by Maria Ocampo.'}
+		image="https://mariaocampo.se/2025/1.webp"
+		url="https://mariaocampo.se/"
+		canonical="https://mariaocampo.se/"
+		siteName="Maria Ocampo"
+		author="Maria Ocampo"
+		keywords="Maria Ocampo, painting, oil painting, landscape, atelje, Malmö, art"
+		twitterSite=""
+		twitterCreator="" />
+{:else}
 	<MetaTags />
 {/if}
 

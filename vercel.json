@@ -4,6 +4,26 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "mariaocampo.se"
+        }
+      ],
+      "destination": "/maria"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mariaocampo.se"
+        }
+      ],
+      "destination": "/maria"
+    },
+    {
       "source": "/:path*",
       "has": [
         {
